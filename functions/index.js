@@ -334,7 +334,7 @@ app.get('/api/admin/orders', async (req, res) => {
     }
 });
 
-app.get('/api/admin/ordersNormal', async (req, res) => {
+app.get('/api/orders', async (req, res) => {
     const authHeader = req.headers.authorization;
     let username = req.session.username;
 
@@ -361,57 +361,6 @@ app.get('/api/admin/ordersNormal', async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
-});
-
-app.put('/api/admin/updateOrder', async (req, res) => {
-    const updatedOrder = req.body;
-    const updatedOrderId = updatedOrder.id;
-
-    try {
-        const [existingOrder] = await conn.query('SELECT * FROM Orders WHERE id = ?', [
-            updatedOrderId,
-        ]);
-        if (existingOrder.length === 0) {
-            return res.status(404).json({ status: 'error', message: 'Order not found' });
-        }
-
-        const sql = `
-            UPDATE Orders
-            SET First_name  = ?,
-                Last_name   = ?,
-                Coffee_type = ?,
-                Temperature = ?,
-                Toppings    = ?,
-                Size        = ?,
-                Price       = ?,
-                Comments    = ?,
-                Cup         = ?,
-                CHARLES     = ?
-            WHERE ID = ?
-        `;
-        const values = [
-            updatedOrder.first_name,
-            updatedOrder.last_name,
-            updatedOrder.coffee_type,
-            updatedOrder.temperature,
-            updatedOrder.toppings,
-            updatedOrder.size,
-            updatedOrder.price,
-            updatedOrder.comments,
-            updatedOrder.cup,
-            updatedOrder.charles,
-            updatedOrderId,
-        ];
-
-        await conn.query(sql, values);
-        res.json({ status: 'success', message: 'Order updated successfully' });
-    } catch (error) {
-        res.status(500).json({ status: 'error', message: error.message });
-    }
-});
-
-app.post('/api/logout', (req, res) => {
-    res.clearCookie('access_token').json({ message: 'Logged out successfully' });
 });
 
 app.post('/api/submit-form', async (req, res) => {

@@ -9,6 +9,7 @@ import Breakfast from './pages/Breakfast';
 import Order from './pages/Order';
 import SignUp from './pages/SignUp';
 import SignIn from './pages/SignIn';
+import ViewOrders from './pages/ViewOrders';
 
 function App() {
     const [itemName, setItemName] = useState('');
@@ -19,6 +20,7 @@ function App() {
             <SnackbarProvider>
                 <Router>
                     <Routes>
+                        <Route path="/orders" element={<ViewOrders />} />
                         <Route path="/signin" element={<SignIn />} />
                         <Route path="/signup" element={<SignUp />} />
                         <Route path="/order" element={<Order />} />

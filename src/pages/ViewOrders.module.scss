@@ -1,0 +1,15 @@
+.tableContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.table {
+    min-width: 650px;
+}
+
+.backdrop {
+    z-index: 1500;
+}

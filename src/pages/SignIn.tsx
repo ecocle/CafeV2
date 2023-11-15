@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useContext } from 'react';
 import Avatar from '@mui/material/Avatar';
 import { Alert } from '@mui/material';
 import Button from '@mui/material/Button';
@@ -15,9 +16,11 @@ import { useState } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
+import { SnackbarContext } from './SnackbarContext';
 
 export default function SignIn() {
     const [openError, setOpenError] = useState(false);
+    const { setOpen, setMessage } = useContext(SnackbarContext);
     const navigate = useNavigate();
 
     const handleSignin = async (username: string, password: string) => {
@@ -44,6 +47,8 @@ export default function SignIn() {
                 Cookies.set('username', username);
 
                 navigate('/');
+                setOpen(true);
+                setMessage('Login successful, welcome ' + username);
             } else {
                 setOpenError(true);
                 console.error(`Error: ${response.statusText}`);

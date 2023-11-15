@@ -2,7 +2,20 @@ import React, { useState, useContext, useEffect } from 'react';
 import { Alert } from '@mui/material';
 import styles from './Home.module.scss';
 import { Link } from 'react-router-dom';
-import { Box, Typography, Button, IconButton, Snackbar } from '@material-ui/core';
+import {
+    Box,
+    Typography,
+    Button,
+    IconButton,
+    Snackbar,
+    Menu,
+    MenuItem,
+    TextField,
+    Dialog,
+    DialogContent,
+    DialogContentText,
+    DialogActions,
+} from '@material-ui/core';
 import { SnackbarContext } from './SnackbarContext';
 import Cookies from 'js-cookie';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
@@ -10,15 +23,36 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 const Home = () => {
     const token = Cookies.get('token');
     const username = Cookies.get('username');
-    const { open, setOpen } = useContext(SnackbarContext);
+    const [amount, setAmount] = useState(0);
+    const [openDialog, setOpenDialog] = useState(false);
+    const { open, message, setOpen } = useContext(SnackbarContext);
     const [showAlert, setShowAlert] = useState(false);
-    const [loginSuccessful, setLoginSuccessful] = useState(false);
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
-    useEffect(() => {
-        if (token && username) {
-            setLoginSuccessful(true);
+    const handleAddFunds = async (event: React.FormEvent) => {
+        event.preventDefault();
+
+        const response = await fetch('/api/addMoneyToAcc', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`,
+            },
+            credentials: 'include',
+            body: JSON.stringify({amount}),
+        });
+
+        if (response.ok) {
+            setOpenDialog(true);
+        } else if (response.status === 400) {
+        } else {
+            console.error(`Error: ${response.statusText}`);
         }
-    }, []);
+    };
+
+    const handleCloseDialog = () => {
+        setOpenDialog(false);
+    };
 
     const checkLogin = (event: React.MouseEvent) => {
         if (!token) {
@@ -27,12 +61,27 @@ const Home = () => {
         }
     };
 
+    const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
+
     return (
         <Box className={styles.App}>
             {showAlert && (
-                <Alert severity="error" onClose={() => setShowAlert(false)}>
-                    You must be signed in to order.
-                </Alert>
+                <Snackbar
+                    open={showAlert}
+                    autoHideDuration={6000}
+                    onClose={() => setShowAlert(false)}
+                    anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+                >
+                    <Alert severity="error" onClose={() => setShowAlert(false)}>
+                        You must be signed in to order.
+                    </Alert>
+                </Snackbar>
             )}
             <Box className={styles.header}>
                 <Typography variant="subtitle1" component="h1"></Typography>
@@ -43,11 +92,36 @@ const Home = () => {
                                 className={`${styles.button} ${styles.robotoFont}`}
                                 color="primary"
                                 size="small"
-                                component={Link}
-                                to="/account"
+                                onClick={handleClick}
+                                title="Account"
                             >
                                 <AccountCircleIcon />
                             </IconButton>
+                            <Menu
+                                anchorEl={anchorEl}
+                                keepMounted
+                                open={Boolean(anchorEl)}
+                                onClose={handleClose}
+                            >
+                                <MenuItem onClick={handleClose}>
+                                    <form onSubmit={handleAddFunds}>
+                                        <TextField
+                                            type="number"
+                                            label="Amount"
+                                            value={amount}
+                                            onClick={(e) => e.stopPropagation()}
+                                            onChange={(e) => setAmount(Number(e.target.value))}
+                                            InputProps={{ inputProps: { min: 0 } }}
+                                        />
+                                        <Button type="submit" variant="contained" color="primary">
+                                            Add
+                                        </Button>
+                                    </form>
+                                </MenuItem>
+                                <MenuItem onClick={handleClose} component={Link} to="/orders">
+                                    View Orders
+                                </MenuItem>
+                            </Menu>
                             <Button
                                 className={`${styles.button} ${styles.robotoFont}`}
                                 variant="text"
@@ -130,19 +204,25 @@ const Home = () => {
             </Box>
             <Box className={styles.footer}>
                 <Typography variant="caption" component="caption">
-                    Powered By Shawn
+                    Made By Shawn
                 </Typography>
             </Box>
             <Snackbar open={open} autoHideDuration={6000} onClose={() => setOpen(false)}>
                 <Alert onClose={() => setOpen(false)} severity="success">
-                    Order placed successfully
+                    {message}
                 </Alert>
             </Snackbar>
-            <Snackbar open={loginSuccessful} autoHideDuration={6000} onClose={() => setLoginSuccessful(false)}>
-                <Alert onClose={() => setLoginSuccessful(false)} severity="success">
-                    Login successful, welcome {username}.
-                </Alert>
-            </Snackbar>
+            <Dialog open={openDialog} onClose={handleCloseDialog}>
+                <img src="../assets/paymentImage.jpg" alt="Payment Image" />
+                <DialogContent>
+                    <DialogContentText>Funds added successfully!</DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseDialog} color="primary">
+                        Close
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Box>
     );
 };

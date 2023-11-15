@@ -27,7 +27,7 @@ const toppings = [
 
 const Order = () => {
     const { itemName, itemPrice } = useContext(OrderContext);
-    const { setOpen } = useContext(SnackbarContext);
+    const { setOpen, setMessage } = useContext(SnackbarContext);
     const token = Cookies.get('token');
     const username = Cookies.get('username') || '';
     const [userData, setUserData] = useState<{ balance: number; username: string }>({
@@ -182,6 +182,7 @@ const Order = () => {
             const data = await response.json();
             navigate(`/`);
             setOpen(true);
+            setMessage('Order placed successfully');
         } catch (error) {
             console.error('Error placing order:', error);
         }
