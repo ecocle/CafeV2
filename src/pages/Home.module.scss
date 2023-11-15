@@ -1,0 +1,61 @@
+@import url('https://fonts.googleapis.com/css2?family=Pacifico&family=Roboto&display=swap');
+
+.App {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+
+    .pacificoFont {
+        font-family: 'Pacifico', cursive;
+    }
+
+    .robotoFont {
+        font-family: 'Roboto', sans-serif;
+    }
+}
+
+.header, .title, .main, .footer {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0;
+}
+
+.header {
+    justify-content: space-between;
+
+    .account {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+
+        .button {
+            margin-right: 10px;
+        }
+
+        .robotoFont {
+            font-family: 'Roboto', sans-serif;
+        }
+    }
+}
+
+.title {
+    text-align: center;
+}
+
+.main {
+    .button {
+        margin-right: 10px;
+        font-size: 1.2em;
+    }
+
+    .robotoFont {
+        font-family: 'Roboto', sans-serif;
+    }
+}
+
+.footer {
+    margin-top: auto;
+}

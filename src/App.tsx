@@ -1,60 +1,36 @@
-import { useState } from 'react';
-import classNames from 'classnames';
-import { ReactComponent as ReactLogo } from './assets/react.svg';
-import { ReactComponent as ViteLogo } from './assets/vite.svg';
-import { ReactComponent as TypescriptLogo } from './assets/typescript.svg';
-import { ReactComponent as ScssLogo } from './assets/scss.svg';
-import styles from './App.module.scss';
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { OrderContext } from './pages/OrderContext';
+import { SnackbarProvider } from './pages/SnackbarContext';
+import Home from './pages/Home';
+import Coffee from './pages/Coffee';
+import CaffeineFree from './pages/CaffeineFree';
+import Breakfast from './pages/Breakfast';
+import Order from './pages/Order';
+import SignUp from './pages/SignUp';
+import SignIn from './pages/SignIn';
 
 function App() {
-    const [count, setCount] = useState(0);
+    const [itemName, setItemName] = useState('');
+    const [itemPrice, setItemPrice] = useState('');
 
     return (
-        <div className={styles.App}>
-            <div>
-                <a href="https://vitejs.dev" target="_blank">
-                    <ViteLogo
-                        height="6em"
-                        width="6em"
-                        className={classNames(styles.logo)}
-                        title="Vite logo"
-                    />
-                </a>
-                <a href="https://reactjs.org" target="_blank">
-                    <ReactLogo
-                        height="6em"
-                        width="6em"
-                        className={classNames(styles.logo, styles.react)}
-                        title="React logo"
-                    />
-                </a>
-                <a href="https://www.typescriptlang.org/" target="_blank">
-                    <TypescriptLogo
-                        height="6em"
-                        width="6em"
-                        className={classNames(styles.logo, styles.ts)}
-                        title="Typescript logo"
-                    />
-                </a>
-                <a href="https://sass-lang.com/" target="_blank">
-                    <ScssLogo
-                        height="6em"
-                        width="6em"
-                        className={classNames(styles.logo, styles.scss)}
-                        title="SCSS logo"
-                    />
-                </a>
-            </div>
-            <div className={styles.card}>
-                <button onClick={() => setCount((count) => count + 1)}>count is {count}</button>
-                <p>
-                    Edit <code>src/App.tsx</code> and save to test HMR
-                </p>
-            </div>
-            <p className={styles['read-the-docs']}>
-                Click on the Vite and React logos to learn more
-            </p>
-        </div>
+        <OrderContext.Provider value={{ itemName, setItemName, itemPrice, setItemPrice }}>
+            <SnackbarProvider>
+                <Router>
+                    <Routes>
+                        <Route path="/signin" element={<SignIn />} />
+                        <Route path="/signup" element={<SignUp />} />
+                        <Route path="/order" element={<Order />} />
+                        <Route path="/breakfast" element={<Breakfast />} />
+                        <Route path="/caffeine-free" element={<CaffeineFree />} />
+                        <Route path="/coffee" element={<Coffee />} />
+                        <Route path="/" element={<Home />} />
+                        <Route path="*" element={<Home />} />
+                    </Routes>
+                </Router>
+            </SnackbarProvider>
+        </OrderContext.Provider>
     );
 }
 
