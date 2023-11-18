@@ -176,6 +176,7 @@ const Home = () => {
                     size="large"
                     component={Link}
                     to="/coffee"
+                    disabled
                 >
                     Coffee
                 </Button>

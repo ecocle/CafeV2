@@ -94,14 +94,6 @@ const Breakfast = () => {
                                                     <Typography variant="body2" component="p">
                                                         Medium: ¥{item.Price}
                                                     </Typography>
-                                                    <Typography variant="body2" component="p">
-                                                        Large:{' '}
-                                                        {`¥${(
-                                                            parseFloat(
-                                                                item.Price.replace(/[^0-9.-]+/g, '')
-                                                            ) + 3
-                                                        ).toFixed(2)}`}
-                                                    </Typography>
                                                 </div>
                                                 <Button
                                                     size="medium"

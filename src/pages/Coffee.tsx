@@ -98,7 +98,7 @@ const Coffee = () => {
                                                             parseFloat(
                                                                 item.Price.replace(/[^0-9.-]+/g, '')
                                                             ) + 3
-                                                        ).toFixed(2)}`}
+                                                        ).toFixed(0)}`}
                                                     </Typography>
                                                 </div>
                                                 <Button
