@@ -24,6 +24,11 @@ app.use(
         secret: secretKey,
         resave: false,
         saveUninitialized: true,
+        cookie: {
+            maxAge: 30 * 24 * 60 * 60 * 1000, // One hour
+            secure: true, // Set to true in production
+            httpOnly: true, // Set to true to prevent JavaScript access
+        },
     })
 );
 
@@ -338,7 +343,6 @@ app.get('/api/admin/orders', async (req, res) => {
 
         query += ' ORDER BY order_time DESC';
 
-
         const [results] = await conn.query(query, queryParams);
         res.json({ data: results });
     } catch (error) {
@@ -375,7 +379,6 @@ app.get('/api/orders', async (req, res) => {
         }
 
         query += ' ORDER BY order_time DESC';
-
 
         const [results] = await conn.query(query, queryParams);
         res.json({ data: results });
