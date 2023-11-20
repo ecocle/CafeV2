@@ -19,6 +19,7 @@ import {
 import { SnackbarContext } from './SnackbarContext';
 import Cookies from 'js-cookie';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import paymentImage from '../assets/paymentImage.jpg';
 
 const Home = () => {
     const token = Cookies.get('token');
@@ -28,6 +29,25 @@ const Home = () => {
     const { open, message, setOpen } = useContext(SnackbarContext);
     const [showAlert, setShowAlert] = useState(false);
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const [balance, setBalance] = useState(0);
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+            try {
+                const response = await fetch('/api/user_data', {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+                const data = await response.json();
+                setBalance(data.balance);
+            } catch (error) {
+                console.error('Failed to fetch user data:', error);
+            }
+        };
+
+        fetchUserData();
+    }, []);
 
     const handleAddFunds = async (event: React.FormEvent) => {
         event.preventDefault();
@@ -39,7 +59,7 @@ const Home = () => {
                 Authorization: `Bearer ${token}`,
             },
             credentials: 'include',
-            body: JSON.stringify({amount}),
+            body: JSON.stringify({ amount }),
         });
 
         if (response.ok) {
@@ -103,6 +123,9 @@ const Home = () => {
                                 open={Boolean(anchorEl)}
                                 onClose={handleClose}
                             >
+                                <MenuItem>
+                                    <Typography>Balance: {balance}</Typography>
+                                </MenuItem>
                                 <MenuItem onClick={handleClose}>
                                     <form onSubmit={handleAddFunds}>
                                         <TextField
@@ -214,7 +237,7 @@ const Home = () => {
                 </Alert>
             </Snackbar>
             <Dialog open={openDialog} onClose={handleCloseDialog}>
-                <img src="../assets/paymentImage.jpg" alt="Payment Image" />
+                <img src={paymentImage} alt="Payment Image" />
                 <DialogContent>
                     <DialogContentText>Funds added successfully!</DialogContentText>
                 </DialogContent>

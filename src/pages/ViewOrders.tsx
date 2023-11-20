@@ -14,6 +14,7 @@ import {
     Backdrop,
     CircularProgress,
     Fade,
+    TextField,
 } from '@material-ui/core';
 import Cookies from 'js-cookie';
 
@@ -37,15 +38,26 @@ const ViewOrders = () => {
     const [loading, setLoading] = useState(false);
     const token = Cookies.get('token');
     const username = Cookies.get('username');
+    const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+
+    const handleDateChange = (event: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const selectedDate = (event.target as HTMLInputElement).value;
+        setDate(selectedDate);
+        fetchOrderData(selectedDate, 0);
+    };
 
     useEffect(() => {
-        fetchOrderData();
+        fetchOrderData('', 100);
     }, []);
 
-    const fetchOrderData = async () => {
+    const fetchOrderData = async (selectedDate: string = '', limit: number = 0) => {
         try {
             setLoading(true);
-            const endpoint = username === 'Admin' ? '/api/admin/orders' : '/api/orders';
+            let endpoint = username === 'Admin' ? `/api/admin/orders` : `/api/orders`;
+            const params = new URLSearchParams();
+            if (selectedDate) params.append('date', selectedDate);
+            if (limit > 0) params.append('limit', limit.toString());
+            if (params.toString()) endpoint += `?${params.toString()}`;
             const response = await fetch(endpoint, {
                 method: 'GET',
                 headers: {
@@ -90,8 +102,19 @@ const ViewOrders = () => {
                         <Button component={Link} variant="outlined" to="/" color="primary">
                             Return to Home
                         </Button>
-                        <TableContainer component={Paper} className="tableContainer">
-                            <Table className="table">
+                        <TextField
+                            id="date"
+                            label="Date"
+                            type="date"
+                            value={date}
+                            onBlur={handleDateChange}
+                            onChange={handleDateChange}
+                            InputLabelProps={{
+                                shrink: true,
+                            }}
+                        />
+                        <TableContainer component={Paper} className={styles.tableContainer}>
+                            <Table className={styles.table}>
                                 <TableHead>
                                     <TableRow>
                                         <TableCell>Order Time</TableCell>
@@ -104,7 +127,6 @@ const ViewOrders = () => {
                                         <TableCell>Price</TableCell>
                                         <TableCell>Comments</TableCell>
                                         <TableCell>Cup</TableCell>
-                                        <TableCell>Charles</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -120,7 +142,6 @@ const ViewOrders = () => {
                                             <TableCell>{order.price}</TableCell>
                                             <TableCell>{order.comments}</TableCell>
                                             <TableCell>{order.cup}</TableCell>
-                                            <TableCell>{order.charles}</TableCell>
                                         </TableRow>
                                     ))}
                                 </TableBody>

@@ -48,7 +48,7 @@ export default function SignIn() {
 
                 navigate('/');
                 setOpen(true);
-                setMessage('Login successful, welcome ' + username);
+                setMessage('Sign in successful, welcome ' + username);
             } else {
                 setOpenError(true);
                 console.error(`Error: ${response.statusText}`);
@@ -81,7 +81,7 @@ export default function SignIn() {
                     <LockOutlinedIcon />
                 </Avatar>
                 <Typography component="h1" variant="h5">
-                    Sign in
+                    Sign In
                 </Typography>
                 <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
                     <TextField
@@ -123,7 +123,7 @@ export default function SignIn() {
             </Box>
             <Snackbar open={openError} autoHideDuration={12000} onClose={() => setOpenError(false)}>
                 <Alert severity="error" sx={{ width: '100%' }}>
-                    Sign In failed, please try again.
+                    Sign in failed, please try again.
                 </Alert>
             </Snackbar>
         </Container>

@@ -52,12 +52,22 @@
 
 .main {
     .button {
+        display: inline-block;
         margin-right: 10px;
         font-size: 1.2em;
     }
 
     .robotoFont {
         font-family: 'Roboto', sans-serif;
+    }
+}
+
+@media (max-width: 600px) {
+    .main {
+        .button {
+            display: block;
+            margin: 10px 0;
+        }
     }
 }
 

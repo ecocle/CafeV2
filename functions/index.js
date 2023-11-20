@@ -327,7 +327,19 @@ app.get('/api/user_data', async (req, res) => {
 
 app.get('/api/admin/orders', async (req, res) => {
     try {
-        const [results] = await conn.query('SELECT * FROM Orders ORDER BY order_time DESC');
+        const date = req.query.date;
+        let query = 'SELECT * FROM Orders';
+        const queryParams = [];
+
+        if (date) {
+            query += ' WHERE DATE(order_time) = ?';
+            queryParams.push(date);
+        }
+
+        query += ' ORDER BY order_time DESC';
+
+
+        const [results] = await conn.query(query, queryParams);
         res.json({ data: results });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -353,10 +365,19 @@ app.get('/api/orders', async (req, res) => {
     }
 
     try {
-        const [results] = await conn.query(
-            'SELECT * FROM Orders WHERE First_name = ? ORDER BY order_time DESC',
-            [username]
-        );
+        const date = req.query.date;
+        let query = 'SELECT * FROM Orders WHERE First_name = ?';
+        const queryParams = [username];
+
+        if (date) {
+            query += ' AND DATE(order_time) = ?';
+            queryParams.push(date);
+        }
+
+        query += ' ORDER BY order_time DESC';
+
+
+        const [results] = await conn.query(query, queryParams);
         res.json({ data: results });
     } catch (error) {
         res.status(500).json({ error: error.message });
