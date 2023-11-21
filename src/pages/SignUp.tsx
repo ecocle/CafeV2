@@ -26,13 +26,14 @@ export default function SignUp() {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
 
+        const email = data.get('email');
         const username = data.get('username');
         const password = data.get('password');
         const firstName = data.get('firstName');
         const lastName = data.get('lastName');
 
-        if (!firstName || !username || !password) {
-            setError('First name, username, and password are required');
+        if (!firstName || !username || !password || !email) {
+            setError('First name, username, email, and password are required');
             return;
         }
 
@@ -43,16 +44,16 @@ export default function SignUp() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ username, password, firstName, lastName }),
+                body: JSON.stringify({ username, email, password, firstName, lastName }),
             });
 
             if (!response.ok) {
                 const responseData = await response.json();
                 throw new Error(responseData.message || 'Error signing up');
             } else {
-                navigate('/');
+                navigate('/verify-email');
                 setOpen(true);
-                setMessage('Sign up successful');
+                setMessage('Sign up successful. Please verify your email address.');
             }
         } catch (error) {
             const err = error as Error & { response?: { status?: number } };
@@ -103,6 +104,16 @@ export default function SignUp() {
                                 label="Last Name"
                                 name="lastName"
                                 autoComplete="family-name"
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                required
+                                fullWidth
+                                id="email"
+                                label="Email"
+                                name="email"
+                                autoComplete="email"
                             />
                         </Grid>
                         <Grid item xs={12}>
