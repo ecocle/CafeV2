@@ -24,11 +24,6 @@ app.use(
         secret: secretKey,
         resave: false,
         saveUninitialized: true,
-        cookie: {
-            maxAge: 30 * 24 * 60 * 60 * 1000, // One hour
-            secure: true, // Set to true in production
-            httpOnly: true, // Set to true to prevent JavaScript access
-        },
     })
 );
 
@@ -271,7 +266,7 @@ app.post('/api/login', async (req, res) => {
 });
 
 app.post('/api/register', async (req, res) => {
-    const { username, password } = req.body;
+    const { username, password, firstName, lastName } = req.body;
 
     try {
         // Check if the username already exists
@@ -282,11 +277,11 @@ app.post('/api/register', async (req, res) => {
             return res.status(400).json({ error: 'Username already exists' });
         }
 
-        const saltRounds = 10; // Specify the number of salt rounds
+        const saltRounds = 10;
         const encryptedPassword = await bcrypt.hash(password, saltRounds);
 
-        const insertUserSql = 'INSERT INTO Accounts (User_name, Password) VALUES (?, ?)';
-        await conn.execute(insertUserSql, [username, encryptedPassword]);
+        const insertUserSql = 'INSERT INTO Accounts (User_name, Password, First_name, Last_name) VALUES (?, ?, ?, ?)';
+        await conn.execute(insertUserSql, [username, encryptedPassword, firstName, lastName]);
 
         res.json({ message: 'Account created successfully' });
     } catch (error) {
@@ -315,17 +310,37 @@ app.get('/api/user_data', async (req, res) => {
 
     try {
         const [rows] = await conn.query(
-            'SELECT User_name, Balance FROM Accounts WHERE User_name = ?',
+            'SELECT User_name, Balance, First_name, Last_name FROM Accounts WHERE User_name = ?',
             [username]
         );
         if (rows.length > 0) {
             const userData = rows[0];
-            res.json({ username: userData.User_name, balance: userData.Balance });
+            res.json({ username: userData.User_name, balance: userData.Balance, firstName: userData.First_name, lastName: userData.Last_name });
         } else {
             res.status(404).json({ error: 'User data not found' });
         }
     } catch (error) {
         console.error('Error fetching user data:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+app.get('/api/drinkData/:type/:name', async (req, res) => {
+    const { type, name } = req.params;
+
+    try {
+        const [rows] = await conn.query(
+            `SELECT * FROM ${type} WHERE Name = ?`,
+            [name]
+        );
+
+        if (rows.length > 0) {
+            res.json(rows);
+        } else {
+            res.status(404).json({ error: 'No drink found with this name' });
+        }
+    } catch (error) {
+        console.error('Error fetching drink details:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });

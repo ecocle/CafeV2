@@ -1,5 +1,4 @@
 import React, { ChangeEvent, FormEvent, useState, useContext, useEffect } from 'react';
-import { OrderContext } from './OrderContext';
 import { SnackbarContext } from './SnackbarContext';
 import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
@@ -9,13 +8,14 @@ import {
     FormControl,
     FormControlLabel,
     FormGroup,
-    FormHelperText,
-    InputLabel,
-    MenuItem,
-    Select,
     TextField,
     Typography,
+    CircularProgress,
+    Box,
+    Backdrop,
+    Fade,
 } from '@material-ui/core';
+import Autocomplete from '@mui/material/Autocomplete';
 import styles from './Order.module.scss';
 
 const toppings = [
@@ -26,13 +26,25 @@ const toppings = [
 ];
 
 const Order = () => {
-    const { itemName, itemPrice } = useContext(OrderContext);
+    const hashParams = new URLSearchParams(window.location.hash.substr(1));
+    const itemName = hashParams.get('name') || '';
+    const itemType = hashParams.get('type') || '';
+    const [itemPrice, setItemPrice] = useState(0);
+    const [loading, setLoading] = useState(false);
+    const [loadingBack, setLoadingBack] = useState(false);
     const { setOpen, setMessage } = useContext(SnackbarContext);
     const token = Cookies.get('token');
     const username = Cookies.get('username') || '';
-    const [userData, setUserData] = useState<{ balance: number; username: string }>({
+    const [userData, setUserData] = useState<{
+        balance: number;
+        username: string;
+        firstName: string;
+        lastName: string;
+    }>({
         balance: 0,
         username: username,
+        firstName: '',
+        lastName: '',
     });
     const [options, setOptions] = useState<{
         size: string | undefined;
@@ -44,9 +56,71 @@ const Order = () => {
     const [useCup, setUseCup] = useState(false);
     const [sizeError, setSizeError] = useState('');
     const [temperatureError, setTemperatureError] = useState('');
+    const noLarge = [
+        'Crispy cereal in milk(classic)',
+        'Crispy cereal in milk(honey)',
+        'Crispy cereal in milk(chocolate)',
+        'Classic flavoured Porridge',
+        'Chocolate flavoured Porridge',
+    ];
+    const noToppings = [
+        'Crispy cereal in milk(classic)',
+        'Crispy cereal in milk(honey)',
+        'Crispy cereal in milk(chocolate)',
+        'Classic flavoured Porridge',
+        'Chocolate flavoured Porridge',
+    ];
+    const noHot = [
+        'Crispy cereal in milk(classic)',
+        'Crispy cereal in milk(honey)',
+        'Crispy cereal in milk(chocolate)',
+        'Cocoa',
+        'Matcha milk',
+        'Matcha boba',
+        'Tai Red Tea',
+        'Coconut Water',
+        'Milk tea',
+        'Jasmine Milktea',
+        'Boba',
+        'Refreshing babyblue drink',
+        'Pure milk',
+        'Black currant oolang tea',
+    ];
+    const noCold = ['Classic flavoured Porridge', 'Chocolate flavoured Porridge'];
+    const noNormal = [
+        'Crispy cereal in milk(classic)',
+        'Crispy cereal in milk(honey)',
+        'Crispy cereal in milk(chocolate)',
+        'Classic flavoured Porridge',
+        'Chocolate flavoured Porridge',
+    ];
     const navigate = useNavigate();
 
     useEffect(() => {
+        setLoadingBack(true);
+        const fetchDrinkDetails = async () => {
+            try {
+                const response = await fetch(`/api/drinkData/${itemType}/${itemName}`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    setItemPrice(parseFloat(data[0].Price));
+                    setLoadingBack(false);
+                } else {
+                    console.error('Error fetching drink details:', data.error);
+                    setLoadingBack(false);
+                }
+            } catch (error) {
+                console.error('Error fetching drink details:', error);
+                setLoadingBack(false);
+            }
+        };
+
+        fetchDrinkDetails();
+    }, [itemName, itemType, setItemPrice]);
+
+    useEffect(() => {
+        setLoadingBack(true);
         fetch('/api/user_data', {
             headers: {
                 Authorization: `Bearer ${token}`,
@@ -57,19 +131,14 @@ const Order = () => {
             .then((data) => {
                 if (data.username) {
                     setUserData(data);
+                    setLoadingBack(false);
                 }
             })
             .catch((error) => console.error('Error:', error));
     }, []);
 
     useEffect(() => {
-        if (isNaN(parseFloat(itemPrice))) {
-            navigate(-1);
-        }
-    }, []);
-
-    useEffect(() => {
-        setOptions((prevOptions) => ({ ...prevOptions, total: parseFloat(itemPrice) }));
+        setOptions((prevOptions) => ({ ...prevOptions, total: itemPrice }));
     }, [itemPrice]);
 
     const handleCupChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -152,9 +221,10 @@ const Order = () => {
             finalTotal -= 1;
         }
 
+        setLoading(true);
         const orderDetails = {
-            firstName: username,
-            lastName: username,
+            firstName: userData.firstName,
+            lastName: userData.lastName,
             name: itemName,
             temperature: options.temperature,
             selectedSize: options.size,
@@ -177,85 +247,146 @@ const Order = () => {
 
             if (!response.ok) {
                 throw new Error('Error placing order');
+                setLoading(false);
             }
 
             const data = await response.json();
             navigate(`/`);
             setOpen(true);
             setMessage('Order placed successfully');
+            setLoading(false);
         } catch (error) {
             console.error('Error placing order:', error);
+            setLoading(false);
         }
     };
 
     return (
-        <form className={styles.orderForm} onSubmit={handleSubmit}>
-            <Typography variant="h6">Information</Typography>
-            <TextField
-                variant="outlined"
-                className={styles.textField}
-                label="Comments"
-                value={comments}
-                onChange={(e) => setComments(e.target.value)}
-                multiline
-            />
-            <FormControlLabel
-                className={styles.FormControlLabel}
-                control={<Checkbox color="primary" checked={useCup} onChange={handleCupChange} />}
-                label="Use own cup"
-            />
-            <Typography variant="h6">Order Details</Typography>
-            <FormControl className={styles.FormControl} error={Boolean(sizeError)}>
-                <InputLabel>Size *</InputLabel>
-                <Select value={options.size} onChange={handleOptionChange} name="size">
-                    <MenuItem value="medium">Medium</MenuItem>
-                    <MenuItem value="large">Large</MenuItem>
-                </Select>
-                {sizeError && <FormHelperText>{sizeError}</FormHelperText>}
-            </FormControl>
-            <FormControl className={styles.FormControl} error={Boolean(temperatureError)}>
-                <InputLabel>Temperature *</InputLabel>
-                <Select
-                    value={options.temperature}
-                    onChange={handleOptionChange}
-                    name="temperature"
-                >
-                    <MenuItem value="hot">Hot</MenuItem>
-                    <MenuItem value="normal">Normal</MenuItem>
-                    <MenuItem value="cold">Cold</MenuItem>
-                </Select>
-                {temperatureError && <FormHelperText>{temperatureError}</FormHelperText>}
-            </FormControl>
-            <Typography variant="h6">Toppings</Typography>
-            <FormControl className={styles.FormControl}>
-                <FormGroup className={styles.FormGroup}>
-                    {toppings.map((topping) => (
-                        <FormControlLabel
-                            key={topping.name}
-                            className={styles.FormControlLabel}
-                            control={
-                                <Checkbox
-                                    color="primary"
-                                    checked={options.toppings.includes(topping.name)}
-                                    onChange={handleToppingChange}
-                                    name={topping.name}
+        <div className={styles.container}>
+            <Backdrop open={loadingBack} style={{ zIndex: 9999 }}>
+                <CircularProgress color="inherit" />
+            </Backdrop>
+            {!loadingBack && (
+                <Fade in={!loadingBack}>
+                    <>
+                        <form className={styles.orderForm} onSubmit={handleSubmit}>
+                            <Typography variant="h6">Information</Typography>
+                            <TextField
+                                variant="outlined"
+                                className={styles.textField}
+                                label="Comments"
+                                value={comments}
+                                onChange={(e) => setComments(e.target.value)}
+                                multiline
+                            />
+                            <FormControlLabel
+                                className={styles.FormControlLabel}
+                                control={
+                                    <Checkbox
+                                        color="primary"
+                                        checked={useCup}
+                                        onChange={handleCupChange}
+                                    />
+                                }
+                                label="Use own cup"
+                            />
+                            <Typography variant="h6">Order Details</Typography>
+                            <Box marginBottom={2}>
+                                <Autocomplete
+                                    value={options.size}
+                                    onChange={(event, newValue) => {
+                                        const changeEvent = {
+                                            target: {
+                                                name: 'size',
+                                                value: newValue,
+                                            },
+                                        } as React.ChangeEvent<{ name?: string; value: unknown }>;
+                                        handleOptionChange(changeEvent);
+                                    }}
+                                    options={['Medium', 'Large'].filter(
+                                        (size) => !(size === 'Large' && noLarge.includes(itemName))
+                                    )}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            label="Size *"
+                                            variant="outlined"
+                                            error={Boolean(sizeError)}
+                                            helperText={sizeError}
+                                        />
+                                    )}
                                 />
-                            }
-                            label={`Add ${topping.name} (¥${topping.price})`}
-                        />
-                    ))}
-                </FormGroup>
-            </FormControl>
-            <Typography variant="h6">Total: ¥{options.total.toFixed(2)}</Typography>
-            <Button
-                className={styles.submitButton}
-                variant="contained"
-                color="primary"
-                type="submit"
-            >
-                Submit Order
-            </Button>
-        </form>
+                            </Box>
+                            <Box marginBottom={2}>
+                                <Autocomplete
+                                    value={options.temperature}
+                                    onChange={(event, newValue) => {
+                                        const changeEvent = {
+                                            target: {
+                                                name: 'temperature',
+                                                value: newValue,
+                                            },
+                                        } as React.ChangeEvent<{ name?: string; value: unknown }>;
+                                        handleOptionChange(changeEvent);
+                                    }}
+                                    options={['Hot', 'Normal', 'Cold'].filter(
+                                        (temp) =>
+                                            !(temp === 'Hot' && noHot.includes(itemName)) &&
+                                            !(temp === 'Cold' && noCold.includes(itemName)) &&
+                                            !(temp === 'Normal' && noNormal.includes(itemName))
+                                    )}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            label="Temperature *"
+                                            variant="outlined"
+                                            error={Boolean(temperatureError)}
+                                            helperText={temperatureError}
+                                        />
+                                    )}
+                                />
+                            </Box>
+                            {!noToppings.includes(itemName) && (
+                                <>
+                                    <Typography variant="h6">Toppings</Typography>
+                                    <FormControl className={styles.FormControl}>
+                                        <FormGroup className={styles.FormGroup}>
+                                            {toppings.map((topping) => (
+                                                <FormControlLabel
+                                                    key={topping.name}
+                                                    className={styles.FormControlLabel}
+                                                    control={
+                                                        <Checkbox
+                                                            color="primary"
+                                                            checked={options.toppings.includes(
+                                                                topping.name
+                                                            )}
+                                                            onChange={handleToppingChange}
+                                                            name={topping.name}
+                                                        />
+                                                    }
+                                                    label={`Add ${topping.name} (¥${topping.price})`}
+                                                />
+                                            ))}
+                                        </FormGroup>
+                                    </FormControl>
+                                </>
+                            )}
+                            <Typography variant="h6">Total: ¥{options.total.toFixed(1)}</Typography>
+                            <Button
+                                className={styles.submitButton}
+                                variant="contained"
+                                color="primary"
+                                type="submit"
+                                disabled={loading}
+                            >
+                                {loading ? <CircularProgress size={24} /> : 'Submit Order'}
+                            </Button>
+                        </form>
+                    </>
+                </Fade>
+            )}
+        </div>
     );
 };
 

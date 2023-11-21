@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useContext } from 'react';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -6,18 +7,19 @@ import TextField from '@mui/material/TextField';
 import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
+import Alert from '@mui/material/Alert';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
-import Snackbar from '@mui/material/Snackbar';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { SnackbarContext } from './SnackbarContext';
 
 export default function SignUp() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-    const [open, setOpen] = useState(false);
+    const { setOpen, setMessage } = useContext(SnackbarContext);
     const navigate = useNavigate();
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -26,6 +28,13 @@ export default function SignUp() {
 
         const username = data.get('username');
         const password = data.get('password');
+        const firstName = data.get('firstName');
+        const lastName = data.get('lastName');
+
+        if (!firstName || !username || !password) {
+            setError('First name, username, and password are required');
+            return;
+        }
 
         setLoading(true);
         try {
@@ -34,15 +43,16 @@ export default function SignUp() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ username, password }),
+                body: JSON.stringify({ username, password, firstName, lastName }),
             });
 
             if (!response.ok) {
                 const responseData = await response.json();
                 throw new Error(responseData.message || 'Error signing up');
             } else {
+                navigate('/');
                 setOpen(true);
-                navigate('/signin');
+                setMessage('Sign up successful');
             }
         } catch (error) {
             const err = error as Error & { response?: { status?: number } };
@@ -88,7 +98,6 @@ export default function SignUp() {
                         </Grid>
                         <Grid item xs={12} sm={6}>
                             <TextField
-                                required
                                 fullWidth
                                 id="lastName"
                                 label="Last Name"
@@ -127,13 +136,7 @@ export default function SignUp() {
                     >
                         {loading ? <CircularProgress size={24} /> : 'Sign Up'}
                     </Button>
-                    {error && <p color="error">{error}</p>}
-                    <Snackbar
-                        open={open}
-                        autoHideDuration={6000}
-                        onClose={() => setOpen(false)}
-                        message="Sign up successful"
-                    />
+                    {error && <Alert severity="error">{error}</Alert>}
                     <Grid container justifyContent="flex-end">
                         <Grid item>
                             <Link href="/signin" variant="body2">

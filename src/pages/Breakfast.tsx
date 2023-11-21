@@ -11,7 +11,6 @@ import {
 } from '@material-ui/core';
 import { Link } from 'react-router-dom';
 import styles from './Breakfast.module.scss';
-import { OrderContext } from './OrderContext';
 import { useNavigate } from 'react-router-dom';
 
 interface BreakfastItem {
@@ -20,9 +19,7 @@ interface BreakfastItem {
 }
 
 const Breakfast = () => {
-    const { setItemName, setItemPrice } = useContext(OrderContext);
     const [breakfastList, setBreakfastList] = useState<BreakfastItem[]>([]);
-    const [shouldNavigate, setShouldNavigate] = useState(false);
     const navigate = useNavigate();
     const [open, setOpen] = React.useState(false);
 
@@ -31,13 +28,6 @@ const Breakfast = () => {
         temperature: string;
         toppings: string[];
     }>({ size: '', temperature: '', toppings: [] });
-
-    useEffect(() => {
-        if (shouldNavigate) {
-            navigate('/order');
-            setShouldNavigate(false);
-        }
-    }, [shouldNavigate, navigate]);
 
     useEffect(() => {
         setOpen(true);
@@ -100,12 +90,7 @@ const Breakfast = () => {
                                                     variant="contained"
                                                     color="primary"
                                                     onClick={() => {
-                                                        console.log(
-                                                            'Setting itemName and itemPrice'
-                                                        );
-                                                        setItemName(item.Name);
-                                                        setItemPrice(item.Price);
-                                                        setShouldNavigate(true);
+                                                        navigate(`/order#name=${item.Name}&type=Breakfast`);
                                                     }}
                                                     disableElevation
                                                 >

@@ -82,7 +82,6 @@ const ViewOrders = () => {
                 price: parseFloat(order.Price),
                 comments: order.Comments,
                 cup: order.Cup,
-                charles: order.Charles,
             }));
             setOrders(transformedData);
             setLoading(false);
@@ -93,13 +92,13 @@ const ViewOrders = () => {
 
     return (
         <Box>
-            <Backdrop className="backdrop" open={loading} style={{ zIndex: 9999 }}>
+            <Backdrop open={loading} style={{ zIndex: 9999 }}>
                 <CircularProgress color="inherit" />
             </Backdrop>
             {!loading && (
                 <Fade in={!loading}>
-                    <>
-                        <Button component={Link} variant="outlined" to="/" color="primary">
+                    <Box className={styles.container}>
+                        <Button component={Link} variant="outlined" to="/" color="primary" className={styles.button}>
                             Return to Home
                         </Button>
                         <TextField
@@ -107,6 +106,7 @@ const ViewOrders = () => {
                             label="Date"
                             type="date"
                             value={date}
+                            className={styles.dateField}
                             onBlur={handleDateChange}
                             onChange={handleDateChange}
                             InputLabelProps={{
@@ -147,7 +147,7 @@ const ViewOrders = () => {
                                 </TableBody>
                             </Table>
                         </TableContainer>
-                    </>
+                    </Box>
                 </Fade>
             )}
         </Box>
