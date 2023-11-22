@@ -1,17 +1,7 @@
-import React, { useEffect, useState, useContext, ChangeEvent } from 'react';
-import {
-    Button,
-    Card,
-    CardContent,
-    Typography,
-    Grid,
-    Backdrop,
-    CircularProgress,
-    Fade,
-} from '@material-ui/core';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Backdrop, Button, Card, CardContent, CircularProgress, Fade, Grid, Typography } from '@material-ui/core';
+import { Link, useNavigate } from 'react-router-dom';
 import styles from './Breakfast.module.scss';
-import { useNavigate } from 'react-router-dom';
 
 interface BreakfastItem {
     Name: string;
@@ -23,12 +13,6 @@ const Breakfast = () => {
     const navigate = useNavigate();
     const [open, setOpen] = React.useState(false);
 
-    const [options, setOptions] = useState<{
-        size: string;
-        temperature: string;
-        toppings: string[];
-    }>({ size: '', temperature: '', toppings: [] });
-
     useEffect(() => {
         setOpen(true);
         fetch('/api/dataBreakfast')
@@ -36,7 +20,7 @@ const Breakfast = () => {
             .then((data: { Name: any; Price: number }[]) => {
                 const formattedData: BreakfastItem[] = data.map((item) => ({
                     Name: item.Name,
-                    Price: item.Price.toString(),
+                    Price: item.Price.toString()
                 }));
                 setBreakfastList(formattedData);
                 setOpen(false);
@@ -49,7 +33,7 @@ const Breakfast = () => {
     return (
         <Grid container className={styles.breakfast} spacing={3}>
             <Backdrop open={open} style={{ zIndex: 9999 }}>
-                <CircularProgress color="inherit" />
+                <CircularProgress color='inherit' />
             </Backdrop>
             {!open && (
                 <Fade in={!open}>
@@ -57,38 +41,38 @@ const Breakfast = () => {
                         <Button
                             className={styles.home}
                             component={Link}
-                            variant="outlined"
-                            to="/"
-                            color="primary"
+                            variant='outlined'
+                            to='/'
+                            color='primary'
                         >
                             Return to Home
                         </Button>
-                        <Typography variant="h4" component="h1" gutterBottom>
+                        <Typography variant='h4' component='h1' gutterBottom>
                             Breakfasts Menu
                         </Typography>
                         <Grid container spacing={3}>
                             {breakfastList.map((item, index) => (
                                 <Grid item xs={12} sm={6} md={4} lg={4} key={index}>
-                                    <Card className={styles.card} variant="outlined">
+                                    <Card className={styles.card} variant='outlined'>
                                         <CardContent>
-                                            <Typography variant="h5" component="h2">
+                                            <Typography variant='h5' component='h2'>
                                                 {item.Name}
                                             </Typography>
                                             <Grid
                                                 container
-                                                direction="row"
-                                                justifyContent="space-between"
-                                                alignItems="center"
+                                                direction='row'
+                                                justifyContent='space-between'
+                                                alignItems='center'
                                             >
                                                 <div>
-                                                    <Typography variant="body2" component="p">
+                                                    <Typography variant='body2' component='p'>
                                                         Medium: ¥{item.Price}
                                                     </Typography>
                                                 </div>
                                                 <Button
-                                                    size="medium"
-                                                    variant="contained"
-                                                    color="primary"
+                                                    size='medium'
+                                                    variant='contained'
+                                                    color='primary'
                                                     onClick={() => {
                                                         navigate(`/order#name=${item.Name}&type=Breakfast`);
                                                     }}

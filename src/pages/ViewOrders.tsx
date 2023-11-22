@@ -1,20 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import styles from './ViewOrders.module.scss';
 import {
+    Backdrop,
     Box,
     Button,
+    CircularProgress,
+    Fade,
+    Paper,
     Table,
     TableBody,
     TableCell,
     TableContainer,
     TableHead,
     TableRow,
-    Paper,
-    Backdrop,
-    CircularProgress,
-    Fade,
-    TextField,
+    TextField
 } from '@material-ui/core';
 import Cookies from 'js-cookie';
 
@@ -62,9 +62,9 @@ const ViewOrders = () => {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
+                    Authorization: `Bearer ${token}`
                 },
-                credentials: 'include',
+                credentials: 'include'
             });
             if (!response.ok) {
                 console.error('Network response was not ok');
@@ -81,7 +81,7 @@ const ViewOrders = () => {
                 size: order.Size,
                 price: parseFloat(order.Price),
                 comments: order.Comments,
-                cup: order.Cup,
+                cup: order.Cup
             }));
             setOrders(transformedData);
             setLoading(false);
@@ -93,24 +93,24 @@ const ViewOrders = () => {
     return (
         <Box>
             <Backdrop open={loading} style={{ zIndex: 9999 }}>
-                <CircularProgress color="inherit" />
+                <CircularProgress color='inherit' />
             </Backdrop>
             {!loading && (
                 <Fade in={!loading}>
                     <Box className={styles.container}>
-                        <Button component={Link} variant="outlined" to="/" color="primary" className={styles.button}>
+                        <Button component={Link} variant='outlined' to='/' color='primary' className={styles.button}>
                             Return to Home
                         </Button>
                         <TextField
-                            id="date"
-                            label="Date"
-                            type="date"
+                            id='date'
+                            label='Date'
+                            type='date'
                             value={date}
                             className={styles.dateField}
                             onBlur={handleDateChange}
                             onChange={handleDateChange}
                             InputLabelProps={{
-                                shrink: true,
+                                shrink: true
                             }}
                         />
                         <TableContainer component={Paper} className={styles.tableContainer}>

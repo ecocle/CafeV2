@@ -3,8 +3,10 @@ import React, { useState } from 'react';
 export const SnackbarContext = React.createContext({
     open: false,
     message: '',
-    setOpen: (open: boolean) => {},
-    setMessage: (message: string) => {},
+    setOpen: (open: boolean) => {
+    },
+    setMessage: (message: string) => {
+    }
 });
 
 interface SnackbarProviderProps {

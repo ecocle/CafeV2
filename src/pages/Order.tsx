@@ -1,19 +1,19 @@
-import React, { ChangeEvent, FormEvent, useState, useContext, useEffect } from 'react';
+import React, { ChangeEvent, FormEvent, useContext, useEffect, useState } from 'react';
 import { SnackbarContext } from './SnackbarContext';
 import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
 import {
+    Backdrop,
+    Box,
     Button,
     Checkbox,
+    CircularProgress,
+    Fade,
     FormControl,
     FormControlLabel,
     FormGroup,
     TextField,
-    Typography,
-    CircularProgress,
-    Box,
-    Backdrop,
-    Fade,
+    Typography
 } from '@material-ui/core';
 import Autocomplete from '@mui/material/Autocomplete';
 import styles from './Order.module.scss';
@@ -22,7 +22,7 @@ const toppings = [
     { name: 'Oat Milk Substitution', price: 1.0 },
     { name: 'Boba', price: 1.0 },
     { name: 'Extra Espresso Shot', price: 2.0 },
-    { name: 'Red Bean', price: 1.0 },
+    { name: 'Red Bean', price: 1.0 }
 ];
 
 const Order = () => {
@@ -44,7 +44,7 @@ const Order = () => {
         balance: 0,
         username: username,
         firstName: '',
-        lastName: '',
+        lastName: ''
     });
     const [options, setOptions] = useState<{
         size: string | undefined;
@@ -61,14 +61,14 @@ const Order = () => {
         'Crispy cereal in milk(honey)',
         'Crispy cereal in milk(chocolate)',
         'Classic flavoured Porridge',
-        'Chocolate flavoured Porridge',
+        'Chocolate flavoured Porridge'
     ];
     const noToppings = [
         'Crispy cereal in milk(classic)',
         'Crispy cereal in milk(honey)',
         'Crispy cereal in milk(chocolate)',
         'Classic flavoured Porridge',
-        'Chocolate flavoured Porridge',
+        'Chocolate flavoured Porridge'
     ];
     const noHot = [
         'Crispy cereal in milk(classic)',
@@ -84,7 +84,7 @@ const Order = () => {
         'Boba',
         'Refreshing babyblue drink',
         'Pure milk',
-        'Black currant oolang tea',
+        'Black currant oolang tea'
     ];
     const noCold = ['Classic flavoured Porridge', 'Chocolate flavoured Porridge'];
     const noNormal = [
@@ -92,7 +92,7 @@ const Order = () => {
         'Crispy cereal in milk(honey)',
         'Crispy cereal in milk(chocolate)',
         'Classic flavoured Porridge',
-        'Chocolate flavoured Porridge',
+        'Chocolate flavoured Porridge'
     ];
     const navigate = useNavigate();
 
@@ -123,9 +123,9 @@ const Order = () => {
         setLoadingBack(true);
         fetch('/api/user_data', {
             headers: {
-                Authorization: `Bearer ${token}`,
+                Authorization: `Bearer ${token}`
             },
-            credentials: 'include',
+            credentials: 'include'
         })
             .then((response) => response.json())
             .then((data) => {
@@ -181,13 +181,13 @@ const Order = () => {
                 return {
                     ...prevOptions,
                     toppings: [...prevOptions.toppings, topping],
-                    total: prevOptions.total + toppingPrice,
+                    total: prevOptions.total + toppingPrice
                 };
             } else {
                 return {
                     ...prevOptions,
                     toppings: prevOptions.toppings.filter((t) => t !== topping),
-                    total: prevOptions.total - toppingPrice,
+                    total: prevOptions.total - toppingPrice
                 };
             }
         });
@@ -232,7 +232,7 @@ const Order = () => {
             price: finalTotal,
             comments,
             useCup,
-            balance: userData.balance,
+            balance: userData.balance
         };
 
         try {
@@ -240,17 +240,16 @@ const Order = () => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
+                    Authorization: `Bearer ${token}`
                 },
-                body: JSON.stringify(orderDetails),
+                body: JSON.stringify(orderDetails)
             });
 
             if (!response.ok) {
-                throw new Error('Error placing order');
+                console.error('Error placing order');
                 setLoading(false);
             }
 
-            const data = await response.json();
             navigate(`/`);
             setOpen(true);
             setMessage('Order placed successfully');
@@ -264,17 +263,17 @@ const Order = () => {
     return (
         <div className={styles.container}>
             <Backdrop open={loadingBack} style={{ zIndex: 9999 }}>
-                <CircularProgress color="inherit" />
+                <CircularProgress color='inherit' />
             </Backdrop>
             {!loadingBack && (
                 <Fade in={!loadingBack}>
                     <>
                         <form className={styles.orderForm} onSubmit={handleSubmit}>
-                            <Typography variant="h6">Information</Typography>
+                            <Typography variant='h6'>Information</Typography>
                             <TextField
-                                variant="outlined"
+                                variant='outlined'
                                 className={styles.textField}
-                                label="Comments"
+                                label='Comments'
                                 value={comments}
                                 onChange={(e) => setComments(e.target.value)}
                                 multiline
@@ -283,23 +282,23 @@ const Order = () => {
                                 className={styles.FormControlLabel}
                                 control={
                                     <Checkbox
-                                        color="primary"
+                                        color='primary'
                                         checked={useCup}
                                         onChange={handleCupChange}
                                     />
                                 }
-                                label="Use own cup"
+                                label='Use own cup'
                             />
-                            <Typography variant="h6">Order Details</Typography>
+                            <Typography variant='h6'>Order Details</Typography>
                             <Box marginBottom={2}>
                                 <Autocomplete
                                     value={options.size}
-                                    onChange={(event, newValue) => {
+                                    onChange={(_event, newValue) => {
                                         const changeEvent = {
                                             target: {
                                                 name: 'size',
-                                                value: newValue,
-                                            },
+                                                value: newValue
+                                            }
                                         } as React.ChangeEvent<{ name?: string; value: unknown }>;
                                         handleOptionChange(changeEvent);
                                     }}
@@ -309,8 +308,8 @@ const Order = () => {
                                     renderInput={(params) => (
                                         <TextField
                                             {...params}
-                                            label="Size *"
-                                            variant="outlined"
+                                            label='Size *'
+                                            variant='outlined'
                                             error={Boolean(sizeError)}
                                             helperText={sizeError}
                                         />
@@ -320,12 +319,12 @@ const Order = () => {
                             <Box marginBottom={2}>
                                 <Autocomplete
                                     value={options.temperature}
-                                    onChange={(event, newValue) => {
+                                    onChange={(newValue) => {
                                         const changeEvent = {
                                             target: {
                                                 name: 'temperature',
-                                                value: newValue,
-                                            },
+                                                value: newValue
+                                            }
                                         } as React.ChangeEvent<{ name?: string; value: unknown }>;
                                         handleOptionChange(changeEvent);
                                     }}
@@ -338,8 +337,8 @@ const Order = () => {
                                     renderInput={(params) => (
                                         <TextField
                                             {...params}
-                                            label="Temperature *"
-                                            variant="outlined"
+                                            label='Temperature *'
+                                            variant='outlined'
                                             error={Boolean(temperatureError)}
                                             helperText={temperatureError}
                                         />
@@ -348,7 +347,7 @@ const Order = () => {
                             </Box>
                             {!noToppings.includes(itemName) && (
                                 <>
-                                    <Typography variant="h6">Toppings</Typography>
+                                    <Typography variant='h6'>Toppings</Typography>
                                     <FormControl className={styles.FormControl}>
                                         <FormGroup className={styles.FormGroup}>
                                             {toppings.map((topping) => (
@@ -357,7 +356,7 @@ const Order = () => {
                                                     className={styles.FormControlLabel}
                                                     control={
                                                         <Checkbox
-                                                            color="primary"
+                                                            color='primary'
                                                             checked={options.toppings.includes(
                                                                 topping.name
                                                             )}
@@ -372,12 +371,12 @@ const Order = () => {
                                     </FormControl>
                                 </>
                             )}
-                            <Typography variant="h6">Total: ¥{options.total.toFixed(1)}</Typography>
+                            <Typography variant='h6'>Total: ¥{options.total.toFixed(1)}</Typography>
                             <Button
                                 className={styles.submitButton}
-                                variant="contained"
-                                color="primary"
-                                type="submit"
+                                variant='contained'
+                                color='primary'
+                                type='submit'
                                 disabled={loading}
                             >
                                 {loading ? <CircularProgress size={24} /> : 'Submit Order'}

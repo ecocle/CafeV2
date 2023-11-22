@@ -1,20 +1,20 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Alert } from '@mui/material';
 import styles from './Home.module.scss';
 import { Link } from 'react-router-dom';
 import {
     Box,
-    Typography,
     Button,
-    IconButton,
-    Snackbar,
-    Menu,
-    MenuItem,
-    TextField,
     Dialog,
+    DialogActions,
     DialogContent,
     DialogContentText,
-    DialogActions,
+    IconButton,
+    Menu,
+    MenuItem,
+    Snackbar,
+    TextField,
+    Typography
 } from '@material-ui/core';
 import { SnackbarContext } from './SnackbarContext';
 import Cookies from 'js-cookie';
@@ -36,8 +36,8 @@ const Home = () => {
             try {
                 const response = await fetch('/api/user_data', {
                     headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
+                        Authorization: `Bearer ${token}`
+                    }
                 });
                 const data = await response.json();
                 setBalance(data.balance);
@@ -56,10 +56,10 @@ const Home = () => {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`,
+                Authorization: `Bearer ${token}`
             },
             credentials: 'include',
-            body: JSON.stringify({ amount }),
+            body: JSON.stringify({ amount })
         });
 
         if (response.ok) {
@@ -99,22 +99,22 @@ const Home = () => {
                     onClose={() => setShowAlert(false)}
                     anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
                 >
-                    <Alert severity="error" onClose={() => setShowAlert(false)}>
+                    <Alert severity='error' onClose={() => setShowAlert(false)}>
                         You must be signed in to order.
                     </Alert>
                 </Snackbar>
             )}
             <Box className={styles.header}>
-                <Typography variant="subtitle1" component="h1"></Typography>
+                <Typography variant='subtitle1' component='h1'></Typography>
                 <Box className={styles.account}>
                     {token && username ? (
                         <>
                             <IconButton
                                 className={`${styles.button} ${styles.robotoFont}`}
-                                color="primary"
-                                size="small"
+                                color='primary'
+                                size='small'
                                 onClick={handleClick}
-                                title="Account"
+                                title='Account'
                             >
                                 <AccountCircleIcon />
                             </IconButton>
@@ -130,8 +130,8 @@ const Home = () => {
                                 <MenuItem onClick={handleClose}>
                                     <form onSubmit={handleAddFunds}>
                                         <TextField
-                                            type="number"
-                                            label="Amount"
+                                            type='number'
+                                            label='Amount'
                                             value={amount}
                                             onClick={(e) => e.stopPropagation()}
                                             onChange={(e) => {
@@ -143,20 +143,20 @@ const Home = () => {
                                             }}
                                             InputProps={{ inputProps: { min: 0 } }}
                                         />
-                                        <Button type="submit" variant="contained" color="primary">
+                                        <Button type='submit' variant='contained' color='primary'>
                                             Add
                                         </Button>
                                     </form>
                                 </MenuItem>
-                                <MenuItem onClick={handleClose} component={Link} to="/orders">
+                                <MenuItem onClick={handleClose} component={Link} to='/orders'>
                                     View Orders
                                 </MenuItem>
                             </Menu>
                             <Button
                                 className={`${styles.button} ${styles.robotoFont}`}
-                                variant="text"
-                                color="primary"
-                                size="small"
+                                variant='text'
+                                color='primary'
+                                size='small'
                                 onClick={() => {
                                     Cookies.remove('token');
                                     Cookies.remove('username');
@@ -170,21 +170,21 @@ const Home = () => {
                         <>
                             <Button
                                 className={`${styles.button} ${styles.robotoFont}`}
-                                variant="outlined"
-                                color="primary"
-                                size="small"
+                                variant='outlined'
+                                color='primary'
+                                size='small'
                                 component={Link}
-                                to="/signup"
+                                to='/signup'
                             >
                                 Sign Up
                             </Button>
                             <Button
                                 className={`${styles.button} ${styles.robotoFont}`}
-                                variant="text"
-                                color="primary"
-                                size="small"
+                                variant='text'
+                                color='primary'
+                                size='small'
                                 component={Link}
-                                to="/signin"
+                                to='/signin'
                             >
                                 Sign In
                             </Button>
@@ -193,7 +193,7 @@ const Home = () => {
                 </Box>
             </Box>
             <Box className={styles.title}>
-                <Typography className={styles.pacificoFont} variant="h1" component="h1">
+                <Typography className={styles.pacificoFont} variant='h1' component='h1'>
                     MY Cafe
                 </Typography>
             </Box>
@@ -201,11 +201,11 @@ const Home = () => {
                 <Button
                     onClick={checkLogin}
                     className={`${styles.button} ${styles.robotoFont}`}
-                    variant="contained"
-                    color="primary"
-                    size="large"
+                    variant='contained'
+                    color='primary'
+                    size='large'
                     component={Link}
-                    to="/coffee"
+                    to='/coffee'
                     disabled
                 >
                     Coffee
@@ -213,43 +213,43 @@ const Home = () => {
                 <Button
                     onClick={checkLogin}
                     className={`${styles.button} ${styles.robotoFont}`}
-                    variant="contained"
-                    color="primary"
-                    size="large"
+                    variant='contained'
+                    color='primary'
+                    size='large'
                     component={Link}
-                    to="/caffeine-free"
+                    to='/caffeine-free'
                 >
                     Non-Caffeinated drinks
                 </Button>
                 <Button
                     onClick={checkLogin}
                     className={`${styles.button} ${styles.robotoFont}`}
-                    variant="contained"
-                    color="primary"
-                    size="large"
+                    variant='contained'
+                    color='primary'
+                    size='large'
                     component={Link}
-                    to="/breakfast"
+                    to='/breakfast'
                 >
                     Breakfast
                 </Button>
             </Box>
             <Box className={styles.footer}>
-                <Typography variant="caption" component="caption">
+                <Typography variant='caption' component='caption'>
                     Made By Shawn
                 </Typography>
             </Box>
             <Snackbar open={open} autoHideDuration={6000} onClose={() => setOpen(false)}>
-                <Alert onClose={() => setOpen(false)} severity="success">
+                <Alert onClose={() => setOpen(false)} severity='success'>
                     {message}
                 </Alert>
             </Snackbar>
             <Dialog open={openDialog} onClose={handleCloseDialog}>
-                <img src={paymentImage} alt="Payment Image" />
+                <img src={paymentImage} alt='Payment Image' />
                 <DialogContent>
                     <DialogContentText>Funds added successfully!</DialogContentText>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCloseDialog} color="primary">
+                    <Button onClick={handleCloseDialog} color='primary'>
                         Close
                     </Button>
                 </DialogActions>

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { OrderContext } from './pages/OrderContext';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { SnackbarProvider } from './pages/SnackbarContext';
 import Home from './pages/Home';
 import Coffee from './pages/Coffee';
@@ -16,23 +15,21 @@ function App() {
     const [itemPrice, setItemPrice] = useState('');
 
     return (
-        <OrderContext.Provider value={{ itemName, setItemName, itemPrice, setItemPrice }}>
-            <SnackbarProvider>
-                <Router>
-                    <Routes>
-                        <Route path="/orders" element={<ViewOrders />} />
-                        <Route path="/signin" element={<SignIn />} />
-                        <Route path="/signup" element={<SignUp />} />
-                        <Route path="/order" element={<Order />} />
-                        <Route path="/breakfast" element={<Breakfast />} />
-                        <Route path="/caffeine-free" element={<CaffeineFree />} />
-                        <Route path="/coffee" element={<Coffee />} />
-                        <Route path="/" element={<Home />} />
-                        <Route path="*" element={<Home />} />
-                    </Routes>
-                </Router>
-            </SnackbarProvider>
-        </OrderContext.Provider>
+        <SnackbarProvider>
+            <Router>
+                <Routes>
+                    <Route path='/orders' element={<ViewOrders />} />
+                    <Route path='/signin' element={<SignIn />} />
+                    <Route path='/signup' element={<SignUp />} />
+                    <Route path='/order' element={<Order />} />
+                    <Route path='/breakfast' element={<Breakfast />} />
+                    <Route path='/caffeine-free' element={<CaffeineFree />} />
+                    <Route path='/coffee' element={<Coffee />} />
+                    <Route path='/' element={<Home />} />
+                    <Route path='*' element={<Home />} />
+                </Routes>
+            </Router>
+        </SnackbarProvider>
     );
 }
 
