@@ -117,7 +117,7 @@ const Order = () => {
         };
 
         fetchDrinkDetails();
-    }, [itemName, itemType, setItemPrice]);
+    }, [itemName]);
 
     useEffect(() => {
         setLoadingBack(true);
