@@ -8,18 +8,6 @@ const mysql = require('mysql2/promise');
 const bcrypt = require('bcrypt');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-const admin = require('firebase-admin');
-
-const firebaseConfig = {
-    apiKey: "AIzaSyAs6kq4ZHiqnbELldOePu9TuWO2MKxRXR0",
-    authDomain: "cafe-55c1d.firebaseapp.com",
-    projectId: "cafe-55c1d",
-    storageBucket: "cafe-55c1d.appspot.com",
-    messagingSenderId: "428961558292",
-    appId: "1:428961558292:web:37e1f8dcccd549cd859c01",
-    measurementId: "G-77P2J3SF4V"
-};
-admin.initializeApp(firebaseConfig);
 
 const app = express();
 const port = 5000;
@@ -28,7 +16,7 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(express.json());
 
-require('dotenv').config({ path: './src/env.env' });
+require('dotenv').config({ path: '../src/env.env' });
 const secretKey = process.env.SECRET_KEY;
 
 app.use(
@@ -80,7 +68,7 @@ app.use((req, res, next) => {
 });
 
 app.get('/', (req, res) => {
-    res.sendFile('index.html', { root: './dist' });
+    res.sendFile('index.html', { root: '../dist' });
 });
 
 app.get('/api/dataCoffee', async (req, res) => {
@@ -256,21 +244,16 @@ app.post('/api/login', async (req, res) => {
     const { username, password } = req.body;
 
     try {
-        // Get user's email from Accounts table
-        const getUserSql = 'SELECT email FROM Accounts WHERE User_name = ?';
-        const [users] = await conn.execute(getUserSql, [username]);
-        const user = users[0];
+        const [rows] = await conn.execute('SELECT * FROM Accounts WHERE User_name = ?', [username]);
+        const user = rows[0];
 
         if (!user) {
-            return res.status(400).json({ error: 'Username does not exist' });
+            return res.status(401).json({ error: 'Invalid username or password' });
         }
 
-        // Sign in with Firebase Authentication
-        const userCredential = await firebase.auth().signInWithEmailAndPassword(user.Email, password);
-        const firebaseUser = userCredential.user;
-
-        if (!firebaseUser.emailVerified) {
-            return res.status(401).json({ error: 'Email not verified' });
+        const isPasswordValid = await bcrypt.compare(password, user.Password);
+        if (!isPasswordValid) {
+            return res.status(401).json({ error: 'Invalid username or password' });
         }
 
         const token = jwt.sign({ username }, secretKey, { expiresIn: '30d' });
@@ -283,10 +266,10 @@ app.post('/api/login', async (req, res) => {
 });
 
 app.post('/api/register', async (req, res) => {
-    const { username, email, password } = req.body;
+    const { username, password, firstName, lastName } = req.body;
 
     try {
-        // Check if the username already exists in the main Accounts table
+        // Check if the username already exists
         const checkUserSql = 'SELECT * FROM Accounts WHERE User_name = ?';
         const [existingUser] = await conn.execute(checkUserSql, [username]);
 
@@ -294,21 +277,13 @@ app.post('/api/register', async (req, res) => {
             return res.status(400).json({ error: 'Username already exists' });
         }
 
-        // Create user in Firebase Authentication
-        const userRecord = await admin.auth().createUser({
-            email: email,
-            password: password,
-            emailVerified: false
-        });
+        const saltRounds = 10;
+        const encryptedPassword = await bcrypt.hash(password, saltRounds);
 
-        // Hash the password with bcrypt
-        const hashedPassword = await bcrypt.hash(password, 10);
+        const insertUserSql = 'INSERT INTO Accounts (User_name, Password, First_name, Last_name) VALUES (?, ?, ?, ?)';
+        await conn.execute(insertUserSql, [username, encryptedPassword, firstName, lastName]);
 
-        // Insert user into Accounts table
-        const insertUserSql = 'INSERT INTO Accounts (User_name, email, Password, First_name, Last_name) VALUES (?, ?, ?, ?, ?)';
-        await conn.execute(insertUserSql, [username, email, hashedPassword, firstName, lastName]);
-
-        res.json({ message: 'Account created successfully. Please verify your email address to complete registration.' });
+        res.json({ message: 'Account created successfully' });
     } catch (error) {
         console.error('Error registering user:', error);
         res.status(500).json({ error: 'Error registering user' });
@@ -350,22 +325,22 @@ app.get('/api/user_data', async (req, res) => {
     }
 });
 
-app.get('/api/drinkData/:type/:name', async (req, res) => {
-    const { type, name } = req.params;
+app.get('/api/drinkData/:itemType/:itemName', async (req, res) => {
+    const { itemType, itemName } = req.params;
 
     try {
         const [rows] = await conn.query(
-            `SELECT * FROM ${type} WHERE Name = ?`,
-            [name]
+            'SELECT * FROM Orders WHERE itemType = ? AND itemName = ?',
+            [itemType, itemName]
         );
 
         if (rows.length > 0) {
             res.json(rows);
         } else {
-            res.status(404).json({ error: 'No drink found with this name' });
+            res.status(404).json({ error: 'No orders found for this item' });
         }
     } catch (error) {
-        console.error('Error fetching drink details:', error);
+        console.error('Error fetching order details:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });
@@ -440,7 +415,7 @@ app.post('/api/submit-form', async (req, res) => {
 
 app.use(history());
 
-app.use(express.static('./dist'));
+app.use(express.static('../dist'));
 
 app.listen(port, host, () => {
     if (host === '0.0.0.0') {
