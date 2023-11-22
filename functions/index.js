@@ -330,7 +330,7 @@ app.get('/api/drinkData/:itemType/:itemName', async (req, res) => {
 
     try {
         const [rows] = await conn.query(
-            'SELECT * FROM Orders WHERE itemType = ? AND itemName = ?',
+            'SELECT * FROM ? WHERE itemName = ?',
             [itemType, itemName]
         );
 
