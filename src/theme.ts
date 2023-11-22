@@ -3,22 +3,22 @@ import { createTheme } from '@material-ui/core';
 const theme = createTheme({
     palette: {
         primary: {
-            main: '#1E88E5', // Bright cyan
+            main: '#1E88E5',
         },
         secondary: {
-            main: '#FF6D00', // Amber 900
+            main: '#FF6D00',
         },
         error: {
-            main: '#F44336', // Red 500
+            main: '#F44336',
         },
         warning: {
-            main: '#FF9800', // Orange 500
+            main: '#FF9800',
         },
         info: {
-            main: '#2196F3', // Blue 500
+            main: '#2196F3',
         },
         success: {
-            main: '#4CAF50', // Green 500
+            main: '#4CAF50',
         },
     },
     typography: {

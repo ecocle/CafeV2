@@ -16,7 +16,7 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(express.json());
 
-require('dotenv').config({ path: './src/env.env' });
+require('dotenv').config({ path: '../src/env.env' });
 const secretKey = process.env.SECRET_KEY;
 
 app.use(
@@ -24,6 +24,11 @@ app.use(
         secret: secretKey,
         resave: false,
         saveUninitialized: true,
+        cookie: {
+            maxAge: 30 * 24 * 60 * 60 * 1000, // One hour
+            secure: true, // Set to true in production
+            httpOnly: true, // Set to true to prevent JavaScript access
+        },
     })
 );
 
@@ -68,7 +73,7 @@ app.use((req, res, next) => {
 });
 
 app.get('/', (req, res) => {
-    res.sendFile('index.html', { root: './dist' });
+    res.sendFile('index.html', { root: '../dist' });
 });
 
 app.get('/api/dataCoffee', async (req, res) => {
@@ -266,7 +271,7 @@ app.post('/api/login', async (req, res) => {
 });
 
 app.post('/api/register', async (req, res) => {
-    const { username, password, firstName, lastName } = req.body;
+    const { username, password } = req.body;
 
     try {
         // Check if the username already exists
@@ -277,11 +282,11 @@ app.post('/api/register', async (req, res) => {
             return res.status(400).json({ error: 'Username already exists' });
         }
 
-        const saltRounds = 10;
+        const saltRounds = 10; // Specify the number of salt rounds
         const encryptedPassword = await bcrypt.hash(password, saltRounds);
 
-        const insertUserSql = 'INSERT INTO Accounts (User_name, Password, First_name, Last_name) VALUES (?, ?, ?, ?)';
-        await conn.execute(insertUserSql, [username, encryptedPassword, firstName, lastName]);
+        const insertUserSql = 'INSERT INTO Accounts (User_name, Password) VALUES (?, ?)';
+        await conn.execute(insertUserSql, [username, encryptedPassword]);
 
         res.json({ message: 'Account created successfully' });
     } catch (error) {
@@ -310,12 +315,12 @@ app.get('/api/user_data', async (req, res) => {
 
     try {
         const [rows] = await conn.query(
-            'SELECT User_name, Balance, First_name, Last_name FROM Accounts WHERE User_name = ?',
+            'SELECT User_name, Balance FROM Accounts WHERE User_name = ?',
             [username]
         );
         if (rows.length > 0) {
             const userData = rows[0];
-            res.json({ username: userData.User_name, balance: userData.Balance, firstName: userData.First_name, lastName: userData.Last_name });
+            res.json({ username: userData.User_name, balance: userData.Balance });
         } else {
             res.status(404).json({ error: 'User data not found' });
         }
@@ -325,26 +330,29 @@ app.get('/api/user_data', async (req, res) => {
     }
 });
 
-app.get('/api/drinkData/:type/:name', async (req, res) => {
-    const { type, name } = req.params;
+<<<<<<< HEAD
+app.get('/api/drinkData/:itemType/:itemName', async (req, res) => {
+    const { itemType, itemName } = req.params;
 
     try {
+        const query = `SELECT * FROM ?? WHERE Name = ?`;
         const [rows] = await conn.query(
-            `SELECT * FROM ${type} WHERE Name = ?`,
-            [name]
+            mysql.format(query, [itemType, itemName])
         );
 
         if (rows.length > 0) {
             res.json(rows);
         } else {
-            res.status(404).json({ error: 'No drink found with this name' });
+            res.status(404).json({ error: 'No orders found for this item' });
         }
     } catch (error) {
-        console.error('Error fetching drink details:', error);
+        console.error('Error fetching order details:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });
 
+=======
+>>>>>>> parent of 35db7aa (Changed the way i store order data)
 app.get('/api/admin/orders', async (req, res) => {
     try {
         const date = req.query.date;
@@ -357,6 +365,7 @@ app.get('/api/admin/orders', async (req, res) => {
         }
 
         query += ' ORDER BY order_time DESC';
+
 
         const [results] = await conn.query(query, queryParams);
         res.json({ data: results });
@@ -395,6 +404,7 @@ app.get('/api/orders', async (req, res) => {
 
         query += ' ORDER BY order_time DESC';
 
+
         const [results] = await conn.query(query, queryParams);
         res.json({ data: results });
     } catch (error) {
@@ -415,7 +425,7 @@ app.post('/api/submit-form', async (req, res) => {
 
 app.use(history());
 
-app.use(express.static('./dist'));
+app.use(express.static('../dist'));
 
 app.listen(port, host, () => {
     if (host === '0.0.0.0') {
