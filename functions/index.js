@@ -329,9 +329,9 @@ app.get('/api/drinkData/:itemType/:itemName', async (req, res) => {
     const { itemType, itemName } = req.params;
 
     try {
+        const query = `SELECT * FROM ?? WHERE Name = ?`;
         const [rows] = await conn.query(
-            'SELECT * FROM ? WHERE itemName = ?',
-            [itemType, itemName]
+            mysql.format(query, [itemType, itemName])
         );
 
         if (rows.length > 0) {
