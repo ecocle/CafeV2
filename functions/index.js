@@ -358,6 +358,7 @@ app.get('/api/admin/orders', async (req, res) => {
 
         query += ' ORDER BY order_time DESC';
 
+
         const [results] = await conn.query(query, queryParams);
         res.json({ data: results });
     } catch (error) {
@@ -394,6 +395,7 @@ app.get('/api/orders', async (req, res) => {
         }
 
         query += ' ORDER BY order_time DESC';
+
 
         const [results] = await conn.query(query, queryParams);
         res.json({ data: results });
