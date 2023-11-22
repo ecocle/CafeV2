@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { useContext } from 'react';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -7,19 +6,18 @@ import TextField from '@mui/material/TextField';
 import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
-import Alert from '@mui/material/Alert';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
+import Snackbar from '@mui/material/Snackbar';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { SnackbarContext } from './SnackbarContext';
 
 export default function SignUp() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-    const { setOpen, setMessage } = useContext(SnackbarContext);
+    const [open, setOpen] = useState(false);
     const navigate = useNavigate();
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -28,6 +26,7 @@ export default function SignUp() {
 
         const username = data.get('username');
         const password = data.get('password');
+<<<<<<< HEAD
         const firstName = data.get('firstName');
         const lastName = data.get('lastName');
 
@@ -35,6 +34,8 @@ export default function SignUp() {
             setError('First name, username, email, and password are required');
             return;
         }
+=======
+>>>>>>> parent of 35db7aa (Changed the way i store order data)
 
         setLoading(true);
         try {
@@ -43,16 +44,19 @@ export default function SignUp() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ username, password, firstName, lastName }),
+                body: JSON.stringify({ username, password }),
             });
 
             if (!response.ok) {
                 const responseData = await response.json();
                 throw new Error(responseData.message || 'Error signing up');
             } else {
-                navigate('/');
                 setOpen(true);
+<<<<<<< HEAD
                 setMessage('Sign up successful.');
+=======
+                navigate('/signin');
+>>>>>>> parent of 35db7aa (Changed the way i store order data)
             }
         } catch (error) {
             const err = error as Error & { response?: { status?: number } };
@@ -98,6 +102,7 @@ export default function SignUp() {
                         </Grid>
                         <Grid item xs={12} sm={6}>
                             <TextField
+                                required
                                 fullWidth
                                 id="lastName"
                                 label="Last Name"
@@ -136,7 +141,13 @@ export default function SignUp() {
                     >
                         {loading ? <CircularProgress size={24} /> : 'Sign Up'}
                     </Button>
-                    {error && <Alert severity="error">{error}</Alert>}
+                    {error && <p color="error">{error}</p>}
+                    <Snackbar
+                        open={open}
+                        autoHideDuration={6000}
+                        onClose={() => setOpen(false)}
+                        message="Sign up successful"
+                    />
                     <Grid container justifyContent="flex-end">
                         <Grid item>
                             <Link href="/signin" variant="body2">

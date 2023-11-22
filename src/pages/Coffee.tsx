@@ -11,6 +11,7 @@ import {
 } from '@material-ui/core';
 import { Link } from 'react-router-dom';
 import styles from './Coffee.module.scss';
+import { OrderContext } from './OrderContext';
 import { useNavigate } from 'react-router-dom';
 
 interface CoffeeItem {
@@ -20,6 +21,7 @@ interface CoffeeItem {
 
 const Coffee = () => {
     const [breakfastList, setBreakfastList] = useState<CoffeeItem[]>([]);
+    const { setItemName, setItemPrice } = useContext(OrderContext);
     const [shouldNavigate, setShouldNavigate] = useState(false);
     const navigate = useNavigate();
     const [open, setOpen] = React.useState(false);
@@ -104,7 +106,12 @@ const Coffee = () => {
                                                     variant="contained"
                                                     color="primary"
                                                     onClick={() => {
-                                                        navigate(`/order#name=${item.Name}&type=Coffee`);
+                                                        console.log(
+                                                            'Setting itemName and itemPrice'
+                                                        );
+                                                        setItemName(item.Name);
+                                                        setItemPrice(item.Price);
+                                                        setShouldNavigate(true);
                                                     }}
                                                     disableElevation
                                                 >

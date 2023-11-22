@@ -12,7 +12,6 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import Snackbar from '@mui/material/Snackbar';
-import CircularProgress from '@mui/material/CircularProgress';
 import { useState } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
@@ -21,7 +20,6 @@ import { SnackbarContext } from './SnackbarContext';
 
 export default function SignIn() {
     const [openError, setOpenError] = useState(false);
-    const [loading, setLoading] = useState(false);
     const { setOpen, setMessage } = useContext(SnackbarContext);
     const navigate = useNavigate();
 
@@ -30,9 +28,6 @@ export default function SignIn() {
             username: username,
             password,
         };
-
-        setLoading(true)
-
 
         try {
             const response = await fetch('/api/login', {
@@ -54,15 +49,12 @@ export default function SignIn() {
                 navigate('/');
                 setOpen(true);
                 setMessage('Sign in successful, welcome ' + username);
-                setLoading(false)
             } else {
                 setOpenError(true);
                 console.error(`Error: ${response.statusText}`);
-                setLoading(false)
             }
         } catch (error) {
             setOpenError(true);
-            setLoading(false)
         }
     };
 
@@ -112,8 +104,8 @@ export default function SignIn() {
                         id="password"
                         autoComplete="current-password"
                     />
-                    <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }} disabled={loading}>
-                        {loading ? <CircularProgress size={24} /> : 'Sign In'}
+                    <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
+                        Sign In
                     </Button>
                     <Grid container>
                         <Grid item xs>

@@ -24,7 +24,7 @@ import paymentImage from '../assets/paymentImage.jpg';
 const Home = () => {
     const token = Cookies.get('token');
     const username = Cookies.get('username');
-    const [amount, setAmount] = useState('0');
+    const [amount, setAmount] = useState(0);
     const [openDialog, setOpenDialog] = useState(false);
     const { open, message, setOpen } = useContext(SnackbarContext);
     const [showAlert, setShowAlert] = useState(false);
@@ -72,7 +72,6 @@ const Home = () => {
 
     const handleCloseDialog = () => {
         setOpenDialog(false);
-        window.location.reload();
     };
 
     const checkLogin = (event: React.MouseEvent) => {
@@ -134,13 +133,7 @@ const Home = () => {
                                             label="Amount"
                                             value={amount}
                                             onClick={(e) => e.stopPropagation()}
-                                            onChange={(e) => {
-                                                let value = e.target.value;
-                                                if (value.startsWith('0') && value !== '0') {
-                                                    value = value.slice(1);
-                                                }
-                                                setAmount(value !== '' ? value : '0');
-                                            }}
+                                            onChange={(e) => setAmount(Number(e.target.value))}
                                             InputProps={{ inputProps: { min: 0 } }}
                                         />
                                         <Button type="submit" variant="contained" color="primary">
@@ -219,7 +212,7 @@ const Home = () => {
                     component={Link}
                     to="/caffeine-free"
                 >
-                    Non-Caffeinated drinks
+                    Non-Caffeine drinks
                 </Button>
                 <Button
                     onClick={checkLogin}

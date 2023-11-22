@@ -1,26 +1,22 @@
-.container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-}
-
 .orderForm {
     display: flex;
     flex-direction: column;
-    width: 500px;
-    padding: 20px;
+    gap: 10px;
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 10px;
     border-radius: 10px;
-    box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.1);
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    background-color: #f8f9fa;
 
-    .textField,
-    .FormControl,
-    .FormControlLabel,
-    .submitButton {
-        margin-bottom: 20px;
+    .formControl, .textField, .formControlLabel {
+        width: 100%;
+        margin-bottom: 5px;
     }
-
-    .submitButton {
-        align-self: center;
+    
+    .formGroup {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
     }
 }
