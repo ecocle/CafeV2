@@ -389,7 +389,7 @@ const Order = () => {
                                 {loading ? <CircularProgress size={24} /> : 'Submit Order'}
                             </Button>
                             {priceError && (
-                                <Alert severity="error">Not enough funds in account</Alert>
+                                <Alert severity="error">Not enough balance in account</Alert>
                             )}
                         </form>
                     </>
