@@ -3,17 +3,19 @@ import { SnackbarContext } from './SnackbarContext';
 import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
 import {
-    Backdrop,
     Box,
     Button,
     Checkbox,
     CircularProgress,
+    Divider,
     Fade,
     FormControl,
     FormControlLabel,
     FormGroup,
+    Paper,
     TextField,
     Typography,
+    Backdrop,
 } from '@material-ui/core';
 import Autocomplete from '@mui/material/Autocomplete';
 import Alert from '@mui/material/Alert';
@@ -23,7 +25,7 @@ const toppings = [
     { name: 'Oat Milk Substitution', price: 1.0 },
     { name: 'Boba', price: 1.0 },
     { name: 'Extra Espresso Shot', price: 2.0 },
-    { name: 'Red Bean', price: 1.0 },
+    { name: 'Red Bean', price: 1.0 }
 ];
 
 const Order = () => {
@@ -33,7 +35,7 @@ const Order = () => {
     const [itemPrice, setItemPrice] = useState(0);
     const [loading, setLoading] = useState(false);
     const [loadingBack, setLoadingBack] = useState(false);
-    const { setOpen, setMessage } = useContext(SnackbarContext);
+    const { setOpenSnackbar, setSnackbarMessage } = useContext(SnackbarContext);
     const token = Cookies.get('token');
     const username = Cookies.get('username') || '';
     const [userData, setUserData] = useState<{
@@ -45,7 +47,7 @@ const Order = () => {
         balance: 0,
         username: username,
         firstName: '',
-        lastName: '',
+        lastName: ''
     });
     const [options, setOptions] = useState<{
         size: string | undefined;
@@ -63,14 +65,14 @@ const Order = () => {
         'Crispy cereal in milk(honey)',
         'Crispy cereal in milk(chocolate)',
         'Classic flavoured Porridge',
-        'Chocolate flavoured Porridge',
+        'Chocolate flavoured Porridge'
     ];
     const noToppings = [
         'Crispy cereal in milk(classic)',
         'Crispy cereal in milk(honey)',
         'Crispy cereal in milk(chocolate)',
         'Classic flavoured Porridge',
-        'Chocolate flavoured Porridge',
+        'Chocolate flavoured Porridge'
     ];
     const noHot = [
         'Crispy cereal in milk(classic)',
@@ -86,7 +88,7 @@ const Order = () => {
         'Boba',
         'Refreshing babyblue drink',
         'Pure milk',
-        'Black currant oolang tea',
+        'Black currant oolang tea'
     ];
     const noCold = ['Classic flavoured Porridge', 'Chocolate flavoured Porridge'];
     const noNormal = [
@@ -94,12 +96,13 @@ const Order = () => {
         'Crispy cereal in milk(honey)',
         'Crispy cereal in milk(chocolate)',
         'Classic flavoured Porridge',
-        'Chocolate flavoured Porridge',
+        'Chocolate flavoured Porridge'
     ];
     const navigate = useNavigate();
 
     useEffect(() => {
         setLoadingBack(true);
+        console.log(itemName, itemType);
         const fetchDrinkDetails = async () => {
             try {
                 const response = await fetch(`/api/drinkData/${itemType}/${itemName}`);
@@ -124,9 +127,9 @@ const Order = () => {
     useEffect(() => {
         fetch('/api/user_data', {
             headers: {
-                Authorization: `Bearer ${token}`,
+                Authorization: `Bearer ${token}`
             },
-            credentials: 'include',
+            credentials: 'include'
         })
             .then((response) => response.json())
             .then((data) => {
@@ -153,22 +156,52 @@ const Order = () => {
         });
     };
 
-    const handleOptionChange = (event: ChangeEvent<{ name?: string; value: unknown }>) => {
-        const name = event.target.name as keyof typeof options;
-        const value = event.target.value as string;
+    const handleTemperatureChange = (_event: React.ChangeEvent<{}>, newValue: string | null) => {
+        setTemperatureError('');
+        setOptions((prevOptions) => ({
+            ...prevOptions,
+            temperature: newValue || undefined
+        }));
+    };
 
+    const handleSizeChange = (_event: React.ChangeEvent<{}>, newValue: string | null) => {
+        setSizeError('');
         setOptions((prevOptions) => {
-            if (name === 'size' && value === 'large' && prevOptions.size !== 'large') {
-                setSizeError('');
-                return { ...prevOptions, [name]: value, total: prevOptions.total + 3 };
-            } else if (name === 'size' && value !== 'large' && prevOptions.size === 'large') {
-                setSizeError('');
-                return { ...prevOptions, [name]: value, total: prevOptions.total - 3 };
-            } else {
-                if (name === 'size') setSizeError('');
-                if (name === 'temperature') setTemperatureError('');
-                return { ...prevOptions, [name]: value };
+            const currentSize = prevOptions.size;
+            const newSize = newValue || undefined;
+
+            if (currentSize === 'Medium' && newSize === 'Large') {
+                return {
+                    ...prevOptions,
+                    size: newSize,
+                    total: prevOptions.total + 3
+                };
+            } else if (!currentSize && newSize === 'Large') {
+                return {
+                    ...prevOptions,
+                    size: newSize,
+                    total: prevOptions.total + 3
+                };
+            } else if (currentSize === 'Large' && newSize === 'Medium') {
+                return {
+                    ...prevOptions,
+                    size: newSize,
+                    total: prevOptions.total - 3
+                };
+            } else if (currentSize === 'Large' && !newSize) {
+                return {
+                    ...prevOptions,
+                    size: newSize,
+                    total: prevOptions.total - 3
+                };
+            } else if (currentSize === 'Medium' && !newSize) {
+                return prevOptions;
             }
+
+            return {
+                ...prevOptions,
+                size: newSize
+            };
         });
     };
 
@@ -181,13 +214,13 @@ const Order = () => {
                 return {
                     ...prevOptions,
                     toppings: [...prevOptions.toppings, topping],
-                    total: prevOptions.total + toppingPrice,
+                    total: prevOptions.total + toppingPrice
                 };
             } else {
                 return {
                     ...prevOptions,
                     toppings: prevOptions.toppings.filter((t) => t !== topping),
-                    total: prevOptions.total - toppingPrice,
+                    total: prevOptions.total - toppingPrice
                 };
             }
         });
@@ -217,7 +250,6 @@ const Order = () => {
             finalTotal -= 1;
         }
 
-        // Check if the user's balance is less than the total price
         if (userData.balance < finalTotal) {
             setPriceError(true);
             return;
@@ -238,17 +270,17 @@ const Order = () => {
             price: finalTotal,
             comments,
             useCup,
-            balance: userData.balance,
+            balance: userData.balance
         };
 
         try {
-            const response = await fetch('/api/orders', {
+            const response = await fetch('/api/order', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
+                    Authorization: `Bearer ${token}`
                 },
-                body: JSON.stringify(orderDetails),
+                body: JSON.stringify(orderDetails)
             });
 
             if (!response.ok) {
@@ -257,8 +289,8 @@ const Order = () => {
             }
 
             navigate(`/`);
-            setOpen(true);
-            setMessage('Order placed successfully');
+            setOpenSnackbar(true);
+            setSnackbarMessage('Order placed successfully');
             setLoading(false);
         } catch (error) {
             console.error('Error placing order:', error);
@@ -267,19 +299,28 @@ const Order = () => {
     };
 
     return (
-        <div className={styles.container}>
-            <Backdrop open={loadingBack} style={{ zIndex: 9999 }}>
-                <CircularProgress color="primary" />
+        <Box p={4} className={styles.container}>
+            <Backdrop open={loadingBack}>
+                <CircularProgress color="inherit"/>
             </Backdrop>
-            {!loadingBack && (
-                <Fade in={!loadingBack}>
-                    <>
-                        <form className={styles.orderForm} onSubmit={handleSubmit}>
-                            <Typography variant="h6">Information</Typography>
+            <Fade in={!loadingBack}>
+                <Paper elevation={3}>
+                    <Box p={4}>
+                        <Typography variant='h3' align='center' gutterBottom>
+                            Order
+                        </Typography>
+                        <Divider />
+                        <Box my={4}>
+                            <Typography variant='h5' align='center' gutterBottom>
+                                {itemName}
+                            </Typography>
+                        </Box>
+                        <form onSubmit={handleSubmit} className={styles.orderForm}>
+                            <Typography variant='h6'>Information</Typography>
                             <TextField
-                                variant="outlined"
+                                variant='outlined'
                                 className={styles.textField}
-                                label="Comments"
+                                label='Comments'
                                 value={comments}
                                 onChange={(e) => setComments(e.target.value)}
                                 multiline
@@ -288,35 +329,25 @@ const Order = () => {
                                 className={styles.FormControlLabel}
                                 control={
                                     <Checkbox
-                                        color="primary"
+                                        color='primary'
                                         checked={useCup}
                                         onChange={handleCupChange}
                                     />
                                 }
-                                label="Use own cup"
+                                label='Use own cup'
                             />
-                            <Typography variant="h6">Order Details</Typography>
+                            <Typography variant='h6'>Order Details</Typography>
                             <Box marginBottom={2}>
                                 <Autocomplete
-                                    value={options.size}
-                                    onChange={(_event, newValue) => {
-                                        setOptions((prevOptions) => ({
-                                            ...prevOptions,
-                                            size: newValue || undefined,
-                                            total:
-                                                newValue === 'Large'
-                                                    ? prevOptions.total + 3
-                                                    : prevOptions.total - 3,
-                                        }));
-                                    }}
+                                    onChange={handleSizeChange}
                                     options={['Medium', 'Large'].filter(
                                         (size) => !(size === 'Large' && noLarge.includes(itemName))
                                     )}
                                     renderInput={(params) => (
                                         <TextField
                                             {...params}
-                                            label="Size *"
-                                            variant="outlined"
+                                            label='Size *'
+                                            variant='outlined'
                                             error={Boolean(sizeError)}
                                             helperText={sizeError}
                                         />
@@ -326,15 +357,7 @@ const Order = () => {
                             <Box marginBottom={2}>
                                 <Autocomplete
                                     value={options.temperature}
-                                    onChange={(newValue) => {
-                                        const changeEvent = {
-                                            target: {
-                                                name: 'temperature',
-                                                value: newValue,
-                                            },
-                                        } as React.ChangeEvent<{ name?: string; value: unknown }>;
-                                        handleOptionChange(changeEvent);
-                                    }}
+                                    onChange={handleTemperatureChange}
                                     options={['Hot', 'Normal', 'Cold'].filter(
                                         (temp) =>
                                             !(temp === 'Hot' && noHot.includes(itemName)) &&
@@ -344,8 +367,8 @@ const Order = () => {
                                     renderInput={(params) => (
                                         <TextField
                                             {...params}
-                                            label="Temperature *"
-                                            variant="outlined"
+                                            label='Temperature *'
+                                            variant='outlined'
                                             error={Boolean(temperatureError)}
                                             helperText={temperatureError}
                                         />
@@ -354,7 +377,7 @@ const Order = () => {
                             </Box>
                             {!noToppings.includes(itemName) && (
                                 <>
-                                    <Typography variant="h6">Toppings</Typography>
+                                    <Typography variant='h6'>Toppings</Typography>
                                     <FormControl className={styles.FormControl}>
                                         <FormGroup className={styles.FormGroup}>
                                             {toppings.map((topping) => (
@@ -363,7 +386,7 @@ const Order = () => {
                                                     className={styles.FormControlLabel}
                                                     control={
                                                         <Checkbox
-                                                            color="primary"
+                                                            color='primary'
                                                             checked={options.toppings.includes(
                                                                 topping.name
                                                             )}
@@ -378,24 +401,24 @@ const Order = () => {
                                     </FormControl>
                                 </>
                             )}
-                            <Typography variant="h6">Total: ¥{options.total.toFixed(1)}</Typography>
+                            <Typography variant='h6'>Total: ¥{options.total.toFixed(1)}</Typography>
                             <Button
                                 className={styles.submitButton}
-                                variant="contained"
-                                color="primary"
-                                type="submit"
+                                variant='contained'
+                                color='primary'
+                                type='submit'
                                 disabled={loading}
                             >
                                 {loading ? <CircularProgress size={24} /> : 'Submit Order'}
                             </Button>
                             {priceError && (
-                                <Alert severity="error">Not enough balance in account</Alert>
+                                <Alert severity='error'>Not enough balance in account</Alert>
                             )}
                         </form>
-                    </>
-                </Fade>
-            )}
-        </div>
+                    </Box>
+                </Paper>
+            </Fade>
+        </Box>
     );
 };
 

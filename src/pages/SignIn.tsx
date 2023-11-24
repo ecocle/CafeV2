@@ -1,128 +1,132 @@
-import * as React from 'react';
-import { useContext } from 'react';
-import Avatar from '@mui/material/Avatar';
-import { Alert } from '@mui/material';
-import Button from '@mui/material/Button';
-import CssBaseline from '@mui/material/CssBaseline';
-import TextField from '@mui/material/TextField';
-import Link from '@mui/material/Link';
-import Grid from '@mui/material/Grid';
-import Box from '@mui/material/Box';
+import { useContext, useState } from 'react';
+import {
+    Alert,
+    Avatar,
+    Box,
+    Button,
+    CircularProgress,
+    Container,
+    Grid,
+    Link,
+    TextField,
+    Typography
+} from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import Typography from '@mui/material/Typography';
-import Container from '@mui/material/Container';
-import Snackbar from '@mui/material/Snackbar';
-import { useState } from 'react';
-import { jwtDecode } from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
-import Cookies from 'js-cookie';
 import { SnackbarContext } from './SnackbarContext';
+import Cookies from 'js-cookie';
+import { jwtDecode } from 'jwt-decode';
 
 export default function SignIn() {
     const [openError, setOpenError] = useState(false);
-    const { setOpen, setMessage } = useContext(SnackbarContext);
+    const [errorMessage, setErrorMessage] = useState('');
+    const { setOpenSnackbar, setSnackbarMessage } = useContext(SnackbarContext);
+    const [signingIn, setSigningIn] = useState(false);
     const navigate = useNavigate();
 
-    const handleSignin = async (username: string, password: string) => {
-        const loginData = {
-            username: username,
-            password,
-        };
+    const handleSignIn = async (username: string, password: string) => {
+        setSigningIn(true);
+        const loginData = { username, password };
 
         try {
-            const response = await fetch('/api/login', {
+            const response = await fetch('/api/signIn', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(loginData),
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(loginData)
             });
 
             if (response.ok) {
                 const responseData = await response.json();
                 const token = responseData.token;
                 Cookies.set('token', token);
-                const decodedToken: { username: string } = (jwtDecode as any)(token);
-                const username = decodedToken.username;
-                Cookies.set('username', username);
 
-                navigate('/');
-                setOpen(true);
-                setMessage('Sign in successful, welcome ' + username);
+                try {
+                    const decodedToken: { username: string } = (jwtDecode as any)(token);
+                    const { username } = decodedToken;
+                    Cookies.set('username', username);
+
+                    navigate('/');
+                    setOpenSnackbar(true);
+                    setSnackbarMessage(`Sign in successful, welcome ${username}!`);
+                    setSigningIn(false);
+                } catch (error: any) {
+                    console.error('Error decoding token:', error);
+                    setOpenError(true);
+                    setErrorMessage(`Error decoding token: ${error.message || 'Unknown error'}`);
+                }
             } else {
-                setOpenError(true);
-                console.error(`Error: ${response.statusText}`);
+                setSigningIn(false);
+
+                if (response.status === 401) {
+                    setOpenError(true);
+                    setErrorMessage('Incorrect username or password');
+                    console.error('Error: Incorrect username or password');
+                } else {
+                    setOpenError(true);
+                    setErrorMessage(`Error: ${response.statusText}`);
+                    console.error(`Error: ${response.statusText}`);
+                }
             }
         } catch (error) {
+            setSigningIn(false);
             setOpenError(true);
+            setErrorMessage('Error: Something went wrong, please try again later');
+            console.error('Error: Something went wrong');
         }
     };
 
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = (event: any) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
         const username = data.get('username') as string;
         const password = data.get('password') as string;
-        handleSignin(username, password);
+        handleSignIn(username, password);
     };
 
     return (
-        <Container component="main" maxWidth="xs">
-            <CssBaseline />
-            <Box
-                sx={{
-                    marginTop: 8,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                }}
-            >
+        <Container component='main' maxWidth='xs'>
+            <Box sx={{ marginTop: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                 <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
                     <LockOutlinedIcon />
                 </Avatar>
-                <Typography component="h1" variant="h5">
+                <Typography component='h1' variant='h5'>
                     Sign In
                 </Typography>
-                <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+                <Box component='form' onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
                     <TextField
-                        margin="normal"
+                        margin='normal'
                         required
                         fullWidth
-                        id="username"
-                        label="Username"
-                        name="username"
-                        autoComplete="username"
+                        id='username'
+                        label='Username'
+                        name='username'
+                        autoComplete='username'
                         autoFocus
                     />
                     <TextField
-                        margin="normal"
+                        margin='normal'
                         required
                         fullWidth
-                        name="password"
-                        label="Password"
-                        type="password"
-                        id="password"
-                        autoComplete="current-password"
+                        name='password'
+                        label='Password'
+                        type='password'
+                        id='password'
+                        autoComplete='current-password'
                     />
-                    <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
-                        Sign In
+                    <Button disabled={signingIn} type='submit' fullWidth variant='contained' sx={{ mt: 3, mb: 2 }}>
+                        {signingIn ? <CircularProgress size={24} /> : 'Sign In'}
                     </Button>
+                    {openError && <Alert severity='error'>{errorMessage}</Alert>}
                     <Grid container>
-                        <Grid item xs>
-                        </Grid>
+                        <Grid item xs></Grid>
                         <Grid item>
-                            <Link href="/signup" variant="body2">
-                                {"Don't have an account? Sign Up"}
+                            <Link href='/signup' variant='body2'>
+                                {'Don\'t have an account? Sign Up'}
                             </Link>
                         </Grid>
                     </Grid>
                 </Box>
             </Box>
-            <Snackbar open={openError} autoHideDuration={12000} onClose={() => setOpenError(false)}>
-                <Alert severity="error" sx={{ width: '100%' }}>
-                    Sign in failed, please try again.
-                </Alert>
-            </Snackbar>
         </Container>
     );
 }

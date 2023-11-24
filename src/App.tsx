@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { SnackbarProvider } from './pages/SnackbarContext';
 import Home from './pages/Home';
@@ -11,8 +11,6 @@ import SignIn from './pages/SignIn';
 import ViewOrders from './pages/ViewOrders';
 
 function App() {
-    const [itemName, setItemName] = useState('');
-    const [itemPrice, setItemPrice] = useState('');
 
     return (
         <SnackbarProvider>

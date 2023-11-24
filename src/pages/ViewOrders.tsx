@@ -39,11 +39,15 @@ const ViewOrders = () => {
     const token = Cookies.get('token');
     const username = Cookies.get('username');
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+    const [temporaryDate, setTemporaryDate] = useState('');
 
-    const handleDateChange = (event: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const selectedDate = (event.target as HTMLInputElement).value;
-        setDate(selectedDate);
-        fetchOrderData(selectedDate, 0);
+    const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setTemporaryDate(event.target.value);
+    };
+
+    const handleBlur = async () => {
+        setDate(temporaryDate);
+        await fetchOrderData(temporaryDate, 0);
     };
 
     useEffect(() => {
@@ -105,10 +109,10 @@ const ViewOrders = () => {
                             id='date'
                             label='Date'
                             type='date'
-                            value={date}
+                            value={temporaryDate || date} // Show temporaryDate when it exists
                             className={styles.dateField}
-                            onBlur={handleDateChange}
                             onChange={handleDateChange}
+                            onBlur={handleBlur}
                             InputLabelProps={{
                                 shrink: true
                             }}

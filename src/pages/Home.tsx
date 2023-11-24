@@ -1,7 +1,4 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Alert } from '@mui/material';
-import styles from './Home.module.scss';
-import { Link } from 'react-router-dom';
 import {
     Box,
     Button,
@@ -14,19 +11,23 @@ import {
     MenuItem,
     Snackbar,
     TextField,
-    Typography
+    Typography,
+    Divider,
 } from '@material-ui/core';
-import { SnackbarContext } from './SnackbarContext';
-import Cookies from 'js-cookie';
+import { Link } from 'react-router-dom';
+import Alert from '@mui/material/Alert';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import styles from './Home.module.scss';
+import Cookies from 'js-cookie';
 import paymentImage from '../assets/paymentImage.jpg';
+import { SnackbarContext } from './SnackbarContext';
 
 const Home = () => {
     const token = Cookies.get('token');
     const username = Cookies.get('username');
-    const [amount, setAmount] = useState(0);
+    const [amount, setAmount] = useState('0');
     const [openDialog, setOpenDialog] = useState(false);
-    const { open, message, setOpen } = useContext(SnackbarContext);
+    const { openSnackbar, snackbarMessage, setOpenSnackbar } = useContext(SnackbarContext);
     const [showAlert, setShowAlert] = useState(false);
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [balance, setBalance] = useState(0);
@@ -72,6 +73,7 @@ const Home = () => {
 
     const handleCloseDialog = () => {
         setOpenDialog(false);
+        window.location.reload();
     };
 
     const checkLogin = (event: React.MouseEvent) => {
@@ -126,6 +128,7 @@ const Home = () => {
                                 <MenuItem>
                                     <Typography>Balance: {balance}</Typography>
                                 </MenuItem>
+                                <Divider />
                                 <MenuItem onClick={handleClose}>
                                     <form onSubmit={handleAddFunds}>
                                         <TextField
@@ -133,7 +136,13 @@ const Home = () => {
                                             label='Amount'
                                             value={amount}
                                             onClick={(e) => e.stopPropagation()}
-                                            onChange={(e) => setAmount(Number(e.target.value))}
+                                            onChange={(e) => {
+                                                let value = e.target.value;
+                                                if (value.startsWith('0') && value !== '0') {
+                                                    value = value.slice(1);
+                                                }
+                                                setAmount(value !== '' ? value : '0');
+                                            }}
                                             InputProps={{ inputProps: { min: 0 } }}
                                         />
                                         <Button type='submit' variant='contained' color='primary'>
@@ -141,6 +150,7 @@ const Home = () => {
                                         </Button>
                                     </form>
                                 </MenuItem>
+                                <Divider />
                                 <MenuItem onClick={handleClose} component={Link} to='/orders'>
                                     View Orders
                                 </MenuItem>
@@ -231,9 +241,9 @@ const Home = () => {
                     Made By Shawn
                 </Typography>
             </Box>
-            <Snackbar open={open} autoHideDuration={6000} onClose={() => setOpen(false)}>
-                <Alert onClose={() => setOpen(false)} severity='success'>
-                    {message}
+            <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={() => setOpenSnackbar(false)}>
+                <Alert onClose={() => setOpenSnackbar(false)} severity='success'>
+                    {snackbarMessage}
                 </Alert>
             </Snackbar>
             <Dialog open={openDialog} onClose={handleCloseDialog}>

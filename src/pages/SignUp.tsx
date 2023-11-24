@@ -1,5 +1,5 @@
-import * as React from 'react';
-import { useContext, useState } from 'react';
+import React, { useContext, useState } from 'react';
+import { FormEvent } from 'react';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -15,29 +15,29 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { useNavigate } from 'react-router-dom';
 import { SnackbarContext } from './SnackbarContext';
 
-export default function SignUp() {
-    const [loading, setLoading] = useState(false);
+const SignUp = () => {
+    const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
-    const { setOpen, setMessage } = useContext(SnackbarContext);
-    const navigate = useNavigate();
+    const { setOpenSnackbar, setSnackbarMessage } = useContext(SnackbarContext);
+    const navigation = useNavigate();
 
-    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    const handleFormSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        const data = new FormData(event.currentTarget);
+        const formData = new FormData(event.currentTarget);
 
-        const username = data.get('username');
-        const password = data.get('password');
-        const firstName = data.get('firstName');
-        const lastName = data.get('lastName');
+        const username = formData.get('username');
+        const password = formData.get('password');
+        const firstName = formData.get('firstName');
+        const lastName = formData.get('lastName');
 
         if (!firstName || !username || !password) {
             setError('First name, username, and password are required');
             return;
         }
 
-        setLoading(true);
+        setIsLoading(true);
         try {
-            const response = await fetch('/api/register', {
+            const response = await fetch('/api/signUp', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -47,21 +47,16 @@ export default function SignUp() {
 
             if (!response.ok) {
                 const responseData = await response.json();
-                console.log(responseData.message || 'Error signing up');
+                setError(responseData.message || 'Error signing up');
             } else {
-                navigate('/');
-                setOpen(true);
-                setMessage('Sign up successful');
+                navigation('/');
+                setOpenSnackbar(true);
+                setSnackbarMessage('Sign up successful');
             }
         } catch (error) {
-            const err = error as Error & { response?: { status?: number } };
-            if (err.response?.status === 400) {
-                setError('Username already exists');
-            } else {
-                setError(err.message);
-            }
+            setError('Error signing up');
         } finally {
-            setLoading(false);
+            setIsLoading(false);
         }
     };
 
@@ -82,7 +77,7 @@ export default function SignUp() {
                 <Typography component='h1' variant='h5'>
                     Sign up
                 </Typography>
-                <Box component='form' noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
+                <Box component='form' noValidate onSubmit={handleFormSubmit} sx={{ mt: 3 }}>
                     <Grid container spacing={2}>
                         <Grid item xs={12} sm={6}>
                             <TextField
@@ -131,9 +126,9 @@ export default function SignUp() {
                         fullWidth
                         variant='contained'
                         sx={{ mt: 3, mb: 2 }}
-                        disabled={loading}
+                        disabled={isLoading}
                     >
-                        {loading ? <CircularProgress size={24} /> : 'Sign Up'}
+                        {isLoading ? <CircularProgress size={24} /> : 'Sign Up'}
                     </Button>
                     {error && <Alert severity='error'>{error}</Alert>}
                     <Grid container justifyContent='flex-end'>
@@ -147,4 +142,6 @@ export default function SignUp() {
             </Box>
         </Container>
     );
-}
+};
+
+export default SignUp;
