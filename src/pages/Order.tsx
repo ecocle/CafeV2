@@ -1,8 +1,9 @@
-import React, { ChangeEvent, FormEvent, useContext, useEffect, useState } from 'react';
+import React, { ChangeEvent, FormEvent, lazy, useContext, useEffect, useState, Suspense } from 'react';
 import { SnackbarContext } from './SnackbarContext';
 import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
 import {
+    Backdrop,
     Box,
     Button,
     Checkbox,
@@ -14,12 +15,12 @@ import {
     FormGroup,
     Paper,
     TextField,
-    Typography,
-    Backdrop,
+    Typography
 } from '@material-ui/core';
 import Autocomplete from '@mui/material/Autocomplete';
-import Alert from '@mui/material/Alert';
 import styles from './Order.module.scss';
+
+const Alert = lazy(() => import('@mui/material/Alert'));
 
 const toppings = [
     { name: 'Oat Milk Substitution', price: 1.0 },
@@ -301,7 +302,7 @@ const Order = () => {
     return (
         <Box p={4} className={styles.container}>
             <Backdrop open={loadingBack}>
-                <CircularProgress color="inherit"/>
+                <CircularProgress color='inherit' />
             </Backdrop>
             <Fade in={!loadingBack}>
                 <Paper elevation={3}>
@@ -412,7 +413,9 @@ const Order = () => {
                                 {loading ? <CircularProgress size={24} /> : 'Submit Order'}
                             </Button>
                             {priceError && (
-                                <Alert severity='error'>Not enough balance in account</Alert>
+                                <Suspense fallback={<CircularProgress />}>
+                                    <Alert severity='error'>Not enough balance in account</Alert>
+                                </Suspense>
                             )}
                         </form>
                     </Box>

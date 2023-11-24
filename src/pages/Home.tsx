@@ -1,26 +1,28 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { lazy, Suspense, useContext, useEffect, useState } from 'react';
 import {
     Box,
     Button,
+    CircularProgress,
     Dialog,
     DialogActions,
     DialogContent,
     DialogContentText,
+    Divider,
     IconButton,
     Menu,
     MenuItem,
     Snackbar,
     TextField,
-    Typography,
-    Divider,
+    Typography
 } from '@material-ui/core';
 import { Link } from 'react-router-dom';
-import Alert from '@mui/material/Alert';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import styles from './Home.module.scss';
 import Cookies from 'js-cookie';
-import paymentImage from '../assets/paymentImage.jpg';
 import { SnackbarContext } from './SnackbarContext';
+import paymentImage from '../assets/paymentImage.jpg';
+
+const Alert = lazy(() => import('@mui/material/Alert'));
 
 const Home = () => {
     const token = Cookies.get('token');
@@ -100,9 +102,11 @@ const Home = () => {
                     onClose={() => setShowAlert(false)}
                     anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
                 >
-                    <Alert severity='error' onClose={() => setShowAlert(false)}>
-                        You must be signed in to order.
-                    </Alert>
+                    <Suspense fallback={<CircularProgress />}>
+                        <Alert severity='error' onClose={() => setShowAlert(false)}>
+                            You must be signed in to order.
+                        </Alert>
+                    </Suspense>
                 </Snackbar>
             )}
             <Box className={styles.header}>
@@ -151,8 +155,10 @@ const Home = () => {
                                     </form>
                                 </MenuItem>
                                 <Divider />
-                                <MenuItem onClick={handleClose} component={Link} to='/orders'>
-                                    View Orders
+                                <MenuItem onClick={handleClose}>
+                                    <Link to='/orders' style={{ textDecoration: 'none', color: 'inherit' }}>
+                                        View Orders
+                                    </Link>
                                 </MenuItem>
                             </Menu>
                             <Button
@@ -242,14 +248,18 @@ const Home = () => {
                 </Typography>
             </Box>
             <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={() => setOpenSnackbar(false)}>
-                <Alert onClose={() => setOpenSnackbar(false)} severity='success'>
-                    {snackbarMessage}
-                </Alert>
+                <Suspense fallback={<CircularProgress />}>
+                    <Alert onClose={() => setOpenSnackbar(false)} severity='success'>
+                        {snackbarMessage}
+                    </Alert>
+                </Suspense>
             </Snackbar>
             <Dialog open={openDialog} onClose={handleCloseDialog}>
                 <img src={paymentImage} alt='Payment Image' />
                 <DialogContent>
-                    <DialogContentText>Funds added successfully!</DialogContentText>
+                    <DialogContentText>
+                        Funds added successfully!
+                    </DialogContentText>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseDialog} color='primary'>
