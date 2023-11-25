@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { SnackbarProvider } from './pages/SnackbarContext';
 import { CircularProgress } from '@mui/material';
 import Home from './pages/Home';
-import SignUp from './pages/SignUp';
 import NotFound from './pages/NotFound';
 import Breadcrumb from './pages/Breadcrumb';
 
@@ -82,7 +81,6 @@ const App = () => {
                             />
                         </Route>
                         <Route path='/signup' element={withSuspense(LazySignUp)({})} />
-                        <Route path='/signup2' element={<SignUp />} />
                         <Route path='/signin' element={withSuspense(LazySignIn)({})} />
                         <Route path='/orders' element={withSuspense(LazyViewOrders)({})} />
                         <Route path='/' element={<Home />} />
