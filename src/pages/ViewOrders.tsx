@@ -17,6 +17,7 @@ import {
     TextField
 } from '@material-ui/core';
 import Cookies from 'js-cookie';
+import { jwtDecode } from 'jwt-decode';
 
 interface Order {
     id: number;
@@ -37,9 +38,9 @@ const ViewOrders = () => {
     const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(false);
     const token = Cookies.get('token');
-    const username = Cookies.get('username');
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
     const [temporaryDate, setTemporaryDate] = useState('');
+    const username = (token && (jwtDecode as any)(token).username) || '';
 
     const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setTemporaryDate(event.target.value);
@@ -47,26 +48,41 @@ const ViewOrders = () => {
 
     const handleBlur = async () => {
         setDate(temporaryDate);
-        await fetchOrderData(temporaryDate, 0);
+        await fetchOrderData(temporaryDate, '0');
     };
 
     useEffect(() => {
-        fetchOrderData('', 100);
+        setLoading(true);
+        const fetchUserData = async () => {
+            try {
+                const response = await fetch('/api/user_data', {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                });
+                const data = await response.json();
+                fetchOrderData(data.firstName, '', 100); // Pass firstName here
+            } catch (error) {
+                console.error('Failed to fetch user data:', error);
+                setLoading(false);
+            }
+        };
+
+        fetchUserData();
     }, []);
 
-    const fetchOrderData = async (selectedDate: string = '', limit: number = 0) => {
+    const fetchOrderData = async (firstName: string, selectedDate = '', limit = 0) => {
         try {
-            setLoading(true);
             let endpoint = username === 'Admin' ? `/api/admin/orders` : `/api/orders`;
             const params = new URLSearchParams();
             if (selectedDate) params.append('date', selectedDate);
             if (limit > 0) params.append('limit', limit.toString());
-            if (params.toString()) endpoint += `?${params.toString()}`;
             const response = await fetch(endpoint, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`
+                    Authorization: `Bearer ${token}`,
+                    userInformation: firstName
                 },
                 credentials: 'include'
             });

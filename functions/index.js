@@ -155,7 +155,7 @@ app.post('/api/order', async (req, res) => {
     }
 });
 
-const orderResult = async (data, username) => {
+const orderResult = async (data) => {
     let connection;
     try {
         connection = await conn.getConnection();
@@ -193,8 +193,8 @@ const orderResult = async (data, username) => {
 
         const [result] = await conn.query(sql, values);
 
-        const updateSql = 'UPDATE Accounts SET Balance = ? WHERE User_name = ?';
-        const updateValues = [data.balance, username];
+        const updateSql = 'UPDATE Accounts SET Balance = ? WHERE First_name = ?';
+        const updateValues = [data.balance, data.firstName];
 
         await conn.query(updateSql, updateValues);
 
@@ -373,9 +373,10 @@ app.get('/api/admin/orders', async (req, res) => {
 
 app.get('/api/orders', async (req, res) => {
     const authHeader = req.headers.authorization;
-    let username = req.session.username;
+    const firstName = req.headers.userinformation;
+    let username = '';
 
-    if (!username && authHeader && authHeader.startsWith('Bearer ')) {
+    if (authHeader && authHeader.startsWith('Bearer ')) {
         const token = authHeader.split('Bearer ')[1];
         try {
             const decodedToken = jwt.verify(token, secretKey);
@@ -392,7 +393,7 @@ app.get('/api/orders', async (req, res) => {
     try {
         const date = req.query.date;
         let query = 'SELECT * FROM Orders WHERE First_name = ?';
-        const queryParams = [username];
+        const queryParams = [firstName];
 
         if (date) {
             query += ' AND DATE(order_time) = ?';

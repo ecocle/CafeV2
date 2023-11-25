@@ -1,9 +1,10 @@
-.container {
+.orderPageContainer {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     height: 100vh;
+    overflow: hidden;
 }
 
 .orderForm {
@@ -12,11 +13,12 @@
     width: 500px;
     padding: 10px;
 
-    .textField,
-    .FormControl,
-    .FormControlLabel,
-    .submitButton {
+    & > * {
         margin-bottom: 10px;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
     }
 
     .submitButton {

@@ -88,7 +88,7 @@ const Coffee = () => {
                                                     variant='contained'
                                                     color='primary'
                                                     onClick={() => {
-                                                        navigate(`/order#name=${item.Name}&type=Coffee`);
+                                                        navigate(`./order#name=${item.Name}`);
                                                     }}
                                                     disableElevation
                                                 >

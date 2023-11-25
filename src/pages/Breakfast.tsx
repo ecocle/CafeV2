@@ -74,7 +74,7 @@ const Breakfast = () => {
                                                     variant='contained'
                                                     color='primary'
                                                     onClick={() => {
-                                                        navigate(`/order#name=${item.Name}&type=Breakfast`);
+                                                        navigate(`./order#name=${item.Name}`);
                                                     }}
                                                     disableElevation
                                                 >

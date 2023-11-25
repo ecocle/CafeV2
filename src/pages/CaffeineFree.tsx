@@ -88,7 +88,7 @@ const CaffeineFree = () => {
                                                     variant='contained'
                                                     color='primary'
                                                     onClick={() => {
-                                                        navigate(`/order#name=${item.Name}&type=Caffeine_free`);
+                                                        navigate(`./order#name=${item.Name}`);
                                                     }}
                                                     disableElevation
                                                 >

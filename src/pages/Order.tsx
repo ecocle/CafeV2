@@ -1,4 +1,4 @@
-import React, { ChangeEvent, FormEvent, lazy, useContext, useEffect, useState, Suspense } from 'react';
+import React, { ChangeEvent, FormEvent, lazy, Suspense, useContext, useEffect, useState } from 'react';
 import { SnackbarContext } from './SnackbarContext';
 import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
@@ -29,16 +29,18 @@ const toppings = [
     { name: 'Red Bean', price: 1.0 }
 ];
 
-const Order = () => {
+interface OrderProps {
+  itemType: string;
+}
+
+const Order: React.FC<OrderProps> = ({ itemType }) => {
     const hashParams = new URLSearchParams(window.location.hash.substr(1));
     const itemName = hashParams.get('name') || '';
-    const itemType = hashParams.get('type') || '';
     const [itemPrice, setItemPrice] = useState(0);
     const [loading, setLoading] = useState(false);
     const [loadingBack, setLoadingBack] = useState(false);
     const { setOpenSnackbar, setSnackbarMessage } = useContext(SnackbarContext);
     const token = Cookies.get('token');
-    const username = Cookies.get('username') || '';
     const [userData, setUserData] = useState<{
         balance: number;
         username: string;
@@ -46,7 +48,7 @@ const Order = () => {
         lastName: string;
     }>({
         balance: 0,
-        username: username,
+        username: '',
         firstName: '',
         lastName: ''
     });
@@ -103,7 +105,6 @@ const Order = () => {
 
     useEffect(() => {
         setLoadingBack(true);
-        console.log(itemName, itemType);
         const fetchDrinkDetails = async () => {
             try {
                 const response = await fetch(`/api/drinkData/${itemType}/${itemName}`);
@@ -271,7 +272,7 @@ const Order = () => {
             price: finalTotal,
             comments,
             useCup,
-            balance: userData.balance
+            balance: userData.balance - finalTotal
         };
 
         try {
@@ -300,128 +301,130 @@ const Order = () => {
     };
 
     return (
-        <Box p={4} className={styles.container}>
-            <Backdrop open={loadingBack}>
-                <CircularProgress color='inherit' />
-            </Backdrop>
-            <Fade in={!loadingBack}>
-                <Paper elevation={3}>
-                    <Box p={4}>
-                        <Typography variant='h3' align='center' gutterBottom>
-                            Order
-                        </Typography>
-                        <Divider />
-                        <Box my={4}>
-                            <Typography variant='h5' align='center' gutterBottom>
-                                {itemName}
+        <div className={styles.orderPageContainer}>
+            <Box p={4}>
+                <Backdrop open={loadingBack}>
+                    <CircularProgress color='inherit' />
+                </Backdrop>
+                <Fade in={!loadingBack}>
+                    <Paper elevation={3} className={styles.container}>
+                        <Box p={4}>
+                            <Typography variant='h3' align='center' gutterBottom>
+                                Order
                             </Typography>
-                        </Box>
-                        <form onSubmit={handleSubmit} className={styles.orderForm}>
-                            <Typography variant='h6'>Information</Typography>
-                            <TextField
-                                variant='outlined'
-                                className={styles.textField}
-                                label='Comments'
-                                value={comments}
-                                onChange={(e) => setComments(e.target.value)}
-                                multiline
-                            />
-                            <FormControlLabel
-                                className={styles.FormControlLabel}
-                                control={
-                                    <Checkbox
-                                        color='primary'
-                                        checked={useCup}
-                                        onChange={handleCupChange}
+                            <Divider />
+                            <Box my={4}>
+                                <Typography variant='h5' align='center' gutterBottom>
+                                    {itemName}
+                                </Typography>
+                            </Box>
+                            <form onSubmit={handleSubmit} className={styles.orderForm}>
+                                <Typography variant='h6'>Information</Typography>
+                                <TextField
+                                    variant='outlined'
+                                    className={styles.textField}
+                                    label='Comments'
+                                    value={comments}
+                                    onChange={(e) => setComments(e.target.value)}
+                                    multiline
+                                />
+                                <FormControlLabel
+                                    className={styles.FormControlLabel}
+                                    control={
+                                        <Checkbox
+                                            color='primary'
+                                            checked={useCup}
+                                            onChange={handleCupChange}
+                                        />
+                                    }
+                                    label='Use own cup'
+                                />
+                                <Typography variant='h6'>Order Details</Typography>
+                                <Box marginBottom={2}>
+                                    <Autocomplete
+                                        onChange={handleSizeChange}
+                                        options={['Medium', 'Large'].filter(
+                                            (size) => !(size === 'Large' && noLarge.includes(itemName))
+                                        )}
+                                        renderInput={(params) => (
+                                            <TextField
+                                                {...params}
+                                                label='Size *'
+                                                variant='outlined'
+                                                error={Boolean(sizeError)}
+                                                helperText={sizeError}
+                                            />
+                                        )}
                                     />
-                                }
-                                label='Use own cup'
-                            />
-                            <Typography variant='h6'>Order Details</Typography>
-                            <Box marginBottom={2}>
-                                <Autocomplete
-                                    onChange={handleSizeChange}
-                                    options={['Medium', 'Large'].filter(
-                                        (size) => !(size === 'Large' && noLarge.includes(itemName))
-                                    )}
-                                    renderInput={(params) => (
-                                        <TextField
-                                            {...params}
-                                            label='Size *'
-                                            variant='outlined'
-                                            error={Boolean(sizeError)}
-                                            helperText={sizeError}
-                                        />
-                                    )}
-                                />
-                            </Box>
-                            <Box marginBottom={2}>
-                                <Autocomplete
-                                    value={options.temperature}
-                                    onChange={handleTemperatureChange}
-                                    options={['Hot', 'Normal', 'Cold'].filter(
-                                        (temp) =>
-                                            !(temp === 'Hot' && noHot.includes(itemName)) &&
-                                            !(temp === 'Cold' && noCold.includes(itemName)) &&
-                                            !(temp === 'Normal' && noNormal.includes(itemName))
-                                    )}
-                                    renderInput={(params) => (
-                                        <TextField
-                                            {...params}
-                                            label='Temperature *'
-                                            variant='outlined'
-                                            error={Boolean(temperatureError)}
-                                            helperText={temperatureError}
-                                        />
-                                    )}
-                                />
-                            </Box>
-                            {!noToppings.includes(itemName) && (
-                                <>
-                                    <Typography variant='h6'>Toppings</Typography>
-                                    <FormControl className={styles.FormControl}>
-                                        <FormGroup className={styles.FormGroup}>
-                                            {toppings.map((topping) => (
-                                                <FormControlLabel
-                                                    key={topping.name}
-                                                    className={styles.FormControlLabel}
-                                                    control={
-                                                        <Checkbox
-                                                            color='primary'
-                                                            checked={options.toppings.includes(
-                                                                topping.name
-                                                            )}
-                                                            onChange={handleToppingChange}
-                                                            name={topping.name}
-                                                        />
-                                                    }
-                                                    label={`Add ${topping.name} (¥${topping.price})`}
-                                                />
-                                            ))}
-                                        </FormGroup>
-                                    </FormControl>
-                                </>
-                            )}
-                            <Typography variant='h6'>Total: ¥{options.total.toFixed(1)}</Typography>
-                            <Button
-                                className={styles.submitButton}
-                                variant='contained'
-                                color='primary'
-                                type='submit'
-                                disabled={loading}
-                            >
-                                {loading ? <CircularProgress size={24} /> : 'Submit Order'}
-                            </Button>
-                            {priceError && (
-                                <Suspense fallback={<CircularProgress />}>
-                                    <Alert severity='error'>Not enough balance in account</Alert>
-                                </Suspense>
-                            )}
-                        </form>
-                    </Box>
-                </Paper>
-            </Fade>
-        </Box>
+                                </Box>
+                                <Box marginBottom={2}>
+                                    <Autocomplete
+                                        value={options.temperature}
+                                        onChange={handleTemperatureChange}
+                                        options={['Hot', 'Normal', 'Cold'].filter(
+                                            (temp) =>
+                                                !(temp === 'Hot' && noHot.includes(itemName)) &&
+                                                !(temp === 'Cold' && noCold.includes(itemName)) &&
+                                                !(temp === 'Normal' && noNormal.includes(itemName))
+                                        )}
+                                        renderInput={(params) => (
+                                            <TextField
+                                                {...params}
+                                                label='Temperature *'
+                                                variant='outlined'
+                                                error={Boolean(temperatureError)}
+                                                helperText={temperatureError}
+                                            />
+                                        )}
+                                    />
+                                </Box>
+                                {!noToppings.includes(itemName) && (
+                                    <>
+                                        <Typography variant='h6'>Toppings</Typography>
+                                        <FormControl className={styles.FormControl}>
+                                            <FormGroup className={styles.FormGroup}>
+                                                {toppings.map((topping) => (
+                                                    <FormControlLabel
+                                                        key={topping.name}
+                                                        className={styles.FormControlLabel}
+                                                        control={
+                                                            <Checkbox
+                                                                color='primary'
+                                                                checked={options.toppings.includes(
+                                                                    topping.name
+                                                                )}
+                                                                onChange={handleToppingChange}
+                                                                name={topping.name}
+                                                            />
+                                                        }
+                                                        label={`Add ${topping.name} (¥${topping.price})`}
+                                                    />
+                                                ))}
+                                            </FormGroup>
+                                        </FormControl>
+                                    </>
+                                )}
+                                <Typography variant='h6'>Total: ¥{options.total.toFixed(1)}</Typography>
+                                <Button
+                                    className={styles.submitButton}
+                                    variant='contained'
+                                    color='primary'
+                                    type='submit'
+                                    disabled={loading}
+                                >
+                                    {loading ? <CircularProgress size={24} /> : 'Submit Order'}
+                                </Button>
+                                {priceError && (
+                                    <Suspense fallback={<CircularProgress />}>
+                                        <Alert severity='error'>Not enough balance in account</Alert>
+                                    </Suspense>
+                                )}
+                            </form>
+                        </Box>
+                    </Paper>
+                </Fade>
+            </Box>
+        </div>
     );
 };
 

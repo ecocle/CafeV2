@@ -1,0 +1,21 @@
+body {
+    color: white;
+    font-family: 'Roboto', sans-serif;
+    font-size: 1.2rem;
+    margin: 0;
+    padding: 0;
+}
+
+@media (prefers-color-scheme: light) {
+    body {
+        background-color: #f8f8f8;
+        color: black;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #222;
+        color: #f8f8f8;
+    }
+}

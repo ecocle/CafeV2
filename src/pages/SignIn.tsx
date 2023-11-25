@@ -1,23 +1,14 @@
-import { useContext, useState } from 'react';
-import {
-    Alert,
-    Avatar,
-    Box,
-    Button,
-    CircularProgress,
-    Container,
-    Grid,
-    Link,
-    TextField,
-    Typography
-} from '@mui/material';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import { useNavigate } from 'react-router-dom';
+import React, { useContext, useState } from 'react';
+import { Box, Button, Grid, TextField, Typography } from '@material-ui/core';
 import { SnackbarContext } from './SnackbarContext';
+import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import { jwtDecode } from 'jwt-decode';
+import styles from './SignIn.module.scss';
+import { Alert, Avatar, CircularProgress, Link } from '@mui/material';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 
-export default function SignIn() {
+const SignIn = () => {
     const [openError, setOpenError] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
     const { setOpenSnackbar, setSnackbarMessage } = useContext(SnackbarContext);
@@ -43,7 +34,6 @@ export default function SignIn() {
                 try {
                     const decodedToken: { username: string } = (jwtDecode as any)(token);
                     const { username } = decodedToken;
-                    Cookies.set('username', username);
 
                     navigate('/');
                     setOpenSnackbar(true);
@@ -84,49 +74,70 @@ export default function SignIn() {
     };
 
     return (
-        <Container component='main' maxWidth='xs'>
-            <Box sx={{ marginTop: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <Box className={styles.root}>
+            <div className={styles.container}>
                 <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
                     <LockOutlinedIcon />
                 </Avatar>
-                <Typography component='h1' variant='h5'>
+                <Typography variant='h5' gutterBottom className={styles.title}>
                     Sign In
                 </Typography>
-                <Box component='form' onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-                    <TextField
-                        margin='normal'
-                        required
-                        fullWidth
-                        id='username'
-                        label='Username'
-                        name='username'
-                        autoComplete='username'
-                        autoFocus
-                    />
-                    <TextField
-                        margin='normal'
-                        required
-                        fullWidth
-                        name='password'
-                        label='Password'
-                        type='password'
-                        id='password'
-                        autoComplete='current-password'
-                    />
-                    <Button disabled={signingIn} type='submit' fullWidth variant='contained' sx={{ mt: 3, mb: 2 }}>
-                        {signingIn ? <CircularProgress size={24} /> : 'Sign In'}
-                    </Button>
-                    {openError && <Alert severity='error'>{errorMessage}</Alert>}
-                    <Grid container>
-                        <Grid item xs></Grid>
-                        <Grid item>
-                            <Link href='/signup' variant='body2'>
-                                {'Don\'t have an account? Sign Up'}
-                            </Link>
+                <form onSubmit={handleSubmit} className={styles.form}>
+                    <Grid container spacing={2}>
+                        <Grid item xs={12}>
+                            <TextField
+                                variant='outlined'
+                                margin='normal'
+                                required
+                                fullWidth
+                                id='username'
+                                label='Username'
+                                name='username'
+                                autoComplete='username'
+                                className={styles.textField}
+                                autoFocus
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                variant='outlined'
+                                margin='normal'
+                                required
+                                fullWidth
+                                name='password'
+                                label='Password'
+                                type='password'
+                                id='password'
+                                autoComplete='current-password'
+                                className={styles.textField}
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <Button
+                                type='submit'
+                                variant='contained'
+                                color='primary'
+                                fullWidth
+                                className={styles.signInButton}
+                                disabled={signingIn}
+                            >
+                                {signingIn ? <CircularProgress size={24} /> : 'Sign In'}
+                            </Button>
+                        </Grid>
+                        {openError && <Alert severity='error'>{errorMessage}</Alert>}
+                        <Grid container>
+                            <Grid item xs></Grid>
+                            <Grid item>
+                                <Link href='/signup' variant='body2'>
+                                    {'Don\'t have an account? Sign Up'}
+                                </Link>
+                            </Grid>
                         </Grid>
                     </Grid>
-                </Box>
-            </Box>
-        </Container>
+                </form>
+            </div>
+        </Box>
     );
-}
+};
+
+export default SignIn;

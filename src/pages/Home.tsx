@@ -26,7 +26,6 @@ const Alert = lazy(() => import('@mui/material/Alert'));
 
 const Home = () => {
     const token = Cookies.get('token');
-    const username = Cookies.get('username');
     const [amount, setAmount] = useState('0');
     const [openDialog, setOpenDialog] = useState(false);
     const { openSnackbar, snackbarMessage, setOpenSnackbar } = useContext(SnackbarContext);
@@ -112,7 +111,7 @@ const Home = () => {
             <Box className={styles.header}>
                 <Typography variant='subtitle1' component='h1'></Typography>
                 <Box className={styles.account}>
-                    {token && username ? (
+                    {token ? (
                         <>
                             <IconButton
                                 className={`${styles.button} ${styles.robotoFont}`}
@@ -155,10 +154,8 @@ const Home = () => {
                                     </form>
                                 </MenuItem>
                                 <Divider />
-                                <MenuItem onClick={handleClose}>
-                                    <Link to='/orders' style={{ textDecoration: 'none', color: 'inherit' }}>
-                                        View Orders
-                                    </Link>
+                                <MenuItem component={Link} to='/orders'>
+                                    View Orders
                                 </MenuItem>
                             </Menu>
                             <Button
@@ -228,7 +225,7 @@ const Home = () => {
                     component={Link}
                     to='/caffeine-free'
                 >
-                    Non-Caffeine drinks
+                    Non-Caffeinated Drink
                 </Button>
                 <Button
                     onClick={checkLogin}
@@ -247,7 +244,12 @@ const Home = () => {
                     Made By Shawn
                 </Typography>
             </Box>
-            <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={() => setOpenSnackbar(false)}>
+            <Snackbar
+                open={openSnackbar}
+                autoHideDuration={6000}
+                onClose={() => setOpenSnackbar(false)}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            >
                 <Suspense fallback={<CircularProgress />}>
                     <Alert onClose={() => setOpenSnackbar(false)} severity='success'>
                         {snackbarMessage}
