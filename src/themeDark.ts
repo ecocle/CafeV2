@@ -1,8 +1,8 @@
-import { createTheme } from '@material-ui/core';
+import { createTheme } from '@mui/material/styles';
 
 const themeDark = createTheme({
     palette: {
-        type: 'dark',
+        mode: 'dark', // Use `mode` instead of `type` for dark mode
         primary: {
             main: '#64B5F6',
         },
@@ -23,75 +23,58 @@ const themeDark = createTheme({
         },
     },
     typography: {
-        fontFamily: [
-            'Roboto', // Replace with preferred font stack
-            'Arial',
-            'sans-serif',
-        ].join(','),
+        fontFamily: 'Roboto, Arial, sans-serif',
         h1: {
-            fontFamily: 'Roboto',
-            fontSize: 64,
+            fontSize: '4rem',
             fontWeight: 600,
         },
         h2: {
-            fontFamily: 'Roboto',
-            fontSize: 40,
+            fontSize: '2.5rem',
             fontWeight: 600,
         },
         h3: {
-            fontFamily: 'Roboto',
-            fontSize: 36,
+            fontSize: '2.25rem',
             fontWeight: 600,
         },
         h4: {
-            fontFamily: 'Roboto',
-            fontSize: 28,
+            fontSize: '1.75rem',
             fontWeight: 600,
         },
         h5: {
-            fontFamily: 'Roboto',
-            fontSize: 24,
+            fontSize: '1.5rem',
             fontWeight: 600,
         },
         h6: {
-            fontFamily: 'Roboto',
-            fontSize: 20,
+            fontSize: '1.25rem',
             fontWeight: 600,
         },
         subtitle1: {
-            fontFamily: 'Roboto',
-            fontSize: 16,
+            fontSize: '1rem',
             fontWeight: 400,
         },
         subtitle2: {
-            fontFamily: 'Roboto',
-            fontSize: 14,
+            fontSize: '0.875rem',
             fontWeight: 400,
         },
         body1: {
-            fontFamily: 'Roboto',
-            fontSize: 16,
+            fontSize: '1rem',
             fontWeight: 400,
         },
         body2: {
-            fontFamily: 'Roboto',
-            fontSize: 14,
+            fontSize: '0.875rem',
             fontWeight: 400,
         },
         button: {
-            fontFamily: 'Roboto',
-            fontSize: 14,
+            fontSize: '0.875rem',
             fontWeight: 500,
             textTransform: 'uppercase',
         },
         caption: {
-            fontFamily: 'Roboto',
-            fontSize: 12,
+            fontSize: '0.75rem',
             fontWeight: 400,
         },
         overline: {
-            fontFamily: 'Roboto',
-            fontSize: 10,
+            fontSize: '0.625rem',
             fontWeight: 400,
             textTransform: 'uppercase',
         },

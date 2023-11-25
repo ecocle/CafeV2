@@ -5,11 +5,13 @@
     align-items: center;
 
     .home {
+        margin-top: 20px;
         margin-bottom: 20px;
     }
 
     .card {
         width: auto;
+        margin: 10px 10px 10px 10px;
 
         .noWrap {
             white-space: nowrap;

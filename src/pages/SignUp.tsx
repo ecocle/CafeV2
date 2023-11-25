@@ -1,5 +1,5 @@
 import React, { FormEvent, useContext, useState } from 'react';
-import { Box, Button, Grid, TextField, Typography } from '@material-ui/core';
+import { Box, Button, Grid, TextField, Typography } from '@mui/material';
 import { SnackbarContext } from './SnackbarContext';
 import { useNavigate } from 'react-router-dom';
 import CircularProgress from '@mui/material/CircularProgress';

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Backdrop, Button, Card, CardContent, CircularProgress, Fade, Grid, Typography } from '@material-ui/core';
+import { Backdrop, Button, Card, CardContent, CircularProgress, Fade, Grid, Typography } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
 import styles from './Coffee.module.scss';
 
@@ -37,13 +37,13 @@ const Coffee = () => {
     }, []);
 
     return (
-        <Grid container className={styles.coffee} spacing={3}>
+        <Grid container spacing={3}>
             <Backdrop open={open} style={{ zIndex: 9999 }}>
                 <CircularProgress color='inherit' />
             </Backdrop>
             {!open && (
                 <Fade in={!open}>
-                    <>
+                    <div className={styles.coffee}>
                         <Button
                             className={styles.home}
                             component={Link}
@@ -100,7 +100,7 @@ const Coffee = () => {
                                 </Grid>
                             ))}
                         </Grid>
-                    </>
+                    </div>
                 </Fade>
             )}
         </Grid>

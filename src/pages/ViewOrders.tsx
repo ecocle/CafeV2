@@ -13,11 +13,13 @@ import {
     TableCell,
     TableContainer,
     TableHead,
-    TableRow,
-    TextField
-} from '@material-ui/core';
+    TableRow
+} from '@mui/material';
 import Cookies from 'js-cookie';
 import { jwtDecode } from 'jwt-decode';
+import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs from 'dayjs';
 
 interface Order {
     id: number;
@@ -38,17 +40,19 @@ const ViewOrders = () => {
     const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(false);
     const token = Cookies.get('token');
-    const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-    const [temporaryDate, setTemporaryDate] = useState('');
+    const [date, setDate] = useState<string>('');
     const username = (token && (jwtDecode as any)(token).username) || '';
+    const [firstName, setFirstName] = useState('');
 
-    const handleDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setTemporaryDate(event.target.value);
-    };
-
-    const handleBlur = async () => {
-        setDate(temporaryDate);
-        await fetchOrderData(temporaryDate, '0');
+    const handleDateChange = (newDate: string | null | dayjs.Dayjs) => {
+        if (newDate && typeof newDate === 'string') {
+            setDate(newDate);
+        } else if (dayjs.isDayjs(newDate)) {
+            const dateString = newDate.format('YYYY-MM-DD');
+            setDate(dateString);
+        } else {
+            setDate('');
+        }
     };
 
     useEffect(() => {
@@ -61,7 +65,8 @@ const ViewOrders = () => {
                     }
                 });
                 const data = await response.json();
-                fetchOrderData(data.firstName, '', 100); // Pass firstName here
+                setFirstName(data.firstName);
+                await fetchOrderData(data.firstName, date);
             } catch (error) {
                 console.error('Failed to fetch user data:', error);
                 setLoading(false);
@@ -71,13 +76,24 @@ const ViewOrders = () => {
         fetchUserData();
     }, []);
 
-    const fetchOrderData = async (firstName: string, selectedDate = '', limit = 0) => {
+    useEffect(() => {
+        setLoading(true);
+        fetchOrderData(firstName, date);
+    }, [date]);
+
+    const fetchOrderData = async (firstName: string, selectedDate = '') => {
         try {
-            let endpoint = username === 'Admin' ? `/api/admin/orders` : `/api/orders`;
+            const endpoint = username === 'Admin' ? '/api/admin/orders' : '/api/orders';
             const params = new URLSearchParams();
-            if (selectedDate) params.append('date', selectedDate);
-            if (limit > 0) params.append('limit', limit.toString());
-            const response = await fetch(endpoint, {
+
+            if (selectedDate) {
+                const formattedDate = dayjs(selectedDate).format('YYYY-MM-DD');
+                params.append('date', formattedDate);
+            }
+
+            const fullUrl = `${endpoint}?${params.toString()}`;
+
+            const response = await fetch(fullUrl, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -118,21 +134,17 @@ const ViewOrders = () => {
             {!loading && (
                 <Fade in={!loading}>
                     <Box className={styles.container}>
-                        <Button component={Link} variant='outlined' to='/' color='primary' className={styles.button}>
+                        <Button component={Link} variant='outlined' to='/' color='primary'
+                                className={styles.button}>
                             Return to Home
                         </Button>
-                        <TextField
-                            id='date'
-                            label='Date'
-                            type='date'
-                            value={temporaryDate || date} // Show temporaryDate when it exists
-                            className={styles.dateField}
-                            onChange={handleDateChange}
-                            onBlur={handleBlur}
-                            InputLabelProps={{
-                                shrink: true
-                            }}
-                        />
+                        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale='ch'>
+                            <DatePicker
+                                label='Date'
+                                value={dayjs(date)}
+                                onChange={(newValue) => handleDateChange(newValue)}
+                            />
+                        </LocalizationProvider>
                         <TableContainer component={Paper} className={styles.tableContainer}>
                             <Table className={styles.table}>
                                 <TableHead>
