@@ -44,7 +44,7 @@ const Home = () => {
                 const data = await response.json();
                 setBalance(data.balance);
             } catch (error) {
-                console.error('Failed to fetch user data:', error);
+                throw new Error('Failed to fetch user data:');
             }
         };
 
@@ -68,7 +68,7 @@ const Home = () => {
             setOpenDialog(true);
         } else if (response.status === 400) {
         } else {
-            console.error(`Error: ${response.statusText}`);
+            throw new Error(`Error: ${response.statusText}`);
         }
     };
 

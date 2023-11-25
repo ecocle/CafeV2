@@ -22,7 +22,7 @@ app.use(
     session({
         secret: secretKey,
         resave: false,
-        saveUninitialized: true
+        saveUninitialized: true,
     })
 );
 
@@ -248,6 +248,7 @@ app.post('/api/signin', async (req, res) => {
     try {
         const [rows] = await conn.execute('SELECT * FROM Accounts WHERE User_name = ?', [username]);
         const user = rows[0];
+        console.log(user);
 
         if (!user) {
             return res.status(401).json({ error: 'Invalid username' });
@@ -266,7 +267,6 @@ app.post('/api/signin', async (req, res) => {
         return res.status(500).json({ error: 'Error logging in' });
     }
 });
-
 
 app.post('/api/signUp', async (req, res) => {
     const { username, password, firstName, lastName } = req.body;

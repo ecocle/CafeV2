@@ -33,7 +33,9 @@ const Coffee = () => {
                 setBreakfastList(formattedData);
                 setOpen(false);
             })
-            .catch((error) => console.error('Error:', error));
+            .catch((error) => {
+                throw new Error('Error:', error);
+            });
     }, []);
 
     return (
