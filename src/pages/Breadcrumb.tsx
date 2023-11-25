@@ -34,35 +34,50 @@ const Breadcrumb = () => {
     return (
         <div className={styles.container}>
             <Breadcrumbs aria-label='breadcrumb'>
-                {isMobile ? (
-                    <Typography>
-                        <LinkRouter underline='hover' to='/' className={styles.LinkRouter}>
-                            Home
-                        </LinkRouter>
-                    </Typography>
-                ) : (
-                    <>
-                        <LinkRouter underline='hover' to='/' className={styles.LinkRouter}>
-                            Home
-                        </LinkRouter>
-                        {pathNames.map((value, index) => {
-                            const routeTo = `/${pathNames.slice(0, index + 1).join('/')}`;
-                            const primary = breadcrumbNameMap[routeTo];
-                            const isLast = index === pathNames.length - 1;
+                {
+                    isMobile ? (
+                        <Typography>
+                            <LinkRouter underline='hover' to='/' className={styles.LinkRouter}>
+                                Home
+                            </LinkRouter>
+                        </Typography>
+                    ) : (
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+            <span>
+                <LinkRouter underline='hover' to='/' className={styles.LinkRouter}>
+                    Home
+                </LinkRouter>
+            </span>
+                            {pathNames.map((value, index) => {
+                                const routeTo = `/${pathNames.slice(0, index + 1).join('/')}`;
+                                const primary = breadcrumbNameMap[routeTo];
+                                const isLast = index === pathNames.length - 1;
 
-                            return isLast ? (
-                                <Typography key={routeTo} className={styles.Current}>
+                                return (
+                                    <React.Fragment key={routeTo}>
+                                        <span style={{ margin: '0 0.5rem' }}>/</span>
+                                        {isLast ? (
+                                            <Typography className={styles.Current}>
+                                                {primary}
+                                            </Typography>
+                                        ) : (
+                                            <span>
+                                <LinkRouter
+                                    underline='hover'
+                                    to={routeTo}
+                                    className={styles.LinkRouter}
+                                >
                                     {primary}
-                                </Typography>
-                            ) : (
-                                <Typography key={routeTo}>
-                                    <LinkRouter underline='hover' to={routeTo}
-                                                className={styles.LinkRouter}>{primary}</LinkRouter>
-                                </Typography>
-                            );
-                        })}
-                    </>
-                )}
+                                </LinkRouter>
+                            </span>
+                                        )}
+                                    </React.Fragment>
+                                );
+                            })}
+                        </div>
+                    )
+                }
+
             </Breadcrumbs>
         </div>
     );

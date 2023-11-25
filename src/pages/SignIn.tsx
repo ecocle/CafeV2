@@ -1,11 +1,10 @@
 import React, { useContext, useState } from 'react';
-import { Box, Button, Grid, TextField, Typography } from '@material-ui/core';
+import { Alert, Avatar, Box, Button, CircularProgress, Grid, Link, TextField, Typography } from '@mui/material';
 import { SnackbarContext } from './SnackbarContext';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import { jwtDecode } from 'jwt-decode';
 import styles from './SignIn.module.scss';
-import { Alert, Avatar, CircularProgress, Link } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 
 const SignIn = () => {
@@ -124,7 +123,9 @@ const SignIn = () => {
                                 {signingIn ? <CircularProgress size={24} /> : 'Sign In'}
                             </Button>
                         </Grid>
-                        {openError && <Alert severity='error'>{errorMessage}</Alert>}
+                        <Grid item xs={12}>
+                            {openError && <Alert severity='error'>{errorMessage}</Alert>}
+                        </Grid>
                         <Grid container>
                             <Grid item xs></Grid>
                             <Grid item>

@@ -14,7 +14,7 @@ import {
     Snackbar,
     TextField,
     Typography
-} from '@material-ui/core';
+} from '@mui/material';
 import { Link } from 'react-router-dom';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import styles from './Home.module.scss';
@@ -101,11 +101,13 @@ const Home = () => {
                     onClose={() => setShowAlert(false)}
                     anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
                 >
-                    <Suspense fallback={<CircularProgress />}>
-                        <Alert severity='error' onClose={() => setShowAlert(false)}>
-                            You must be signed in to order.
-                        </Alert>
-                    </Suspense>
+                    <div>
+                        <Suspense fallback={<CircularProgress />}>
+                            <Alert severity='error' onClose={() => setShowAlert(false)}>
+                                You must be signed in to order.
+                            </Alert>
+                        </Suspense>
+                    </div>
                 </Snackbar>
             )}
             <Box className={styles.header}>
@@ -250,11 +252,13 @@ const Home = () => {
                 onClose={() => setOpenSnackbar(false)}
                 anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
             >
-                <Suspense fallback={<CircularProgress />}>
-                    <Alert onClose={() => setOpenSnackbar(false)} severity='success'>
-                        {snackbarMessage}
-                    </Alert>
-                </Suspense>
+                <div>
+                    <Suspense fallback={<CircularProgress />}>
+                        <Alert onClose={() => setOpenSnackbar(false)} severity='success'>
+                            {snackbarMessage}
+                        </Alert>
+                    </Suspense>
+                </div>
             </Snackbar>
             <Dialog open={openDialog} onClose={handleCloseDialog}>
                 <img src={paymentImage} alt='Payment Image' />

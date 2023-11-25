@@ -1,7 +1,7 @@
 import React, { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { SnackbarProvider } from './pages/SnackbarContext';
-import { CircularProgress } from '@material-ui/core';
+import { CircularProgress } from '@mui/material';
 import Home from './pages/Home';
 import SignUp from './pages/SignUp';
 import NotFound from './pages/NotFound';

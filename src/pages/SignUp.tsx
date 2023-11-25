@@ -1,5 +1,5 @@
 import React, { FormEvent, useContext, useState } from 'react';
-import { Box, Button, Grid, TextField, Typography } from '@material-ui/core';
+import { Box, Button, Grid, TextField, Typography } from '@mui/material';
 import { SnackbarContext } from './SnackbarContext';
 import { useNavigate } from 'react-router-dom';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -41,7 +41,11 @@ const SignUp = () => {
 
             if (!response.ok) {
                 const responseData = await response.json();
-                setError(responseData.message || 'Error signing up');
+                if (response.status === 400) {
+                    setError('Username already exists');
+                } else {
+                    setError(responseData.message || 'Error signing up');
+                }
             } else {
                 navigation('/');
                 setOpenSnackbar(true);
@@ -125,7 +129,9 @@ const SignUp = () => {
                             >
                                 {isLoading ? <CircularProgress size={24} /> : 'Sign Up'}
                             </Button>
-                            {error && <Alert severity='error'>{error}</Alert>}
+                            <Grid item xs={12}>
+                                {error && <Alert severity='error'>{error}</Alert>}
+                            </Grid>
                             <Grid container justifyContent='flex-end'>
                                 <Grid item>
                                     <Link href='/signin' variant='body2'>

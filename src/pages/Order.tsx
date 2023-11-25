@@ -16,7 +16,7 @@ import {
     Paper,
     TextField,
     Typography
-} from '@material-ui/core';
+} from '@mui/material';
 import Autocomplete from '@mui/material/Autocomplete';
 import styles from './Order.module.scss';
 

@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import themeLight from './themeLight';
 import themeDark from './themeDark';
-import { ThemeProvider } from '@material-ui/core';
+import { ThemeProvider } from '@mui/material';
 import './index.css';
 
 const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
