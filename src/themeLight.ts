@@ -6,7 +6,7 @@ const themeLight = createTheme({
             main: '#1E88E5'
         },
         secondary: {
-            main: '#FF6D00'
+            main: '#7b1ee5'
         },
         error: {
             main: '#F44336'
@@ -25,59 +25,59 @@ const themeLight = createTheme({
         fontFamily: 'Roboto, Arial, sans-serif',
         h1: {
             fontSize: '4rem',
-            fontWeight: 600,
+            fontWeight: 600
         },
         h2: {
             fontSize: '2.5rem',
-            fontWeight: 600,
+            fontWeight: 600
         },
         h3: {
             fontSize: '2.25rem',
-            fontWeight: 600,
+            fontWeight: 600
         },
         h4: {
             fontSize: '1.75rem',
-            fontWeight: 600,
+            fontWeight: 600
         },
         h5: {
             fontSize: '1.5rem',
-            fontWeight: 600,
+            fontWeight: 600
         },
         h6: {
             fontSize: '1.25rem',
-            fontWeight: 600,
+            fontWeight: 600
         },
         subtitle1: {
             fontSize: '1rem',
-            fontWeight: 400,
+            fontWeight: 400
         },
         subtitle2: {
             fontSize: '0.875rem',
-            fontWeight: 400,
+            fontWeight: 400
         },
         body1: {
             fontSize: '1rem',
-            fontWeight: 400,
+            fontWeight: 400
         },
         body2: {
             fontSize: '0.875rem',
-            fontWeight: 400,
+            fontWeight: 400
         },
         button: {
             fontSize: '0.875rem',
             fontWeight: 500,
-            textTransform: 'uppercase',
+            textTransform: 'uppercase'
         },
         caption: {
             fontSize: '0.75rem',
-            fontWeight: 400,
+            fontWeight: 400
         },
         overline: {
             fontSize: '0.625rem',
             fontWeight: 400,
-            textTransform: 'uppercase',
-        },
-    },
+            textTransform: 'uppercase'
+        }
+    }
 });
 
 export default themeLight;

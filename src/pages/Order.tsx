@@ -8,6 +8,9 @@ import {
     Button,
     Checkbox,
     CircularProgress,
+    Dialog,
+    DialogContent,
+    DialogTitle,
     Divider,
     Fade,
     FormControl,
@@ -30,7 +33,7 @@ const toppings = [
 ];
 
 interface OrderProps {
-  itemType: string;
+    itemType: string;
 }
 
 const Order: React.FC<OrderProps> = ({ itemType }) => {
@@ -39,8 +42,14 @@ const Order: React.FC<OrderProps> = ({ itemType }) => {
     const [itemPrice, setItemPrice] = useState(0);
     const [loading, setLoading] = useState(false);
     const [loadingBack, setLoadingBack] = useState(false);
-    const { setOpenSnackbar, setSnackbarMessage } = useContext(SnackbarContext);
     const token = Cookies.get('token');
+    const [comments, setComments] = useState('');
+    const [useCup, setUseCup] = useState(false);
+    const [sizeError, setSizeError] = useState('');
+    const [temperatureError, setTemperatureError] = useState('');
+    const [priceError, setPriceError] = useState(false);
+    const [invalidDrink, setInvalidDrink] = useState(false);
+    const { setOpenSnackbar, setSnackbarMessage } = useContext(SnackbarContext);
     const [userData, setUserData] = useState<{
         balance: number;
         username: string;
@@ -58,11 +67,6 @@ const Order: React.FC<OrderProps> = ({ itemType }) => {
         toppings: string[];
         total: number;
     }>({ size: undefined, temperature: undefined, toppings: [], total: 0 });
-    const [comments, setComments] = useState('');
-    const [useCup, setUseCup] = useState(false);
-    const [sizeError, setSizeError] = useState('');
-    const [temperatureError, setTemperatureError] = useState('');
-    const [priceError, setPriceError] = useState(false);
     const noLarge = [
         'Crispy cereal in milk(classic)',
         'Crispy cereal in milk(honey)',
@@ -104,6 +108,12 @@ const Order: React.FC<OrderProps> = ({ itemType }) => {
     const navigate = useNavigate();
 
     useEffect(() => {
+        if (!token) {
+            navigate('/not-authorized');
+        }
+    }, []);
+
+    useEffect(() => {
         setLoadingBack(true);
         const fetchDrinkDetails = async () => {
             try {
@@ -116,10 +126,12 @@ const Order: React.FC<OrderProps> = ({ itemType }) => {
                 } else {
                     console.error('Error fetching drink details:', data.error);
                     setLoadingBack(false);
+                    setInvalidDrink(true)
                 }
             } catch (error) {
                 console.error('Error fetching drink details:', error);
                 setLoadingBack(false);
+                setInvalidDrink(true)
             }
         };
 
@@ -302,6 +314,13 @@ const Order: React.FC<OrderProps> = ({ itemType }) => {
 
     return (
         <div className={styles.orderPageContainer}>
+            <Dialog open={invalidDrink}>
+                <DialogTitle>Error: Invalid Drink</DialogTitle>
+                <DialogContent>
+                    <p>The requested drink is not available or doesn't exist.</p>
+                    <p>Please go back to the <a className={styles.a} href='/'>Home Page</a> to choose from available drinks.</p>
+                </DialogContent>
+            </Dialog>
             <Box p={4}>
                 <Backdrop open={loadingBack}>
                     <CircularProgress color='inherit' />

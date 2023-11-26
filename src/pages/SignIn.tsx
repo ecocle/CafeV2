@@ -15,9 +15,15 @@ const SignIn = () => {
     const navigate = useNavigate();
 
     const handleSignIn = async (username: string, password: string) => {
-        setSigningIn(true);
         const loginData = { username, password };
 
+        if (!username || !password) {
+            setOpenError(true);
+            setErrorMessage('Username and password are required');
+            return;
+        }
+
+        setSigningIn(true);
         try {
             const response = await fetch('/api/signIn', {
                 method: 'POST',
@@ -82,18 +88,16 @@ const SignIn = () => {
                     Sign In
                 </Typography>
                 <form onSubmit={handleSubmit} className={styles.form}>
-                    <Grid container spacing={2}>
+                    <Grid container spacing={1}>
                         <Grid item xs={12}>
                             <TextField
                                 variant='outlined'
                                 margin='normal'
-                                required
                                 fullWidth
                                 id='username'
                                 label='Username'
                                 name='username'
                                 autoComplete='username'
-                                className={styles.textField}
                                 autoFocus
                             />
                         </Grid>
@@ -101,14 +105,12 @@ const SignIn = () => {
                             <TextField
                                 variant='outlined'
                                 margin='normal'
-                                required
                                 fullWidth
                                 name='password'
                                 label='Password'
                                 type='password'
                                 id='password'
                                 autoComplete='current-password'
-                                className={styles.textField}
                             />
                         </Grid>
                         <Grid item xs={12}>

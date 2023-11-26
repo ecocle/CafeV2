@@ -14,7 +14,8 @@ const breadcrumbNameMap: { [key: string]: string } = {
     '/breakfast/order': 'Order',
     '/signup': 'Sign Up',
     '/signin': 'Sign In',
-    '/orders': 'View Orders'
+    '/orders': 'View Orders',
+    '/not-authorized': 'Not Authorized',
 };
 
 interface LinkRouterProps extends LinkProps {
