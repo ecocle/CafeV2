@@ -1,5 +1,5 @@
 import React, { FormEvent, useContext, useState } from 'react';
-import { Box, Button, Grid, TextField, Typography } from '@mui/material';
+import { Box, Button, Grid, LinearProgress, TextField, Typography } from '@mui/material';
 import { SnackbarContext } from './SnackbarContext';
 import { useNavigate } from 'react-router-dom';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -68,6 +68,11 @@ const SignUp = () => {
                     Sign Up
                 </Typography>
                 <form onSubmit={handleSignUp} className={styles.form}>
+                    {isLoading && (
+                        <Box sx={{ width: '100%' }}>
+                            <LinearProgress />
+                        </Box>
+                    )}
                     <Grid container spacing={2}>
                         <Grid item xs={12} sm={6}>
                             <TextField
@@ -124,7 +129,7 @@ const SignUp = () => {
                                 disabled={isLoading}
                                 className={styles.signUpButton}
                             >
-                                {isLoading ? <CircularProgress size={24} /> : 'Sign Up'}
+                                {isLoading ? <CircularProgress size={24} color='secondary' /> : 'Sign Up'}
                             </Button>
                             <Grid item xs={12}>
                                 {error && <Alert severity='error'>{error}</Alert>}

@@ -16,6 +16,7 @@ import {
     FormControl,
     FormControlLabel,
     FormGroup,
+    LinearProgress,
     Paper,
     TextField,
     Typography
@@ -126,12 +127,12 @@ const Order: React.FC<OrderProps> = ({ itemType }) => {
                 } else {
                     console.error('Error fetching drink details:', data.error);
                     setLoadingBack(false);
-                    setInvalidDrink(true)
+                    setInvalidDrink(true);
                 }
             } catch (error) {
                 console.error('Error fetching drink details:', error);
                 setLoadingBack(false);
-                setInvalidDrink(true)
+                setInvalidDrink(true);
             }
         };
 
@@ -318,7 +319,8 @@ const Order: React.FC<OrderProps> = ({ itemType }) => {
                 <DialogTitle>Error: Invalid Drink</DialogTitle>
                 <DialogContent>
                     <p>The requested drink is not available or doesn't exist.</p>
-                    <p>Please go back to the <a className={styles.a} href='/'>Home Page</a> to choose from available drinks.</p>
+                    <p>Please go back to the <a className={styles.a} href='/'>Home Page</a> to choose from available
+                        drinks.</p>
                 </DialogContent>
             </Dialog>
             <Box p={4}>
@@ -327,6 +329,11 @@ const Order: React.FC<OrderProps> = ({ itemType }) => {
                 </Backdrop>
                 <Fade in={!loadingBack}>
                     <Paper elevation={3} className={styles.container}>
+                        {loading && (
+                            <Box sx={{ width: '100%' }}>
+                                <LinearProgress />
+                            </Box>
+                        )}
                         <Box p={4}>
                             <Typography variant='h3' align='center' gutterBottom>
                                 Order

@@ -1,5 +1,16 @@
 import React, { useContext, useState } from 'react';
-import { Alert, Avatar, Box, Button, CircularProgress, Grid, Link, TextField, Typography } from '@mui/material';
+import {
+    Alert,
+    Avatar,
+    Box,
+    Button,
+    CircularProgress,
+    Grid,
+    LinearProgress,
+    Link,
+    TextField,
+    Typography,
+} from '@mui/material';
 import { SnackbarContext } from './SnackbarContext';
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
@@ -88,6 +99,11 @@ const SignIn = () => {
                     Sign In
                 </Typography>
                 <form onSubmit={handleSubmit} className={styles.form}>
+                    {signingIn && (
+                        <Box sx={{ width: '100%' }}>
+                            <LinearProgress />
+                        </Box>
+                    )}
                     <Grid container spacing={1}>
                         <Grid item xs={12}>
                             <TextField
@@ -122,7 +138,7 @@ const SignIn = () => {
                                 className={styles.signInButton}
                                 disabled={signingIn}
                             >
-                                {signingIn ? <CircularProgress size={24} /> : 'Sign In'}
+                                {signingIn ? <CircularProgress size={24} color='secondary' /> : 'Sign In'}
                             </Button>
                         </Grid>
                         <Grid item xs={12}>

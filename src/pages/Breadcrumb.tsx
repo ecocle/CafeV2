@@ -14,8 +14,9 @@ const breadcrumbNameMap: { [key: string]: string } = {
     '/breakfast/order': 'Order',
     '/signup': 'Sign Up',
     '/signin': 'Sign In',
+    '/account-settings': 'Account Settings',
     '/orders': 'View Orders',
-    '/not-authorized': 'Not Authorized',
+    '/not-authorized': 'Not Authorized'
 };
 
 interface LinkRouterProps extends LinkProps {
@@ -44,11 +45,11 @@ const Breadcrumb = () => {
                         </Typography>
                     ) : (
                         <div style={{ display: 'flex', alignItems: 'center' }}>
-            <span>
-                <LinkRouter underline='hover' to='/' className={styles.LinkRouter}>
-                    Home
-                </LinkRouter>
-            </span>
+                            <span>
+                                <LinkRouter underline='hover' to='/' className={styles.LinkRouter}>
+                                    Home
+                                </LinkRouter>
+                            </span>
                             {pathNames.map((value, index) => {
                                 const routeTo = `/${pathNames.slice(0, index + 1).join('/')}`;
                                 const primary = breadcrumbNameMap[routeTo];
@@ -63,14 +64,14 @@ const Breadcrumb = () => {
                                             </Typography>
                                         ) : (
                                             <span>
-                                <LinkRouter
-                                    underline='hover'
-                                    to={routeTo}
-                                    className={styles.LinkRouter}
-                                >
-                                    {primary}
-                                </LinkRouter>
-                            </span>
+                                                <LinkRouter
+                                                    underline='hover'
+                                                    to={routeTo}
+                                                    className={styles.LinkRouter}
+                                                >
+                                                    {primary}
+                                                </LinkRouter>
+                                            </span>
                                         )}
                                     </React.Fragment>
                                 );

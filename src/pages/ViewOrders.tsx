@@ -42,7 +42,7 @@ const ViewOrders = () => {
     const token = Cookies.get('token');
     const [date, setDate] = useState<string>('');
     const username = (token && (jwtDecode as any)(token).username) || '';
-    const [firstName, setFirstName] = useState('');
+    const [id, setId] = useState('');
 
     const handleDateChange = (newDate: string | null | dayjs.Dayjs) => {
         if (newDate && typeof newDate === 'string') {
@@ -65,8 +65,8 @@ const ViewOrders = () => {
                     }
                 });
                 const data = await response.json();
-                setFirstName(data.firstName);
-                await fetchOrderData(data.firstName, date);
+                setId(data.id);
+                await fetchOrderData(data.id, date);
             } catch (error) {
                 console.error('Failed to fetch user data:', error);
                 setLoading(false);
@@ -78,10 +78,10 @@ const ViewOrders = () => {
 
     useEffect(() => {
         setLoading(true);
-        fetchOrderData(firstName, date);
+        fetchOrderData(id, date);
     }, [date]);
 
-    const fetchOrderData = async (firstName: string, selectedDate = '') => {
+    const fetchOrderData = async (id: string, selectedDate = '') => {
         try {
             const endpoint = username === 'Admin' ? '/api/admin/orders' : '/api/orders';
             const params = new URLSearchParams();
@@ -98,7 +98,7 @@ const ViewOrders = () => {
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`,
-                    userInformation: firstName
+                    userInformation: id
                 },
                 credentials: 'include'
             });

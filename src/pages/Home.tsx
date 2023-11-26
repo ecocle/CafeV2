@@ -1,5 +1,5 @@
 import React, { lazy, Suspense, useContext, useEffect, useState } from 'react';
-import { Box, Button, Typography } from '@mui/material';
+import { Box, Button, Typography, CircularProgress } from '@mui/material';
 import paymentImage from '../assets/paymentImage.jpg';
 import styles from './Home.module.scss';
 import Cookies from 'js-cookie';
@@ -7,7 +7,6 @@ import { SnackbarContext } from './SnackbarContext';
 import { Link } from 'react-router-dom';
 
 // Lazy-loaded components
-const CircularProgress = lazy(() => import('@mui/material/CircularProgress'));
 const Dialog = lazy(() => import('@mui/material/Dialog'));
 const DialogActions = lazy(() => import('@mui/material/DialogActions'));
 const DialogContent = lazy(() => import('@mui/material/DialogContent'));
@@ -73,6 +72,10 @@ const Home = () => {
 
     const navigateToVieOrders = () => {
         window.location.href = '/orders';
+    }
+
+    const navigateToAccountSettings = () => {
+        window.location.href = '/account-settings';
     }
 
     const handleCloseDialog = () => {
@@ -157,11 +160,13 @@ const Home = () => {
                                     <MenuItem onClick={navigateToVieOrders}>
                                         View Orders
                                     </MenuItem>
+                                    <MenuItem onClick={navigateToAccountSettings}>
+                                        Account Settings
+                                    </MenuItem>
                                     <Divider />
                                     <MenuItem
                                         onClick={() => {
                                             Cookies.remove('token');
-                                            Cookies.remove('username');
                                             window.location.reload();
                                         }}
                                     >

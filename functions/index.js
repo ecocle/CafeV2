@@ -22,7 +22,7 @@ app.use(
     session({
         secret: secretKey,
         resave: false,
-        saveUninitialized: true,
+        saveUninitialized: true
     })
 );
 
@@ -246,22 +246,21 @@ app.post('/api/signin', async (req, res) => {
     const { username, password } = req.body;
 
     try {
-        const [rows] = await conn.execute('SELECT * FROM Accounts WHERE User_name = ?', [username]);
-        const user = rows[0];
-        console.log(user);
+        const rawCurrentPassword = await conn.execute('SELECT Password FROM Accounts WHERE User_name = ?', [username]);
 
-        if (!user) {
+        const currentPassword = rawCurrentPassword[0][0].Password;
+
+        if (!currentPassword) {
             return res.status(401).json({ error: 'Invalid username' });
         }
 
-        const isPasswordValid = await bcrypt.compare(password, user.Password);
+        const isPasswordValid = await bcrypt.compare(password, currentPassword);
         if (!isPasswordValid) {
             return res.status(401).json({ error: 'Invalid password' });
         }
 
         const token = jwt.sign({ username }, secretKey, { expiresIn: '30d' });
-        res.cookie('access_token', token, { maxAge: 30 * 24 * 60 * 60 * 1000 });
-        return res.json({ message: 'Login successful', username, token });
+        return res.json({ message: 'Login successful', token });
     } catch (err) {
         console.error('Error logging in:', err);
         return res.status(500).json({ error: 'Error logging in' });
@@ -315,18 +314,104 @@ app.get('/api/user_data', async (req, res) => {
 
     try {
         const [rows] = await conn.query(
-            'SELECT User_name, Balance, First_name, Last_name FROM Accounts WHERE User_name = ?',
+            'SELECT User_name, Balance, First_name, Last_name, Password, ID FROM Accounts WHERE User_name = ?',
             [username]
         );
         if (rows.length > 0) {
             const userData = rows[0];
-            res.json({ username: userData.User_name, balance: userData.Balance, firstName: userData.First_name, lastName: userData.Last_name });
+            res.json({
+                username: userData.User_name,
+                balance: userData.Balance,
+                firstName: userData.First_name,
+                lastName: userData.Last_name,
+                password: userData.Password,
+                id: userData.ID
+            });
         } else {
             res.status(404).json({ error: 'User data not found' });
         }
     } catch (error) {
         console.error('Error fetching user data:', error);
         res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+app.put('/api/update_profile', async (req, res) => {
+    const authHeader = req.headers.authorization;
+    let username = req.session.username;
+
+    if (!username && authHeader && authHeader.startsWith('Bearer ')) {
+        const token = authHeader.split('Bearer ')[1];
+        try {
+            const decodedToken = jwt.verify(token, secretKey);
+            username = decodedToken.username;
+        } catch (error) {
+            return res.status(401).json({ error: 'Invalid token' });
+        }
+    }
+
+    if (!username) {
+        return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    const { firstName, lastName, newUsername, id } = req.body;
+
+    try {
+        await conn.query(
+            'UPDATE Accounts SET First_name = ?, Last_name = ?, User_name = ? WHERE ID = ?',
+            [firstName, lastName, newUsername, id]
+        );
+        username = newUsername;
+
+        const token = jwt.sign({ username }, secretKey, { expiresIn: '30d' });
+        res.json({ message: 'Profile updated successfully', token });
+    } catch (error) {
+        console.error('Error updating user profile:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+app.put('/api/update_password', async (req, res) => {
+    const authHeader = req.headers.authorization;
+    let username = req.session.username;
+
+    if (!username && authHeader && authHeader.startsWith('Bearer ')) {
+        const token = authHeader.split('Bearer ')[1];
+        try {
+            const decodedToken = jwt.verify(token, secretKey);
+            username = decodedToken.username;
+        } catch (error) {
+            return res.status(401).json({ error: 'Invalid token' });
+        }
+    }
+
+    if (!username) {
+        return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    const { enteredCurrentPassword, newPassword, id } = req.body;
+
+    const rawCurrentPassword = await conn.query('SELECT Password FROM Accounts WHERE ID = ?', [id]);
+    const currentPassword = rawCurrentPassword[0][0].Password;
+    const isPasswordValid = await bcrypt.compare(enteredCurrentPassword, currentPassword);
+
+    if (!isPasswordValid) {
+        res.status(401).json({ error: 'Password doesn\'t match' });
+    } else {
+        try {
+            const saltRounds = 10;
+            const encryptedNewPassword = await bcrypt.hash(newPassword, saltRounds);
+
+            await conn.query(
+                'UPDATE Accounts SET Password = ? WHERE ID = ?',
+                [encryptedNewPassword, id]
+            );
+
+            res.json({ message: 'Password updated successfully'});
+        } catch (error) {
+            console.error('Error updating user password:', error);
+            res.status(500).json({ error: 'Internal server error' });
+        }
     }
 });
 
@@ -373,7 +458,7 @@ app.get('/api/admin/orders', async (req, res) => {
 
 app.get('/api/orders', async (req, res) => {
     const authHeader = req.headers.authorization;
-    const firstName = req.headers.userinformation;
+    const id = req.headers.userinformation;
     let username = '';
 
     if (authHeader && authHeader.startsWith('Bearer ')) {
@@ -392,8 +477,8 @@ app.get('/api/orders', async (req, res) => {
 
     try {
         const date = req.query.date;
-        let query = 'SELECT * FROM Orders WHERE First_name = ?';
-        const queryParams = [firstName];
+        let query = 'SELECT * FROM Orders WHERE id = ?';
+        const queryParams = [id];
 
         if (date) {
             query += ' AND DATE(order_time) = ?';

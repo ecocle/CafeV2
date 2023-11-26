@@ -16,6 +16,7 @@ const LazyOrder = lazy(() => import('./pages/Order'));
 const LazySignUp = lazy(() => import('./pages/SignUp'));
 const LazySignIn = lazy(() => import('./pages/SignIn'));
 const LazyViewOrders = lazy(() => import('./pages/ViewOrders'));
+const LazyAccountSettings = lazy(() => import('./pages/AccountSettings'));
 
 const withSuspense = (Component: LazyComponent) => {
     return (props: any) => (
@@ -83,6 +84,7 @@ const App = () => {
                         </Route>
                         <Route path='/signup' element={withSuspense(LazySignUp)({})} />
                         <Route path='/signin' element={withSuspense(LazySignIn)({})} />
+                        <Route path='/account-settings' element={withSuspense(LazyAccountSettings)({})} />
                         <Route path='/orders' element={withSuspense(LazyViewOrders)({})} />
                         <Route path='/' element={<Home />} />
                         <Route path='*' element={<NotFound />} />
