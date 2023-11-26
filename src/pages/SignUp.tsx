@@ -74,7 +74,6 @@ const SignUp = () => {
                                 variant='outlined'
                                 autoComplete='given-name'
                                 name='firstName'
-                                required
                                 fullWidth
                                 id='firstName'
                                 label='First Name'
@@ -96,7 +95,6 @@ const SignUp = () => {
                         <Grid item xs={12}>
                             <TextField
                                 variant='outlined'
-                                required
                                 fullWidth
                                 id='username'
                                 label='Username'
@@ -108,7 +106,6 @@ const SignUp = () => {
                         <Grid item xs={12}>
                             <TextField
                                 variant='outlined'
-                                required
                                 fullWidth
                                 name='password'
                                 label='Password'

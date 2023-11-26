@@ -77,13 +77,6 @@ const Home = () => {
         window.location.reload();
     };
 
-    const checkLogin = (event: React.MouseEvent) => {
-        if (!token) {
-            event.preventDefault();
-            setShowAlert(true);
-        }
-    };
-
     const handleClick = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
     };
@@ -140,6 +133,7 @@ const Home = () => {
                                             type='number'
                                             label='Amount'
                                             value={amount}
+                                            color='secondary'
                                             onClick={(e) => e.stopPropagation()}
                                             onChange={(e) => {
                                                 let value = e.target.value;
@@ -150,7 +144,7 @@ const Home = () => {
                                             }}
                                             InputProps={{ inputProps: { min: 0 } }}
                                         />
-                                        <Button type='submit' variant='contained' color='primary'>
+                                        <Button type='submit' variant='contained' color='secondary' sx={{ margin: 1.5 }}>
                                             Add
                                         </Button>
                                     </form>
@@ -163,7 +157,7 @@ const Home = () => {
                             <Button
                                 className={`${styles.button} ${styles.robotoFont}`}
                                 variant='text'
-                                color='primary'
+                                color='error'
                                 size='small'
                                 onClick={() => {
                                     Cookies.remove('token');
@@ -179,7 +173,7 @@ const Home = () => {
                             <Button
                                 className={`${styles.button} ${styles.robotoFont}`}
                                 variant='outlined'
-                                color='primary'
+                                color='secondary'
                                 size='small'
                                 component={Link}
                                 to='/signup'
@@ -189,7 +183,7 @@ const Home = () => {
                             <Button
                                 className={`${styles.button} ${styles.robotoFont}`}
                                 variant='text'
-                                color='primary'
+                                color='secondary'
                                 size='small'
                                 component={Link}
                                 to='/signin'
@@ -206,40 +200,54 @@ const Home = () => {
                 </Typography>
             </Box>
             <Box className={styles.main}>
-                <Button
-                    onClick={checkLogin}
-                    className={`${styles.button} ${styles.robotoFont}`}
-                    variant='contained'
-                    color='primary'
-                    size='large'
-                    component={Link}
-                    to='/coffee'
-                    disabled
-                >
-                    Coffee
-                </Button>
-                <Button
-                    onClick={checkLogin}
-                    className={`${styles.button} ${styles.robotoFont}`}
-                    variant='contained'
-                    color='primary'
-                    size='large'
-                    component={Link}
-                    to='/caffeine-free'
-                >
-                    Non-Caffeinated Drink
-                </Button>
-                <Button
-                    onClick={checkLogin}
-                    className={`${styles.button} ${styles.robotoFont}`}
-                    variant='contained'
-                    color='primary'
-                    size='large'
-                    component={Link}
-                    to='/breakfast'
-                >
-                    Breakfast
-                </Button>
+                {token ? (
+                    <>
+                        <Button
+                            className={`${styles.button} ${styles.robotoFont}`}
+                            variant='contained'
+                            color='primary'
+                            size='large'
+                            component={Link}
+                            to='/coffee'
+                            disabled
+                        >
+                            Coffee
+                        </Button>
+                        <Button
+                            className={`${styles.button} ${styles.robotoFont}`}
+                            variant='contained'
+                            color='primary'
+                            size='large'
+                            component={Link}
+                            to='/caffeine-free'
+                        >
+                            Non-Caffeinated Drink
+                        </Button>
+                        <Button
+                            className={`${styles.button} ${styles.robotoFont}`}
+                            variant='contained'
+                            color='primary'
+                            size='large'
+                            component={Link}
+                            to='/breakfast'
+                        >
+                            Breakfast
+                        </Button>
+                    </>
+                ) : (
+                    <>
+                        <Button
+                            className={`${styles.button} ${styles.robotoFont}`}
+                            variant='contained'
+                            color='primary'
+                            size='large'
+                            component={Link}
+                            to='/signin'
+                        >
+                            Sign In
+                        </Button>
+                    </>
+                )}
             </Box>
             <Box className={styles.footer}>
                 <Typography variant='caption' component='caption'>

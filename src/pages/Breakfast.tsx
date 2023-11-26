@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Backdrop, Button, Card, CardContent, CircularProgress, Fade, Grid, Typography } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
 import styles from './Breakfast.module.scss';
+import Cookies from 'js-cookie';
 
 interface BreakfastItem {
     Name: string;
@@ -11,7 +12,14 @@ interface BreakfastItem {
 const Breakfast = () => {
     const [breakfastList, setBreakfastList] = useState<BreakfastItem[]>([]);
     const navigate = useNavigate();
-    const [open, setOpen] = useState(true); // Initially set to true for loading state
+    const token = Cookies.get('token');
+    const [open, setOpen] = useState(true);
+
+    useEffect(() => {
+        if (!token) {
+            navigate('/not-authorized');
+        }
+    }, []);
 
     useEffect(() => {
         fetch('/api/dataBreakfast')

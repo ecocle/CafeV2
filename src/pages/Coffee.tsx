@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Backdrop, Button, Card, CardContent, CircularProgress, Fade, Grid, Typography } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
 import styles from './Coffee.module.scss';
+import Cookies from 'js-cookie';
 
 interface CoffeeItem {
     Name: string;
@@ -12,7 +13,14 @@ const Coffee = () => {
     const [breakfastList, setBreakfastList] = useState<CoffeeItem[]>([]);
     const [shouldNavigate, setShouldNavigate] = useState(false);
     const navigate = useNavigate();
+    const token = Cookies.get('token');
     const [open, setOpen] = React.useState(false);
+
+    useEffect(() => {
+        if (!token) {
+            navigate('/not-authorized');
+        }
+    }, []);
 
     useEffect(() => {
         if (shouldNavigate) {

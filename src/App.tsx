@@ -4,6 +4,7 @@ import { SnackbarProvider } from './pages/SnackbarContext';
 import { CircularProgress } from '@mui/material';
 import Home from './pages/Home';
 import NotFound from './pages/NotFound';
+import NeedAuthorization from './pages/NeedAuthorization';
 import Breadcrumb from './pages/Breadcrumb';
 
 type LazyComponent = React.LazyExoticComponent<React.ComponentType<any>>;
@@ -85,6 +86,7 @@ const App = () => {
                         <Route path='/orders' element={withSuspense(LazyViewOrders)({})} />
                         <Route path='/' element={<Home />} />
                         <Route path='*' element={<NotFound />} />
+                        <Route path='/not-authorized' element={<NeedAuthorization />} />
                     </Routes>
                 </div>
             </Router>
