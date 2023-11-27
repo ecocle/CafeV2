@@ -147,7 +147,7 @@ app.post('/api/order', async (req, res) => {
     }
 
     try {
-        const result = await orderResult(data, username, conn);
+        const result = await orderResult(data, conn);
         res.json({ message: 'Order placed successfully', result });
     } catch (error) {
         console.error('Error placing order:', error);
@@ -161,8 +161,6 @@ const orderResult = async (data) => {
         connection = await conn.getConnection();
         const selectedToppings = data.selectedToppings ?
             data.selectedToppings.join(',') : '';
-        const charles = `${data.name}, ${data.selectedSize}, 
-    ${selectedToppings}, ${data.price}`;
         const values = [
             data.firstName,
             data.lastName,
@@ -173,7 +171,7 @@ const orderResult = async (data) => {
             data.price,
             data.comments,
             data.useCup,
-            charles
+            data.id
         ];
 
         const sql = `
@@ -187,7 +185,7 @@ const orderResult = async (data) => {
                                 Order_time,
                                 Comments,
                                 Cup,
-                                CHARLES)
+                                Order_ID)
             VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), ?, ?, ?)
         `;
 
@@ -477,7 +475,7 @@ app.get('/api/orders', async (req, res) => {
 
     try {
         const date = req.query.date;
-        let query = 'SELECT * FROM Orders WHERE id = ?';
+        let query = 'SELECT * FROM Orders WHERE Order_ID = ?';
         const queryParams = [id];
 
         if (date) {

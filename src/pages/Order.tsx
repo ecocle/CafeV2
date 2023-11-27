@@ -53,11 +53,13 @@ const Order: React.FC<OrderProps> = ({ itemType }) => {
     const { setOpenSnackbar, setSnackbarMessage } = useContext(SnackbarContext);
     const [userData, setUserData] = useState<{
         balance: number;
+        id: number;
         username: string;
         firstName: string;
         lastName: string;
     }>({
         balance: 0,
+        id: 0,
         username: '',
         firstName: '',
         lastName: ''
@@ -285,7 +287,8 @@ const Order: React.FC<OrderProps> = ({ itemType }) => {
             price: finalTotal,
             comments,
             useCup,
-            balance: userData.balance - finalTotal
+            balance: userData.balance - finalTotal,
+            id: userData.id
         };
 
         try {
