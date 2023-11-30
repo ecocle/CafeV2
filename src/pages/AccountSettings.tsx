@@ -12,7 +12,7 @@ import {
     Typography
 } from '@mui/material';
 import Cookies from 'js-cookie';
-import styles from './AccountSettings.module.scss';
+import styles from './account-settings.module.scss';
 
 const AccountSettings: React.FC = () => {
     const token = Cookies.get('token');
