@@ -238,7 +238,6 @@ const Home = () => {
                         )}
                     </Box>
                 </Box>
-                ∆
                 <Box className={styles.title}>
                     <Typography
                         className={styles.pacificoFont}
