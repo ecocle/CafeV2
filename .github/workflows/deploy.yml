@@ -18,7 +18,8 @@ jobs:
 
       - name: Test SSH Connectivity with Password
         run: |
-          sshpass -p '${{ secrets.SERVER_PASSWORD }}' ssh -o StrictHostKeyChecking=no -o BatchMode=yes -o ConnectTimeout=5 ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} "echo 'SSH connection successful'"
+          ssh -o StrictHostKeyChecking=no -o BatchMode=yes -o ConnectTimeout=5 -o PubkeyAuthentication=no -o PreferredAuthentications=password ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} "echo 'SSH connection successful'"
+
 
       - name: SSH into Server and deploy
         run: |
