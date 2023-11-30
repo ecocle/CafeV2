@@ -40,7 +40,7 @@ const Coffee = () => {
 
     useEffect(() => {
         setOpen(true);
-        fetch("/api/dataCoffee")
+        fetch("https://hualangcafe.com/api/dataCoffee")
             .then((response) => response.json())
             .then((data: { Name: string; Price: number }[]) => {
                 const formattedData: CoffeeItem[] = data.map((item) => ({

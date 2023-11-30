@@ -22,16 +22,9 @@ jobs:
           port: 22 
           script: |
             cd /var/www/html/CafeV2
-            echo "Working directory: $(pwd)"
-            sudo git pull https://github.com/ecocle/CafeV2 main
-            echo "Git pull finished"            
+            sudo git pull https://github.com/ecocle/CafeV2 main         
             npm install
-            echo "NPM install finished"
             sudo chown -R ubuntu:ubuntu ./
-            echo "File ownership changed"
             npm run build
-            echo "Build finished"
             sudo chown -R www-data:www-data dist
-            echo "Dist directory ownership changed"
             sudo systemctl restart CafeV2
-            echo "Service restarted"

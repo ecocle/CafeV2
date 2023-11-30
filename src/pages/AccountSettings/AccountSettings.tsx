@@ -40,7 +40,7 @@ const AccountSettings: React.FC = () => {
             ?.split("=")[1];
 
         if (token) {
-            fetch("/api/user_data", {
+            fetch("https://hualangcafe.com/api/user_data", {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -109,7 +109,7 @@ const AccountSettings: React.FC = () => {
                 return;
             }
 
-            await fetch("/api/update_password", {
+            await fetch("https://hualangcafe.com/api/update_password", {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
