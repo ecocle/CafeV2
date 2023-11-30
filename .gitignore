@@ -667,8 +667,8 @@ __pycache__/
 # Distribution / packaging
 .Python
 build/
-develop-eggs/
 dist/
+develop-eggs/
 downloads/
 eggs/
 .eggs/
@@ -12647,4 +12647,4 @@ Sessionx.vim
 nohup.out
 
 /src/env.env
-!/src/pages/NeedAuthorization.tsx
+/dist/

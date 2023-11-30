@@ -1,10 +1,10 @@
-import React, { createContext, useState } from 'react';
+import React, { createContext, useState } from "react";
 
 export const SnackbarContext = createContext({
     openSnackbar: false,
-    snackbarMessage: '',
+    snackbarMessage: "",
     setOpenSnackbar: (open: boolean) => {},
-    setSnackbarMessage: (message: string) => {}
+    setSnackbarMessage: (message: string) => {},
 });
 
 interface SnackbarProviderProps {
@@ -13,13 +13,13 @@ interface SnackbarProviderProps {
 
 export const SnackbarProvider = ({ children }: SnackbarProviderProps) => {
     const [openSnackbar, setOpenSnackbar] = useState(false);
-    const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [snackbarMessage, setSnackbarMessage] = useState("");
 
     const contextValue = {
         openSnackbar,
         snackbarMessage,
         setOpenSnackbar,
-        setSnackbarMessage
+        setSnackbarMessage,
     };
 
     return (
