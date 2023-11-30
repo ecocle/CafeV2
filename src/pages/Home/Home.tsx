@@ -232,7 +232,7 @@ const Home = () => {
                                     component={Link}
                                     to="/signin"
                                 >
-                                    Sign In
+                                    Sign In2
                                 </Button>
                             </>
                         )}
