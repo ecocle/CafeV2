@@ -16,6 +16,12 @@ jobs:
       - name: Install sshpass
         run: sudo apt-get update && sudo apt-get install -y sshpass
 
+      - name: Display Secrets
+        run: |
+          echo "Server Host: ${{ secrets.SERVER_HOST }}"
+          echo "Server Username: ${{ secrets.SERVER_USERNAME }}"
+          echo "Server Password: ${{ secrets.SERVER_PASSWORD }}"
+
       - name: SSH into Server and deploy
         run: |
           sshpass -p ${{ secrets.SERVER_PASSWORD }} ssh ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} 'cd /var/www/html/CafeV2 && sudo git pull https://github.com/ecocle/CafeV2 main && npm install && sudo chown -R ubuntu:ubuntu ./ && npm run build && sudo chown -R www-data:www-data dist && sudo systemctl restart CafeV2'
