@@ -3608,7 +3608,6 @@ app/config/config.php
 
 modules/*
 override/*
-themes/*/
 !themes/classic
 !themes/_core
 !themes/_libraries
@@ -4684,7 +4683,6 @@ test/
 *.doc
 *.docx
 *.msg
-*.pages
 *.rtf
 *.txt
 *.wpd
@@ -10800,7 +10798,6 @@ xmlrpc.php
 /misc
 /profiles
 /scripts
-/themes
 
 ### InforCRM template
 #########################################
@@ -12647,4 +12644,5 @@ Sessionx.vim
 nohup.out
 
 /src/env.env
+/dist/
 /dist/
