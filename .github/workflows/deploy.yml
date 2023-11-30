@@ -16,11 +16,10 @@ jobs:
       - name: Install sshpass
         run: sudo apt-get update && sudo apt-get install -y sshpass
 
-      - name: Display Secrets
+      - name: Test SSH Connectivity
         run: |
-          echo "Server Host: ${{ secrets.SERVER_HOST }}"
-          echo "Server Username: ${{ secrets.SERVER_USERNAME }}"
-          echo "Server Password: ${{ secrets.SERVER_PASSWORD }}"
+          ssh -o BatchMode=yes -o ConnectTimeout=5 ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} "echo 'SSH connection successful'"
+
 
       - name: SSH into Server and deploy
         run: |
