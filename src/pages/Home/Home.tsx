@@ -37,14 +37,11 @@ const Home = () => {
     useEffect(() => {
         const fetchUserData = async () => {
             try {
-                const response = await fetch(
-                    "https://hualangcafe.com/api/user_data",
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
+                const response = await fetch("/api/user_data", {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
                     },
-                );
+                });
                 const data = await response.json();
                 setBalance(data.balance);
             } catch (error) {
@@ -58,18 +55,15 @@ const Home = () => {
     const handleAddFunds = async (event: React.FormEvent) => {
         event.preventDefault();
 
-        const response = await fetch(
-            "https://hualangcafe.com/api/addMoneyToAcc",
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-                credentials: "include",
-                body: JSON.stringify({ amount }),
+        const response = await fetch("/api/addMoneyToAcc", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
             },
-        );
+            credentials: "include",
+            body: JSON.stringify({ amount }),
+        });
 
         if (response.ok) {
             setOpenDialog(true);

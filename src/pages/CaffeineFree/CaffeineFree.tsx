@@ -40,7 +40,7 @@ const CaffeineFree = () => {
 
     useEffect(() => {
         setOpen(true);
-        fetch("https://hualangcafe.com/api/dataCaffeineFree")
+        fetch("/api/dataCaffeineFree")
             .then((response) => response.json())
             .then((data: { Name: string; Price: number }[]) => {
                 const formattedData: CaffeineFreeItem[] = data.map((item) => ({
@@ -62,7 +62,7 @@ const CaffeineFree = () => {
             </Backdrop>
             {!open && (
                 <Fade in={!open}>
-                    <div className={styles.caffeineFree}>
+                    <div className={styles.root}>
                         <Button
                             className={styles.home}
                             component={Link}
