@@ -15,19 +15,6 @@ const host = "0.0.0.0";
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(express.json());
-app.use(
-    cors({
-        origin: function (origin, callback) {
-            const whitelist = ["http://localhost:5173", "https://test.hualangcafe.com", "https://www.hualangcafe.com"];
-            if (whitelist.indexOf(origin) !== -1) {
-                callback(null, true);
-            } else {
-                callback(new Error('Not allowed by CORS'));
-            }
-        },
-        credentials: true,
-    }),
-);
 
 require("dotenv").config({ path: "./env.env" });
 const secretKey = process.env.SECRET_KEY;
