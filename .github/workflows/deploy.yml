@@ -23,6 +23,7 @@ jobs:
           script: |
             cd /var/www/test/CafeV2
             sudo rm -r dist
+            sudo rm package-lock.json
             sudo git pull https://github.com/ecocle/CafeV2 main         
             npm install
             sudo chown -R ubuntu:ubuntu ./
