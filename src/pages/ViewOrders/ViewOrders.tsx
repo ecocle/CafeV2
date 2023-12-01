@@ -59,11 +59,14 @@ const ViewOrders = () => {
         setLoading(true);
         const fetchUserData = async () => {
             try {
-                const response = await fetch("/api/user_data", {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
+                const response = await fetch(
+                    "https://hualangcafe.com/api/user_data",
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
                     },
-                });
+                );
                 const data = await response.json();
                 setId(data.id);
                 await fetchOrderData(data.id, date);
@@ -84,7 +87,9 @@ const ViewOrders = () => {
     const fetchOrderData = async (id: string, selectedDate = "") => {
         try {
             const endpoint =
-                username === "Admin" ? "/api/admin/orders" : "/api/orders";
+                username === "Admin"
+                    ? "https://hualangcafe.com/api/admin/orders"
+                    : "/api/orders";
             const params = new URLSearchParams();
 
             if (selectedDate) {

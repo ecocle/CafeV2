@@ -38,7 +38,7 @@ const SignUp = () => {
 
         setIsLoading(true);
         try {
-            const response = await fetch("/api/signUp", {
+            const response = await fetch("https://hualangcafe.com/api/signUp", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

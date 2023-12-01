@@ -69,7 +69,7 @@ const AccountSettings: React.FC = () => {
         try {
             setLoadingProfile(true);
 
-            const response = await fetch("/api/update_profile", {
+            const response = await fetch("https://hualangcafe.com/api/update_profile", {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
