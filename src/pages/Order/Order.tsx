@@ -132,7 +132,7 @@ const Order: React.FC<OrderProps> = ({ itemType }) => {
         const fetchDrinkDetails = async () => {
             try {
                 const response = await fetch(
-                    `https://hualangcafe.com/api/drinkData/${itemType}/${itemName}`,
+                    `/api/drinkData/${itemType}/${itemName}`,
                 );
                 const data = await response.json();
 
@@ -155,7 +155,7 @@ const Order: React.FC<OrderProps> = ({ itemType }) => {
     }, [itemName, itemType, setItemPrice]);
 
     useEffect(() => {
-        fetch("https://hualangcafe.com/api/user_data", {
+        fetch("/api/user_data", {
             headers: {
                 Authorization: `Bearer ${token}`,
             },

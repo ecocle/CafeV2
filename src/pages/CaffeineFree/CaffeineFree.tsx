@@ -40,7 +40,7 @@ const CaffeineFree = () => {
 
     useEffect(() => {
         setOpen(true);
-        fetch("https://hualangcafe.com/api/dataCaffeineFree")
+        fetch("/api/dataCaffeineFree")
             .then((response) => response.json())
             .then((data: { Name: string; Price: number }[]) => {
                 const formattedData: CaffeineFreeItem[] = data.map((item) => ({
