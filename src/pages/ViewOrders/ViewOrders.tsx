@@ -30,9 +30,10 @@ interface Order {
     temperature: string;
     toppings: string | null;
     size: string;
-    price: string;
+    price: number;
     comments: string | null;
     cup: string | null;
+    charles: string;
 }
 
 const ViewOrders = () => {
@@ -106,18 +107,18 @@ const ViewOrders = () => {
                 console.error("Network response was not ok");
             }
             const rawData = await response.json();
-            const transformedData = rawData.data.map((order: Order) => ({
-                id: order.id,
-                order_time: order.order_time,
-                first_name: order.first_name,
-                last_name: order.last_name,
-                coffee_type: order.coffee_type,
-                temperature: order.temperature,
-                toppings: order.toppings,
-                size: order.size,
-                price: parseFloat(order.price),
-                comments: order.comments,
-                cup: order.cup,
+            const transformedData = rawData.data.map((order: any) => ({
+                id: order.ID,
+                order_time: order.Order_time,
+                first_name: order.First_name,
+                last_name: order.Last_name,
+                coffee_type: order.Coffee_type,
+                temperature: order.Temperature,
+                toppings: order.Toppings,
+                size: order.Size,
+                price: parseFloat(order.Price),
+                comments: order.Comments,
+                cup: order.Cup,
             }));
             setOrders(transformedData);
             setLoading(false);
