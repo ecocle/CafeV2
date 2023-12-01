@@ -244,7 +244,7 @@ const Home = () => {
                         variant="h1"
                         component="h1"
                     >
-                        MY Cafe
+                        MY Cafe Test
                     </Typography>
                 </Box>
                 <Box className={styles.main}>
