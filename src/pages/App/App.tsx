@@ -1,107 +1,46 @@
 import React, { lazy, Suspense } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { SnackbarProvider } from "../../context/SnackbarContext";
-import { CircularProgress } from "@mui/material";
 import Home from "../Home/Home";
-import Breadcrumb from "../Breadcrumb/Breadcrumb";
-
-const LazyCoffee = lazy(() => import("../Coffee/Coffee"));
-const LazyCaffeineFree = lazy(() => import("../CaffeineFree/CaffeineFree"));
-const LazyBreakfast = lazy(() => import("../Breakfast/Breakfast"));
-const LazyOrder = lazy(() => import("../Order/Order"));
-const LazySignUp = lazy(() => import("../SignUp/SignUp"));
-const LazySignIn = lazy(() => import("../SignIn/SignIn"));
-const LazyViewOrders = lazy(() => import("../ViewOrders/ViewOrders"));
-const LazyAccountSettings = lazy(
-    () => import("../AccountSettings/AccountSettings"),
-);
-const LazyNotFound = lazy(() => import("../NotFound/NotFound"));
-const LazyNeedAuthorization = lazy(
-    () => import("../NeedAuthorization/NeedAuthorization"),
-);
-
-const withSuspense = (Component: React.ComponentType<any>) => {
-    const ComponentWithSuspense = (props: any) => (
-        <Suspense fallback={<CircularProgress />}>
-            <Component {...props} />
-        </Suspense>
-    );
-
-    ComponentWithSuspense.displayName = "ComponentWithSuspense";
-
-    return ComponentWithSuspense;
-};
+import Coffee from "../Coffee/Coffee";
+import Breakfast from "../Breakfast/Breakfast";
+import CaffeineFree from "../CaffeineFree/CaffeineFree";
+import Order from "../Order/Order";
+import SignUp from "../SignUp/SignUp";
+import SignIn from "../SignIn/SignIn";
+import ViewOrders from "../ViewOrders/ViewOrder";
 
 const App = () => {
     return (
         <SnackbarProvider>
             <Router>
-                <div style={{ position: "relative" }}>
-                    <Breadcrumb />
-                    <Routes>
-                        <Route path="/coffee/*">
-                            <Route
-                                index
-                                element={withSuspense(LazyCoffee)({})}
-                            />
-                            <Route
-                                path="order"
-                                element={withSuspense(LazyOrder)({
-                                    itemType: "Coffee",
-                                })}
-                            />
-                        </Route>
-                        <Route path="/caffeine-free/*">
-                            <Route
-                                index
-                                element={withSuspense(LazyCaffeineFree)({})}
-                            />
-                            <Route
-                                path="order"
-                                element={withSuspense(LazyOrder)({
-                                    itemType: "Caffeine_free",
-                                })}
-                            />
-                        </Route>
-                        <Route path="/breakfast/*">
-                            <Route
-                                index
-                                element={withSuspense(LazyBreakfast)({})}
-                            />
-                            <Route
-                                path="order"
-                                element={withSuspense(LazyOrder)({
-                                    itemType: "Breakfast",
-                                })}
-                            />
-                        </Route>
+                <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/coffee/*">
+                        <Route index element={<Coffee />} />
                         <Route
-                            path="/signup"
-                            element={withSuspense(LazySignUp)({})}
+                            path="order"
+                            element={<Order itemType="Coffee" />}
                         />
+                    </Route>
+                    <Route path="/caffeine-free/*">
+                        <Route index element={<CaffeineFree />} />
                         <Route
-                            path="/signin"
-                            element={withSuspense(LazySignIn)({})}
+                            path="order"
+                            element={<Order itemType="Caffeine_free" />}
                         />
+                    </Route>
+                    <Route path="/breakfast/*">
+                        <Route index element={<Breakfast />} />
                         <Route
-                            path="/account-settings"
-                            element={withSuspense(LazyAccountSettings)({})}
+                            path="order"
+                            element={<Order itemType="Breakfast" />}
                         />
-                        <Route
-                            path="/orders"
-                            element={withSuspense(LazyViewOrders)({})}
-                        />
-                        <Route path="/" element={<Home />} />
-                        <Route
-                            path="*"
-                            element={withSuspense(LazyNotFound)({})}
-                        />
-                        <Route
-                            path="/not-authorized"
-                            element={withSuspense(LazyNeedAuthorization)({})}
-                        />
-                    </Routes>
-                </div>
+                    </Route>
+                    <Route path="/signup" element={<SignUp />} />
+                    <Route path="/signin" element={<SignIn />} />
+                    <Route path="/view-orders" element={<ViewOrders />} />
+                </Routes>
             </Router>
         </SnackbarProvider>
     );

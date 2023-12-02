@@ -1,45 +1,61 @@
-import React, { useContext, useState } from "react";
-import {
-    Alert,
-    Avatar,
-    Box,
-    Button,
-    CircularProgress,
-    Grid,
-    LinearProgress,
-    Link,
-    TextField,
-    Typography,
-} from "@mui/material";
-import { SnackbarContext } from "../../context/SnackbarContext";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import Cookies from "js-cookie";
+
+import { Loader2 } from "lucide-react";
+
 import { jwtDecode } from "jwt-decode";
-import styles from "./SignIn.module.scss";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import Cookies from "js-cookie";
 
-const SignIn = () => {
-    const [openError, setOpenError] = useState(false);
-    const [errorMessage, setErrorMessage] = useState("");
-    const { setOpenSnackbar, setSnackbarMessage } = useContext(SnackbarContext);
-    const [signingIn, setSigningIn] = useState(false);
-    const navigate = useNavigate();
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 
-    const handleSignIn = async (username: string, password: string) => {
-        const loginData = { username, password };
+import { Button } from "@/components/ui/button";
+import {
+    Form,
+    FormControl,
+    FormDescription,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 
-        if (!username || !password) {
-            setOpenError(true);
-            setErrorMessage("Username and password are required");
-            return;
-        }
+const formSchema = z.object({
+    username: z.string().min(1, {
+        message: "Username is required.",
+    }),
+    password: z.string().min(1, {
+        message: "Password is required.",
+    }),
+});
 
-        setSigningIn(true);
+export default function SignIn() {
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [error, setError] = useState("");
+    const navigation = useNavigate();
+    const form = useForm<z.infer<typeof formSchema>>({
+        resolver: zodResolver(formSchema),
+        defaultValues: {
+            username: "",
+            password: "",
+        },
+    });
+
+    const onSubmit = async (values: z.infer<typeof formSchema>) => {
+        setIsSubmitting(true);
+
         try {
-            const response = await fetch("/api/signIn", {
+            const response = await fetch("https://hualangcafe.com/api/signIn", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(loginData),
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    username: values.username,
+                    password: values.password,
+                }),
             });
 
             if (response.ok) {
@@ -51,129 +67,112 @@ const SignIn = () => {
                     const decodedToken: { username: string } = jwtDecode(token);
                     const { username } = decodedToken;
 
-                    navigate("/");
-                    setOpenSnackbar(true);
-                    setSnackbarMessage(
-                        `Sign in successful, welcome ${username}!`,
-                    );
-                    setSigningIn(false);
+                    navigation("/");
+                    setIsSubmitting(false);
                 } catch (error: any) {
                     console.error("Error decoding token:", error);
-                    setOpenError(true);
-                    setErrorMessage(
+                    setError(
                         `Error decoding token: ${
                             error.message || "Unknown error"
                         }`,
                     );
                 }
             } else {
-                setSigningIn(false);
+                setIsSubmitting(false);
 
                 if (response.status === 401) {
-                    setOpenError(true);
-                    setErrorMessage("Incorrect username or password");
-                    console.error("Error: Incorrect username or password");
+                    setError("Incorrect username or password");
                 } else {
-                    setOpenError(true);
-                    setErrorMessage(`Error: ${response.statusText}`);
-                    console.error(`Error: ${response.statusText}`);
+                    setError(`Error: ${response.statusText}`);
                 }
             }
         } catch (error) {
-            setSigningIn(false);
-            setOpenError(true);
-            setErrorMessage(
-                "Error: Something went wrong, please try again later",
-            );
-            console.error("Error: Something went wrong");
+            setIsSubmitting(false);
+            setError("Error: Something went wrong, please try again later");
         }
     };
 
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        const data = new FormData(event.currentTarget);
-        const username = data.get("username") as string;
-        const password = data.get("password") as string;
-        handleSignIn(username, password);
-    };
-
     return (
-        <Box className={styles.root}>
-            <div className={styles.container}>
-                <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
-                    <LockOutlinedIcon />
-                </Avatar>
-                <Typography variant="h5" gutterBottom className={styles.title}>
-                    Sign In
-                </Typography>
-                <form onSubmit={handleSubmit} className={styles.form}>
-                    {signingIn && (
-                        <Box sx={{ width: "100%" }}>
-                            <LinearProgress />
-                        </Box>
-                    )}
-                    <Grid container spacing={1}>
-                        <Grid item xs={12}>
-                            <TextField
-                                variant="outlined"
-                                margin="normal"
-                                fullWidth
-                                id="username"
-                                label="Username"
-                                name="username"
-                                autoComplete="username"
-                                autoFocus
-                            />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <TextField
-                                variant="outlined"
-                                margin="normal"
-                                fullWidth
-                                name="password"
-                                label="Password"
-                                type="password"
-                                id="password"
-                                autoComplete="current-password"
-                            />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <Button
-                                type="submit"
-                                variant="contained"
-                                color="primary"
-                                fullWidth
-                                className={styles.signInButton}
-                                disabled={signingIn}
-                            >
-                                {signingIn ? (
-                                    <CircularProgress
-                                        size={24}
-                                        color="secondary"
+        <div className="flex flex-col items-center justify-center h-screen">
+            <Form {...form}>
+                <form
+                    onSubmit={form.handleSubmit(onSubmit)}
+                    className="flex flex-col space-y-4 w-full max-w-md p-6 bg-white rounded-lg shadow-md mt-40"
+                >
+                    <h1 className="text-3xl font-bold text-center">Sign In</h1>
+                    <FormField
+                        control={form.control}
+                        name="username"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Username *</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        className="w-full"
+                                        placeholder="johndoe"
+                                        {...field}
                                     />
-                                ) : (
-                                    "Sign In"
-                                )}
-                            </Button>
-                        </Grid>
-                        <Grid item xs={12}>
-                            {openError && (
-                                <Alert severity="error">{errorMessage}</Alert>
-                            )}
-                        </Grid>
-                        <Grid container>
-                            <Grid item xs></Grid>
-                            <Grid item>
-                                <Link href="/signup" variant="body2">
-                                    {"Don't have an account? Sign Up"}
-                                </Link>
-                            </Grid>
-                        </Grid>
-                    </Grid>
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="password"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Password *</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        className="w-full"
+                                        type="password"
+                                        placeholder="12345"
+                                        {...field}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <Button
+                        className={`w-full transition-all duration-500 hover:bg-sky-600 ${
+                            error
+                                ? "bg-destructive hover:bg-destructive"
+                                : "bg-sky-500"
+                        }`}
+                        type="submit"
+                        disabled={isSubmitting}
+                    >
+                        {error ? (
+                            <span className="text-destructive-foreground">
+                                {error}
+                            </span>
+                        ) : isSubmitting ? (
+                            <>
+                                <Loader2 className="w-5 h-5 text-white animate-spin" />
+                                <span className="ml-2">Signing In...</span>
+                            </>
+                        ) : (
+                            "Sign In"
+                        )}
+                    </Button>
+                    <FormDescription className="text-center">
+                        Don't have an account?{" "}
+                        <span
+                            className="text-sky-500 cursor-pointer"
+                            onClick={() => navigation("/signup")}
+                        >
+                            Sign Up
+                        </span>
+                    </FormDescription>
                 </form>
+            </Form>
+            <div className="flex justify-center p-3 mt-auto">
+                <p className="text-sm text-neutral-700 dark:text-neutral-300">
+                    Made By Shawn
+                </p>
             </div>
-        </Box>
+        </div>
     );
-};
-
-export default SignIn;
+}

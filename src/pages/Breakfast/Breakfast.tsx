@@ -1,28 +1,20 @@
-import React, { useEffect, useState } from "react";
-import {
-    Backdrop,
-    Button,
-    Card,
-    CardContent,
-    CircularProgress,
-    Fade,
-    Grid,
-    Typography,
-} from "@mui/material";
-import { Link, useNavigate } from "react-router-dom";
-import styles from "./Breakfast.module.scss";
+import { OutlineButton } from "../../components/OutlineButton";
+import MenuCard from "@/components/MenuCard";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
+import { MenuSkeleton } from "@/components/MenuSkeleton";
 
 interface BreakfastItem {
     Name: string;
     Price: string;
 }
-
-const Breakfast = () => {
+export default function Coffee() {
     const [breakfastList, setBreakfastList] = useState<BreakfastItem[]>([]);
+    const [shouldNavigate, setShouldNavigate] = useState(false);
     const navigate = useNavigate();
     const token = Cookies.get("token");
-    const [open, setOpen] = useState(true);
+    const [openSkeleton, setOpenSkeleton] = useState(false);
 
     useEffect(() => {
         if (!token) {
@@ -31,15 +23,24 @@ const Breakfast = () => {
     }, []);
 
     useEffect(() => {
-        fetch("/api/dataBreakfast")
+        if (shouldNavigate) {
+            navigate("/order");
+            setShouldNavigate(false);
+        }
+    }, [shouldNavigate, navigate]);
+
+    useEffect(() => {
+        setOpenSkeleton(true);
+        fetch("https://hualangcafe.com/api/dataBreakfast")
             .then((response) => response.json())
             .then((data: { Name: string; Price: number }[]) => {
                 const formattedData: BreakfastItem[] = data.map((item) => ({
                     Name: item.Name,
                     Price: item.Price.toString(),
                 }));
+                console.log(formattedData);
                 setBreakfastList(formattedData);
-                setOpen(false);
+                setOpenSkeleton(false);
             })
             .catch((error) => {
                 throw new Error("Error:", error);
@@ -47,87 +48,30 @@ const Breakfast = () => {
     }, []);
 
     return (
-        <Grid container spacing={3}>
-            <Backdrop
-                open={open}
-                sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
-            >
-                <CircularProgress color="inherit" />
-            </Backdrop>
-            {!open && (
-                <Fade in={!open}>
-                    <div className={styles.root}>
-                        <Button
-                            className={styles.home}
-                            component={Link}
-                            variant="outlined"
-                            to="/"
-                            color="primary"
-                        >
-                            Return to Home
-                        </Button>
-                        <Typography variant="h4" component="h1" gutterBottom>
-                            Breakfasts Menu
-                        </Typography>
-                        <Grid container spacing={3}>
-                            {breakfastList.map((item, index) => (
-                                <Grid
-                                    item
-                                    xs={12}
-                                    sm={6}
-                                    md={4}
-                                    lg={4}
-                                    key={index}
-                                >
-                                    <Card
-                                        className={styles.card}
-                                        variant="outlined"
-                                    >
-                                        <CardContent>
-                                            <Typography
-                                                variant="h5"
-                                                component="h2"
-                                            >
-                                                {item.Name}
-                                            </Typography>
-                                            <Grid
-                                                container
-                                                direction="row"
-                                                justifyContent="space-between"
-                                                alignItems="center"
-                                            >
-                                                <div>
-                                                    <Typography
-                                                        variant="body2"
-                                                        component="p"
-                                                    >
-                                                        Medium: ¥{item.Price}
-                                                    </Typography>
-                                                </div>
-                                                <Button
-                                                    size="medium"
-                                                    variant="contained"
-                                                    color="primary"
-                                                    onClick={() => {
-                                                        navigate(
-                                                            `./order#name=${item.Name}`,
-                                                        );
-                                                    }}
-                                                    disableElevation
-                                                >
-                                                    Order
-                                                </Button>
-                                            </Grid>
-                                        </CardContent>
-                                    </Card>
-                                </Grid>
-                            ))}
-                        </Grid>
-                    </div>
-                </Fade>
-            )}
-        </Grid>
+        <div className="flex flex-col h-screen justify-between bg-neutral-50 mt-1">
+            <div className="flex justify-center space-x-4 p-4">
+                <OutlineButton text={"Return Home"} redirectTo="/" />
+            </div>
+            <div className="flex flex-wrap justify-center items-start overflow-auto mt-1 flex-grow">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {openSkeleton
+                        ? Array.from({ length: 5 }).map((_, index) => (
+                              <MenuSkeleton className="w-96" />
+                          ))
+                        : breakfastList.map((breakfastItem, index) => (
+                              <MenuCard
+                                  key={index}
+                                  item={breakfastItem.Name}
+                                  mediumPrice={parseFloat(breakfastItem.Price)}
+                              />
+                          ))}
+                </div>
+            </div>
+            <div className="flex justify-center p-4">
+                <p className="text-sm text-neutral-700 dark:text-neutral-300">
+                    Made By Shawn
+                </p>
+            </div>
+        </div>
     );
-};
-
-export default Breakfast;
+}

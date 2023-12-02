@@ -1,29 +1,23 @@
-import React, { useEffect, useState } from "react";
-import {
-    Backdrop,
-    Button,
-    Card,
-    CardContent,
-    CircularProgress,
-    Fade,
-    Grid,
-    Typography,
-} from "@mui/material";
-import { Link, useNavigate } from "react-router-dom";
-import styles from "./CaffeineFree.module.scss";
+import { OutlineButton } from "../../components/OutlineButton";
+import MenuCard from "@/components/MenuCard";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
+import { MenuSkeleton } from "@/components/MenuSkeleton";
 
 interface CaffeineFreeItem {
     Name: string;
     Price: string;
 }
 
-const CaffeineFree = () => {
-    const [breakfastList, setBreakfastList] = useState<CaffeineFreeItem[]>([]);
+export default function CaffeineFree() {
+    const [caffeineFreeList, setCaffeineFreeList] = useState<
+        CaffeineFreeItem[]
+    >([]);
     const [shouldNavigate, setShouldNavigate] = useState(false);
     const navigate = useNavigate();
     const token = Cookies.get("token");
-    const [open, setOpen] = React.useState(false);
+    const [openSkeleton, setOpenSkeleton] = useState(false);
 
     useEffect(() => {
         if (!token) {
@@ -39,16 +33,16 @@ const CaffeineFree = () => {
     }, [shouldNavigate, navigate]);
 
     useEffect(() => {
-        setOpen(true);
-        fetch("/api/dataCaffeineFree")
+        setOpenSkeleton(true);
+        fetch("https://hualangcafe.com/api/dataCaffeineFree")
             .then((response) => response.json())
             .then((data: { Name: string; Price: number }[]) => {
                 const formattedData: CaffeineFreeItem[] = data.map((item) => ({
                     Name: item.Name,
                     Price: item.Price.toString(),
                 }));
-                setBreakfastList(formattedData);
-                setOpen(false);
+                setCaffeineFreeList(formattedData);
+                setOpenSkeleton(false);
             })
             .catch((error) => {
                 throw new Error("Error:", error);
@@ -56,98 +50,35 @@ const CaffeineFree = () => {
     }, []);
 
     return (
-        <Grid container spacing={3}>
-            <Backdrop open={open} style={{ zIndex: 9999 }}>
-                <CircularProgress color="inherit" />
-            </Backdrop>
-            {!open && (
-                <Fade in={!open}>
-                    <div className={styles.root}>
-                        <Button
-                            className={styles.home}
-                            component={Link}
-                            variant="outlined"
-                            to="/"
-                            color="primary"
-                        >
-                            Return to Home
-                        </Button>
-                        <Typography variant="h4" component="h1" gutterBottom>
-                            Non-Caffeinated Drinks Menu
-                        </Typography>
-                        <Grid container spacing={3}>
-                            {breakfastList.map((item, index) => (
-                                <Grid
-                                    item
-                                    xs={12}
-                                    sm={6}
-                                    md={4}
-                                    lg={4}
-                                    key={index}
-                                >
-                                    <Card
-                                        className={styles.card}
-                                        variant="outlined"
-                                    >
-                                        <CardContent>
-                                            <Typography
-                                                variant="h5"
-                                                component="h2"
-                                            >
-                                                {item.Name}
-                                            </Typography>
-                                            <Grid
-                                                container
-                                                direction="row"
-                                                justifyContent="space-between"
-                                                alignItems="center"
-                                            >
-                                                <div>
-                                                    <Typography
-                                                        variant="body2"
-                                                        component="p"
-                                                    >
-                                                        Medium: ¥{item.Price}
-                                                    </Typography>
-                                                    <Typography
-                                                        variant="body2"
-                                                        component="p"
-                                                    >
-                                                        Large:{" "}
-                                                        {`¥${(
-                                                            parseFloat(
-                                                                item.Price.replace(
-                                                                    /[^0-9.-]+/g,
-                                                                    "",
-                                                                ),
-                                                            ) + 3
-                                                        ).toFixed(0)}`}
-                                                    </Typography>
-                                                </div>
-                                                <Button
-                                                    size="medium"
-                                                    variant="contained"
-                                                    color="primary"
-                                                    onClick={() => {
-                                                        navigate(
-                                                            `./order#name=${item.Name}`,
-                                                        );
-                                                    }}
-                                                    disableElevation
-                                                >
-                                                    Order
-                                                </Button>
-                                            </Grid>
-                                        </CardContent>
-                                    </Card>
-                                </Grid>
-                            ))}
-                        </Grid>
-                    </div>
-                </Fade>
-            )}
-        </Grid>
+        <div className="flex flex-col h-screen justify-between bg-neutral-50 mt-1">
+            <div className="flex justify-center space-x-4 p-4">
+                <OutlineButton text={"Return Home"} redirectTo="/" />
+            </div>
+            <div className="flex flex-wrap justify-center items-start overflow-auto mt-1 flex-grow">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {openSkeleton
+                        ? Array.from({ length: 12 }).map((_, index) => (
+                              <MenuSkeleton className="w-80" />
+                          ))
+                        : caffeineFreeList.map((caffeineFreeItem, index) => (
+                              <MenuCard
+                                  key={index}
+                                  item={caffeineFreeItem.Name}
+                                  mediumPrice={parseFloat(
+                                      caffeineFreeItem.Price,
+                                  )}
+                                  largePrice={
+                                      parseFloat(caffeineFreeItem.Price) + 3
+                                  }
+                              />
+                          ))}
+                </div>
+            </div>
+            <div className="flex justify-center p-4">
+                <p className="text-sm text-neutral-700 dark:text-neutral-300">
+                    Made By Shawn
+                </p>
+            </div>
+        </div>
     );
-};
-
-export default CaffeineFree;
+}

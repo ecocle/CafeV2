@@ -1,98 +1,93 @@
-import React, {
-    ChangeEvent,
-    FormEvent,
-    lazy,
-    Suspense,
-    useContext,
-    useEffect,
-    useState,
-} from "react";
-import { SnackbarContext } from "../../context/SnackbarContext";
-import Cookies from "js-cookie";
+import React, { useEffect, useState } from "react";
+import { Loader2 } from "lucide-react";
+import { Loading } from "@/components/Loading";
+import { Error } from "@/components/Error";
 import { useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm, FieldValues } from "react-hook-form";
+import * as z from "zod";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Textarea } from "@/components/ui/textarea";
 import {
-    Backdrop,
-    Box,
-    Button,
-    Checkbox,
-    CircularProgress,
-    Dialog,
-    DialogContent,
-    DialogTitle,
-    Divider,
-    Fade,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import {
+    Form,
     FormControl,
-    FormControlLabel,
-    FormGroup,
-    LinearProgress,
-    Paper,
-    TextField,
-    Typography,
-} from "@mui/material";
-import Autocomplete from "@mui/material/Autocomplete";
-import styles from "./Order.module.scss";
+    FormDescription,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from "@/components/ui/form";
 
-const Alert = lazy(() => import("@mui/material/Alert"));
+const FormSchema = z.object({
+    size: z.string().min(1, {
+        message: "Size is required.",
+    }),
+    temperature: z.string().min(1, {
+        message: "Temperature is required.",
+    }),
+    toppings: z.array(z.string()).optional(),
+    useCup: z.boolean().optional(),
+    comments: z.string().optional(),
+});
 
-const toppings = [
-    { name: "Oat Milk Substitution", price: 1.0 },
-    { name: "Boba", price: 1.0 },
-    { name: "Extra Espresso Shot", price: 2.0 },
-    { name: "Red Bean", price: 1.0 },
-];
-
-interface OrderProps {
-    itemType: string;
+interface Topping {
+    name: string;
+    price: number;
 }
 
-const Order: React.FC<OrderProps> = ({ itemType }) => {
+const Order = ({ itemType }: { itemType: string }) => {
     const hashParams = new URLSearchParams(window.location.hash.substr(1));
     const itemName = hashParams.get("name") || "";
     const [itemPrice, setItemPrice] = useState(0);
-    const [loading, setLoading] = useState(false);
-    const [loadingBack, setLoadingBack] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isLoadingBack, setIsLoadingBack] = useState(true);
     const token = Cookies.get("token");
-    const [comments, setComments] = useState("");
-    const [useCup, setUseCup] = useState(false);
-    const [sizeError, setSizeError] = useState("");
-    const [temperatureError, setTemperatureError] = useState("");
-    const [priceError, setPriceError] = useState(false);
-    const [invalidDrink, setInvalidDrink] = useState(false);
-    const { setOpenSnackbar, setSnackbarMessage } = useContext(SnackbarContext);
-    const [userData, setUserData] = useState<{
-        balance: number;
-        id: number;
-        username: string;
-        firstName: string;
-        lastName: string;
-    }>({
+    const [hasPriceError, setHasPriceError] = useState(false);
+    const [isInvalidDrink, setIsInvalidDrink] = useState(false);
+    const form = useForm({
+        resolver: zodResolver(FormSchema),
+    });
+    const [options, setOptions] = useState({
+        size: "",
+        total: 0,
+    });
+    const [userData, setUserData] = useState({
         balance: 0,
         id: 0,
         username: "",
         firstName: "",
         lastName: "",
     });
-    const [options, setOptions] = useState<{
-        size: string | undefined;
-        temperature: string | undefined;
-        toppings: string[];
-        total: number;
-    }>({ size: undefined, temperature: undefined, toppings: [], total: 0 });
-    const noLarge = [
+    const noLargeItems = [
         "Crispy cereal in milk(classic)",
         "Crispy cereal in milk(honey)",
         "Crispy cereal in milk(chocolate)",
         "Classic flavoured Porridge",
         "Chocolate flavoured Porridge",
     ];
-    const noToppings = [
+    const toppings = [
+        { name: "Oat Milk Substitution", price: 1.0, isDisabled: false },
+        { name: "Boba", price: 1.0, isDisabled: false },
+        { name: "Extra Espresso Shot", price: 2.0, isDisabled: true },
+        { name: "Red Bean", price: 1.0, isDisabled: false },
+    ];
+    const noToppingsItems = [
         "Crispy cereal in milk(classic)",
         "Crispy cereal in milk(honey)",
         "Crispy cereal in milk(chocolate)",
         "Classic flavoured Porridge",
         "Chocolate flavoured Porridge",
     ];
-    const noHot = [
+    const noHotItems = [
         "Crispy cereal in milk(classic)",
         "Crispy cereal in milk(honey)",
         "Crispy cereal in milk(chocolate)",
@@ -108,46 +103,45 @@ const Order: React.FC<OrderProps> = ({ itemType }) => {
         "Pure milk",
         "Black currant oolang tea",
     ];
-    const noCold = [
+    const noColdItems = [
         "Classic flavoured Porridge",
         "Chocolate flavoured Porridge",
     ];
-    const noNormal = [
+    const noNormalItems = [
         "Crispy cereal in milk(classic)",
         "Crispy cereal in milk(honey)",
         "Crispy cereal in milk(chocolate)",
         "Classic flavoured Porridge",
         "Chocolate flavoured Porridge",
     ];
-    const navigate = useNavigate();
+    const navigation = useNavigate();
 
     useEffect(() => {
         if (!token) {
-            navigate("/not-authorized");
+            navigation("/not-authorized");
         }
     }, []);
 
     useEffect(() => {
-        setLoadingBack(true);
         const fetchDrinkDetails = async () => {
             try {
                 const response = await fetch(
-                    `/api/drinkData/${itemType}/${itemName}`,
+                    `https://hualangcafe.com/api/drinkData/${itemType}/${itemName}`,
                 );
                 const data = await response.json();
 
                 if (response.ok) {
                     setItemPrice(parseFloat(data[0].Price));
-                    setLoadingBack(false);
+                    setIsLoadingBack(false);
                 } else {
                     console.error("Error fetching drink details:", data.error);
-                    setLoadingBack(false);
-                    setInvalidDrink(true);
+                    setIsLoadingBack(false);
+                    setIsInvalidDrink(true);
                 }
             } catch (error) {
                 console.error("Error fetching drink details:", error);
-                setLoadingBack(false);
-                setInvalidDrink(true);
+                setIsLoadingBack(false);
+                setIsInvalidDrink(true);
             }
         };
 
@@ -155,7 +149,7 @@ const Order: React.FC<OrderProps> = ({ itemType }) => {
     }, [itemName, itemType, setItemPrice]);
 
     useEffect(() => {
-        fetch("/api/user_data", {
+        fetch("https://hualangcafe.com/api/user_data", {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
@@ -174,139 +168,85 @@ const Order: React.FC<OrderProps> = ({ itemType }) => {
         setOptions((prevOptions) => ({ ...prevOptions, total: itemPrice }));
     }, [itemPrice]);
 
-    const handleCupChange = (event: ChangeEvent<HTMLInputElement>) => {
-        setUseCup(event.target.checked);
+    const handleSizeChange = (newValue: string | undefined, field: any) => {
+        field.onChange(newValue);
 
-        setOptions((prevOptions) => {
-            if (event.target.checked) {
-                return { ...prevOptions, total: prevOptions.total - 1 };
-            } else {
-                return { ...prevOptions, total: prevOptions.total + 1 };
-            }
-        });
-    };
-
-    const handleTemperatureChange = (
-        _event: React.SyntheticEvent<Element, Event>,
-        newValue: string | null,
-    ) => {
-        setTemperatureError("");
-        setOptions((prevOptions) => ({
-            ...prevOptions,
-            temperature: newValue || undefined,
-        }));
-    };
-
-    const handleSizeChange = (
-        _event: React.SyntheticEvent<Element, Event>,
-        newValue: string | null,
-    ) => {
-        setSizeError("");
         setOptions((prevOptions) => {
             const currentSize = prevOptions.size;
             const newSize = newValue || undefined;
 
+            let newTotal = prevOptions.total;
+
             if (currentSize === "Medium" && newSize === "Large") {
-                return {
-                    ...prevOptions,
-                    size: newSize,
-                    total: prevOptions.total + 3,
-                };
+                newTotal += 3;
             } else if (!currentSize && newSize === "Large") {
-                return {
-                    ...prevOptions,
-                    size: newSize,
-                    total: prevOptions.total + 3,
-                };
+                newTotal += 3;
             } else if (currentSize === "Large" && newSize === "Medium") {
-                return {
-                    ...prevOptions,
-                    size: newSize,
-                    total: prevOptions.total - 3,
-                };
-            } else if (currentSize === "Large" && !newSize) {
-                return {
-                    ...prevOptions,
-                    size: newSize,
-                    total: prevOptions.total - 3,
-                };
-            } else if (currentSize === "Medium" && !newSize) {
-                return prevOptions;
+                newTotal -= 3;
             }
 
             return {
                 ...prevOptions,
-                size: newSize,
+                total: newTotal,
             };
         });
     };
 
-    const handleToppingChange = (event: ChangeEvent<HTMLInputElement>) => {
-        const topping = event.target.name;
-        const toppingPrice =
-            toppings.find((t) => t.name === topping)?.price || 0;
+    const handleToppingChange = (
+        checked: boolean,
+        field: any,
+        topping: Topping,
+    ) => {
+        const fieldValue = Array.isArray(field.value) ? field.value : [];
+        let newPrice = options.total;
 
-        setOptions((prevOptions) => {
-            if (event.target.checked) {
-                return {
-                    ...prevOptions,
-                    toppings: [...prevOptions.toppings, topping],
-                    total: prevOptions.total + toppingPrice,
-                };
-            } else {
-                return {
-                    ...prevOptions,
-                    toppings: prevOptions.toppings.filter((t) => t !== topping),
-                    total: prevOptions.total - toppingPrice,
-                };
-            }
-        });
+        if (checked) {
+            field.onChange([...fieldValue, topping.name]);
+            newPrice += topping.price;
+        } else {
+            field.onChange(
+                fieldValue.filter((value: string) => value !== topping.name),
+            );
+            newPrice -= topping.price;
+        }
+
+        setOptions((prevOptions) => ({ ...prevOptions, total: newPrice }));
     };
 
-    const handleSubmit = async (event: FormEvent) => {
-        event.preventDefault();
+    const handleUseCupChange = (checked: boolean, field: any) => {
+        field.onChange(checked);
 
-        let isValid = true;
+        let newPrice = options.total;
 
-        if (!options.size) {
-            setSizeError("Please select a size");
-            isValid = false;
+        if (checked) {
+            newPrice -= 1;
         } else {
-            setSizeError("");
+            newPrice += 1;
         }
 
-        if (!options.temperature) {
-            setTemperatureError("Please select a temperature");
-            isValid = false;
-        } else {
-            setTemperatureError("");
-        }
+        setOptions((prevOptions) => ({ ...prevOptions, total: newPrice }));
+    };
 
+    const onSubmit = async (value: FieldValues) => {
+        console.log(value);
         let finalTotal = options.total;
-        if (useCup) {
-            finalTotal -= 1;
-        }
 
         if (userData.balance < finalTotal) {
-            setPriceError(true);
+            setHasPriceError(true);
             return;
         }
 
-        if (!isValid) {
-            return;
-        }
-
-        setLoading(true);
+        setIsLoading(true);
         const orderDetails = {
             firstName: userData.firstName,
             lastName: userData.lastName,
             name: itemName,
-            temperature: options.temperature,
-            selectedSize: options.size,
-            selectedToppings: options.toppings,
+            temperature: value.temperature,
+            selectedSize: value.size,
+            selectedToppings: value.toppings,
             price: finalTotal,
-            comments,
-            useCup,
+            comments: value.comments,
+            useCup: value.useCup,
             balance: userData.balance - finalTotal,
             id: userData.id,
         };
@@ -323,220 +263,282 @@ const Order: React.FC<OrderProps> = ({ itemType }) => {
 
             if (!response.ok) {
                 console.error("Error placing order");
-                setLoading(false);
+                setIsLoading(false);
             }
 
-            navigate("/");
-            setOpenSnackbar(true);
-            setSnackbarMessage("Order placed successfully");
-            setLoading(false);
+            navigation("/");
+            setIsLoading(false);
         } catch (error) {
             console.error("Error placing order:", error);
-            setLoading(false);
+            setIsLoading(false);
         }
     };
 
     return (
-        <div className={styles.orderPageContainer}>
-            <Dialog open={invalidDrink}>
-                <DialogTitle>Error: Invalid Drink</DialogTitle>
-                <DialogContent>
-                    <p>
-                        The requested drink is not available or doesn&apost
-                        exist.
-                    </p>
-                    <p>
-                        Please go back to the{" "}
-                        <a className={styles.a} href="/">
-                            Home Page
-                        </a>{" "}
-                        to choose from available drinks.
-                    </p>
-                </DialogContent>
-            </Dialog>
-            <Box p={4}>
-                <Backdrop open={loadingBack}>
-                    <CircularProgress color="inherit" />
-                </Backdrop>
-                <Fade in={!loadingBack}>
-                    <Paper elevation={3} className={styles.container}>
-                        {loading && (
-                            <Box sx={{ width: "100%" }}>
-                                <LinearProgress />
-                            </Box>
-                        )}
-                        <Box p={4}>
-                            <Typography
-                                variant="h3"
-                                align="center"
-                                gutterBottom
-                            >
-                                Order
-                            </Typography>
-                            <Divider />
-                            <Box my={4}>
-                                <Typography
-                                    variant="h5"
-                                    align="center"
-                                    gutterBottom
-                                >
-                                    {itemName}
-                                </Typography>
-                            </Box>
-                            <form
-                                onSubmit={handleSubmit}
-                                className={styles.orderForm}
-                            >
-                                <Typography variant="h6">
-                                    Information
-                                </Typography>
-                                <TextField
-                                    variant="outlined"
-                                    className={styles.textField}
-                                    label="Comments"
-                                    value={comments}
-                                    onChange={(e) =>
-                                        setComments(e.target.value)
-                                    }
-                                    multiline
-                                />
-                                <FormControlLabel
-                                    className={styles.FormControlLabel}
-                                    control={
-                                        <Checkbox
-                                            color="primary"
-                                            checked={useCup}
-                                            onChange={handleCupChange}
-                                        />
-                                    }
-                                    label="Use own cup"
-                                />
-                                <Typography variant="h6">
+        <div className="flex flex-col min-h-screen">
+            {isLoadingBack ? (
+                <Loading message="Fetching drink details..." />
+            ) : isInvalidDrink ? (
+                <Error message="Invalid drink" />
+            ) : (
+                <Form {...form}>
+                    <div className="flex flex-row justify-between items-center mt-12">
+                        <div className="w-24" />
+                        <h1 className="text-4xl font-bold">{itemName}</h1>
+                        <div className="w-24" />
+                    </div>
+                    <form
+                        onSubmit={form.handleSubmit(onSubmit)}
+                        className="space-y-4 flex flex-col justify-center items-start mt-12 mx-auto w-96"
+                    >
+                        <div className="space-y-2">
+                            <div>
+                                <h1 className="text-2xl font-bold">
                                     Order Details
-                                </Typography>
-                                <Box marginBottom={2}>
-                                    <Autocomplete
-                                        onChange={handleSizeChange}
-                                        options={["Medium", "Large"].filter(
-                                            (size) =>
-                                                !(
-                                                    size === "Large" &&
-                                                    noLarge.includes(itemName)
-                                                ),
-                                        )}
-                                        renderInput={(params) => (
-                                            <TextField
-                                                {...params}
-                                                label="Size *"
-                                                variant="outlined"
-                                                error={Boolean(sizeError)}
-                                                helperText={sizeError}
-                                            />
-                                        )}
-                                    />
-                                </Box>
-                                <Box marginBottom={2}>
-                                    <Autocomplete
-                                        value={options.temperature}
-                                        onChange={handleTemperatureChange}
-                                        options={[
-                                            "Hot",
-                                            "Normal",
-                                            "Cold",
-                                        ].filter(
-                                            (temp) =>
-                                                !(
-                                                    temp === "Hot" &&
-                                                    noHot.includes(itemName)
-                                                ) &&
-                                                !(
-                                                    temp === "Cold" &&
-                                                    noCold.includes(itemName)
-                                                ) &&
-                                                !(
-                                                    temp === "Normal" &&
-                                                    noNormal.includes(itemName)
-                                                ),
-                                        )}
-                                        renderInput={(params) => (
-                                            <TextField
-                                                {...params}
-                                                label="Temperature *"
-                                                variant="outlined"
-                                                error={Boolean(
-                                                    temperatureError,
-                                                )}
-                                                helperText={temperatureError}
-                                            />
-                                        )}
-                                    />
-                                </Box>
-                                {!noToppings.includes(itemName) && (
-                                    <>
-                                        <Typography variant="h6">
-                                            Toppings
-                                        </Typography>
-                                        <FormControl
-                                            className={styles.FormControl}
+                                </h1>
+                                <p className="text-sm text-muted-foreground font-semibold">
+                                    Select the size and temperature of your
+                                    drink.
+                                </p>
+                            </div>
+                            <FormField
+                                control={form.control}
+                                name="size"
+                                render={({ field }) => (
+                                    <FormItem className="w-64">
+                                        <Select
+                                            {...field}
+                                            onValueChange={(newValue) =>
+                                                handleSizeChange(
+                                                    newValue,
+                                                    field,
+                                                )
+                                            }
                                         >
-                                            <FormGroup
-                                                className={styles.FormGroup}
-                                            >
-                                                {toppings.map((topping) => (
-                                                    <FormControlLabel
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select a size" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                <SelectItem value="Medium">
+                                                    Medium
+                                                </SelectItem>
+                                                <SelectItem
+                                                    value="Large"
+                                                    disabled={noLargeItems.includes(
+                                                        itemName,
+                                                    )}
+                                                >
+                                                    Large
+                                                </SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="temperature"
+                                render={({ field }) => (
+                                    <FormItem className="w-64">
+                                        <Select
+                                            {...field}
+                                            onValueChange={(newValue) =>
+                                                field.onChange(newValue)
+                                            }
+                                        >
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select a temperature" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                <SelectItem
+                                                    value="Hot"
+                                                    disabled={noHotItems.includes(
+                                                        itemName,
+                                                    )}
+                                                >
+                                                    Hot
+                                                </SelectItem>
+                                                <SelectItem
+                                                    value="Normal"
+                                                    disabled={noNormalItems.includes(
+                                                        itemName,
+                                                    )}
+                                                >
+                                                    Normal
+                                                </SelectItem>
+                                                <SelectItem
+                                                    value="Cold"
+                                                    disabled={noColdItems.includes(
+                                                        itemName,
+                                                    )}
+                                                >
+                                                    Cold
+                                                </SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+
+                        <FormField
+                            control={form.control}
+                            name="toppings"
+                            render={() => (
+                                <FormItem>
+                                    <div className="mb-4">
+                                        <FormLabel className="text-2xl font-bold">
+                                            Toppings
+                                        </FormLabel>
+                                        <FormDescription className="font-semibold">
+                                            Select the toppings you want.
+                                        </FormDescription>
+                                    </div>
+                                    {toppings.map((topping) => (
+                                        <FormField
+                                            key={topping.name}
+                                            control={form.control}
+                                            name="toppings"
+                                            render={({ field }) => {
+                                                return (
+                                                    <FormItem
                                                         key={topping.name}
-                                                        className={
-                                                            styles.FormControlLabel
-                                                        }
-                                                        control={
+                                                        className="flex flex-row items-start space-x-3 space-y-0"
+                                                    >
+                                                        <FormControl>
                                                             <Checkbox
-                                                                color="primary"
-                                                                checked={options.toppings.includes(
-                                                                    topping.name,
-                                                                )}
-                                                                onChange={
-                                                                    handleToppingChange
-                                                                }
-                                                                name={
+                                                                id={
                                                                     topping.name
                                                                 }
+                                                                disabled={
+                                                                    topping.isDisabled ||
+                                                                    (noToppingsItems.includes(
+                                                                        itemName,
+                                                                    ) &&
+                                                                        topping.name !==
+                                                                            "Extra Espresso Shot")
+                                                                }
+                                                                checked={
+                                                                    !!(
+                                                                        field.value as string[]
+                                                                    )?.includes(
+                                                                        topping.name,
+                                                                    )
+                                                                }
+                                                                onCheckedChange={(
+                                                                    checked,
+                                                                ) =>
+                                                                    handleToppingChange(
+                                                                        typeof checked ===
+                                                                            "boolean"
+                                                                            ? checked
+                                                                            : false,
+                                                                        field,
+                                                                        topping,
+                                                                    )
+                                                                }
                                                             />
-                                                        }
-                                                        label={`Add ${topping.name} (¥${topping.price})`}
-                                                    />
-                                                ))}
-                                            </FormGroup>
+                                                        </FormControl>
+                                                        <FormLabel
+                                                            htmlFor={
+                                                                topping.name
+                                                            }
+                                                            className="text-sm font-base leading-4 cursor-pointer peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                                        >
+                                                            {topping.name}
+                                                        </FormLabel>
+                                                    </FormItem>
+                                                );
+                                            }}
+                                        />
+                                    ))}
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <div className="space-y-2">
+                            <div>
+                                <h1 className="text-2xl font-bold">
+                                    Information
+                                </h1>
+                                <p className="text-sm text-muted-foreground font-semibold">
+                                    Enter any additional information for your
+                                    order.
+                                </p>
+                            </div>
+                            <FormField
+                                control={form.control}
+                                name="comments"
+                                render={({ field }) => (
+                                    <FormItem className="w-96">
+                                        <FormLabel className="text-base">
+                                            Comments
+                                        </FormLabel>
+                                        <FormControl>
+                                            <Textarea {...field} />
                                         </FormControl>
-                                    </>
+                                        <FormMessage />
+                                    </FormItem>
                                 )}
-                                <Typography variant="h6">
-                                    Total: ¥{options.total.toFixed(1)}
-                                </Typography>
-                                <Button
-                                    className={styles.submitButton}
-                                    variant="contained"
-                                    color="primary"
-                                    type="submit"
-                                    disabled={loading}
-                                >
-                                    {loading ? (
-                                        <CircularProgress size={24} />
-                                    ) : (
-                                        "Submit Order"
-                                    )}
-                                </Button>
-                                {priceError && (
-                                    <Suspense fallback={<CircularProgress />}>
-                                        <Alert severity="error">
-                                            Not enough balance in account
-                                        </Alert>
-                                    </Suspense>
+                            />
+                            <FormField
+                                control={form.control}
+                                name="useCup"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormControl>
+                                            <Checkbox
+                                                className="mr-2"
+                                                id="useCup"
+                                                onCheckedChange={(checked) =>
+                                                    handleUseCupChange(
+                                                        typeof checked ===
+                                                            "boolean"
+                                                            ? checked
+                                                            : false,
+                                                        field,
+                                                    )
+                                                }
+                                            />
+                                        </FormControl>
+                                        <FormLabel
+                                            htmlFor="useCup"
+                                            className="text-base leading-4"
+                                        >
+                                            Use Cup
+                                        </FormLabel>
+                                        <FormMessage />
+                                    </FormItem>
                                 )}
-                            </form>
-                        </Box>
-                    </Paper>
-                </Fade>
-            </Box>
+                            />
+                        </div>
+
+                        <p className="text-2xl font-semibold">
+                            Total: ¥{options.total.toFixed(1)}
+                        </p>
+
+                        <Button
+                            className="bg-sky-500 transition-all duration-300 hover:bg-sky-600"
+                            type="submit"
+                        >
+                            Place Order
+                        </Button>
+                    </form>
+                </Form>
+            )}
+            <div className="w-24"></div>
+            <div className="flex justify-center p-3 mt-auto">
+                <p className="text-sm text-neutral-700 dark:text-neutral-300">
+                    Made By Shawn
+                </p>
+            </div>
         </div>
     );
 };

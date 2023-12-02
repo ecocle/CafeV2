@@ -1,17 +1,12 @@
-import { defineConfig } from "vite";
+import path from "path";
 import react from "@vitejs/plugin-react";
-import svgr from "vite-plugin-svgr";
+import { defineConfig } from "vite";
 
-// https://vitejs.dev/config/
 export default defineConfig({
-    plugins: [react(), svgr()],
-    build: {
-        rollupOptions: {
-            output: {
-                manualChunks: {
-                    // Configure code splitting chunks here
-                },
-            },
+    plugins: [react()],
+    resolve: {
+        alias: {
+            "@": path.resolve(__dirname, "./src"),
         },
     },
 });

@@ -16,6 +16,45 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(express.json());
 
+const corsOptions = {
+    origin: function (origin, callback) {
+        const allowedOrigins = [
+            "http://localhost:5173",
+            "http://localhost:5000",
+            "http://192.168.3.8:5000",
+            "https://www.hualangcafe.com",
+            "https://test.hualangcafe.com",
+        ];
+
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error("Not allowed by CORS"));
+        }
+    },
+    credentials: true,
+};
+
+app.use((req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "http://localhost:5173"); // Set your specific origin here
+    res.header(
+        "Access-Control-Allow-Methods",
+        "GET, POST, PUT, DELETE, OPTIONS",
+    );
+    res.header(
+        "Access-Control-Allow-Headers",
+        "Origin, X-Requested-With, Content-Type, Accept, Authorization",
+    );
+    res.header("Access-Control-Allow-Credentials", "true");
+    if (req.method === "OPTIONS") {
+        res.sendStatus(200);
+    } else {
+        next();
+    }
+});
+
+app.use(cors(corsOptions)); // Apply CORS globally
+
 require("dotenv").config({ path: "./env.env" });
 const secretKey = process.env.SECRET_KEY;
 

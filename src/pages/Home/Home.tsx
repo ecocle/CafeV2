@@ -1,333 +1,99 @@
-import React, { lazy, Suspense, useContext, useEffect, useState } from "react";
-import { Box, Button, CircularProgress, Typography } from "@mui/material";
-import paymentImage from "../../assets/paymentImage.jpg";
-import styles from "./Home.module.scss";
+import { MainButton } from "../../components/MainButton";
+import { OutlineButton } from "../../components/OutlineButton";
+import { TextButton } from "../../components/TextButton";
+import { useNavigate } from "react-router-dom";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuShortcut,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { LogOut, Settings, UserRound, Eye } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import Cookies from "js-cookie";
-import { SnackbarContext } from "../../context/SnackbarContext";
-import { Link } from "react-router-dom";
-
-// Lazy-loaded components
-const Dialog = lazy(() => import("@mui/material/Dialog"));
-const DialogActions = lazy(() => import("@mui/material/DialogActions"));
-const DialogContent = lazy(() => import("@mui/material/DialogContent"));
-const DialogContentText = lazy(() => import("@mui/material/DialogContentText"));
-const Divider = lazy(() => import("@mui/material/Divider"));
-const IconButton = lazy(() => import("@mui/material/IconButton"));
-const Menu = lazy(() => import("@mui/material/Menu"));
-const MenuItem = lazy(() => import("@mui/material/MenuItem"));
-const Snackbar = lazy(() => import("@mui/material/Snackbar"));
-const TextField = lazy(() => import("@mui/material/TextField"));
-const AccountCircleIcon = lazy(
-    () => import("@mui/icons-material/AccountCircle"),
-);
-const Logout = lazy(() => import("@mui/icons-material/Logout"));
-const ListItemIcon = lazy(() => import("@mui/material/ListItemIcon"));
-const Alert = lazy(() => import("@mui/material/Alert"));
 
 const Home = () => {
     const token = Cookies.get("token");
-    const [amount, setAmount] = useState("0");
-    const [openDialog, setOpenDialog] = useState(false);
-    const { openSnackbar, snackbarMessage, setOpenSnackbar } =
-        useContext(SnackbarContext);
-    const [showAlert, setShowAlert] = useState(false);
-    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-    const [balance, setBalance] = useState(0);
-
-    useEffect(() => {
-        const fetchUserData = async () => {
-            try {
-                const response = await fetch("/api/user_data", {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-                const data = await response.json();
-                setBalance(data.balance);
-            } catch (error) {
-                throw new Error("Failed to fetch user data:");
-            }
-        };
-
-        fetchUserData();
-    }, []);
-
-    const handleAddFunds = async (event: React.FormEvent) => {
-        event.preventDefault();
-
-        const response = await fetch("/api/addMoneyToAcc", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-            },
-            credentials: "include",
-            body: JSON.stringify({ amount }),
-        });
-
-        if (response.ok) {
-            setOpenDialog(true);
-        } else if (response.status === 400) {
-            setShowAlert(true);
-        } else {
-            throw new Error(`Error: ${response.statusText}`);
-        }
-    };
-
-    const navigateToVieOrders = () => {
-        window.location.href = "/orders";
-    };
-
-    const navigateToAccountSettings = () => {
-        window.location.href = "/account-settings";
-    };
-
-    const handleCloseDialog = () => {
-        setOpenDialog(false);
-        window.location.reload();
-    };
-
-    const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-        setAnchorEl(event.currentTarget);
-    };
-
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
+    const navigation = useNavigate();
 
     return (
-        <Suspense fallback={<CircularProgress />}>
-            <Box className={styles.App}>
-                {showAlert && (
-                    <Snackbar
-                        open={showAlert}
-                        autoHideDuration={6000}
-                        onClose={() => setShowAlert(false)}
-                        anchorOrigin={{
-                            vertical: "bottom",
-                            horizontal: "center",
-                        }}
-                    >
-                        <div>
-                            <Suspense fallback={<CircularProgress />}>
-                                <Alert
-                                    severity="error"
-                                    onClose={() => setShowAlert(false)}
-                                >
-                                    Error adding funds!
-                                </Alert>
-                            </Suspense>
-                        </div>
-                    </Snackbar>
-                )}
-                <Box className={styles.header}>
-                    <Typography variant="subtitle1" component="h1"></Typography>
-                    <Box className={styles.account}>
-                        {token ? (
-                            <>
-                                <IconButton
-                                    className={`${styles.button} ${styles.robotoFont}`}
-                                    color="secondary"
-                                    size="small"
-                                    onClick={handleClick}
-                                    title="Account"
-                                >
-                                    <AccountCircleIcon />
-                                </IconButton>
-                                <Menu
-                                    anchorEl={anchorEl}
-                                    keepMounted
-                                    open={Boolean(anchorEl)}
-                                    onClose={handleClose}
-                                >
-                                    <MenuItem>
-                                        <Typography>
-                                            Balance: {balance}
-                                        </Typography>
-                                    </MenuItem>
-                                    <MenuItem onClick={handleClose}>
-                                        <form onSubmit={handleAddFunds}>
-                                            <TextField
-                                                type="number"
-                                                label="Amount"
-                                                value={amount}
-                                                color="secondary"
-                                                onClick={(e) =>
-                                                    e.stopPropagation()
-                                                }
-                                                onChange={(e) => {
-                                                    let value = e.target.value;
-                                                    if (
-                                                        value.startsWith("0") &&
-                                                        value !== "0"
-                                                    ) {
-                                                        value = value.slice(1);
-                                                    }
-                                                    setAmount(
-                                                        value !== ""
-                                                            ? value
-                                                            : "0",
-                                                    );
-                                                }}
-                                                InputProps={{
-                                                    inputProps: { min: 0 },
-                                                }}
-                                            />
-                                            <Button
-                                                type="submit"
-                                                variant="contained"
-                                                color="secondary"
-                                                sx={{ margin: 1.5 }}
-                                            >
-                                                Add
-                                            </Button>
-                                        </form>
-                                    </MenuItem>
-                                    <Divider />
-                                    <MenuItem onClick={navigateToVieOrders}>
-                                        View Orders
-                                    </MenuItem>
-                                    <MenuItem
-                                        onClick={navigateToAccountSettings}
-                                    >
-                                        Account Settings
-                                    </MenuItem>
-                                    <Divider />
-                                    <MenuItem
-                                        onClick={() => {
-                                            Cookies.remove("token");
-                                            window.location.reload();
-                                        }}
-                                    >
-                                        <ListItemIcon>
-                                            <Logout fontSize="small" />
-                                        </ListItemIcon>
-                                        Sign Out
-                                    </MenuItem>
-                                </Menu>
-                            </>
-                        ) : (
-                            <>
-                                <Button
-                                    className={`${styles.button} ${styles.robotoFont}`}
-                                    variant="outlined"
-                                    color="secondary"
-                                    size="small"
-                                    component={Link}
-                                    to="/signup"
-                                >
-                                    Sign Up
-                                </Button>
-                                <Button
-                                    className={`${styles.button} ${styles.robotoFont}`}
-                                    variant="text"
-                                    color="secondary"
-                                    size="small"
-                                    component={Link}
-                                    to="/signin"
-                                >
-                                    Sign In
-                                </Button>
-                            </>
-                        )}
-                    </Box>
-                </Box>
-                <Box className={styles.title}>
-                    <Typography
-                        className={styles.pacificoFont}
-                        variant="h1"
-                        component="h1"
-                    >
-                        MY Cafe
-                    </Typography>
-                </Box>
-                <Box className={styles.main}>
-                    {token ? (
-                        <>
-                            <Button
-                                className={`${styles.button} ${styles.robotoFont}`}
-                                variant="contained"
-                                color="primary"
-                                size="large"
-                                component={Link}
-                                to="/coffee"
-                                disabled
-                            >
-                                Coffee
-                            </Button>
-                            <Button
-                                className={`${styles.button} ${styles.robotoFont}`}
-                                variant="contained"
-                                color="primary"
-                                size="large"
-                                component={Link}
-                                to="/caffeine-free"
-                            >
-                                Non-Caffeinated Drink
-                            </Button>
-                            <Button
-                                className={`${styles.button} ${styles.robotoFont}`}
-                                variant="contained"
-                                color="primary"
-                                size="large"
-                                component={Link}
-                                to="/breakfast"
-                            >
-                                Breakfast
-                            </Button>
-                        </>
-                    ) : (
-                        <>
-                            <Button
-                                className={`${styles.button} ${styles.robotoFont}`}
-                                variant="contained"
-                                color="primary"
-                                size="large"
-                                component={Link}
-                                to="/signin"
-                            >
-                                Sign In
-                            </Button>
-                        </>
-                    )}
-                </Box>
-                <Box className={styles.footer}>
-                    <Typography variant="caption" component="div">
-                        Made By Shawn
-                    </Typography>
-                </Box>
-                <Snackbar
-                    open={openSnackbar}
-                    autoHideDuration={6000}
-                    onClose={() => setOpenSnackbar(false)}
-                    anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-                >
+        <div className="flex flex-col min-h-screen bg-neutral-50 dark:bg-neutral-950">
+            <div className="flex justify-end space-x-4 p-4">
+                {token ? (
                     <div>
-                        <Suspense fallback={<CircularProgress />}>
-                            <Alert
-                                onClose={() => setOpenSnackbar(false)}
-                                severity="success"
-                            >
-                                {snackbarMessage}
-                            </Alert>
-                        </Suspense>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button className="bg-transparent text-violet-500 transition-all duration-300 hover:bg-violet-100 h-8 p-0">
+                                    <UserRound className=" text-violet-400" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="w-56">
+                                <DropdownMenuLabel>
+                                    My Account
+                                </DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                    onClick={() => navigation("/view-orders")}
+                                >
+                                    <Eye className="mr-2 h-4 w-4" />
+                                    <span>View Orders</span>
+                                    <DropdownMenuShortcut>
+                                        ⇧⌘P
+                                    </DropdownMenuShortcut>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem>
+                                    <Settings className="mr-2 h-4 w-4" />
+                                    <span>Settings</span>
+                                    <DropdownMenuShortcut>
+                                        ⌘S
+                                    </DropdownMenuShortcut>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    onClick={() => {
+                                        Cookies.remove("token");
+                                        window.location.reload();
+                                    }}
+                                >
+                                    <LogOut className="mr-2 h-4 w-4" />
+                                    <span>Sign Out</span>
+                                    <DropdownMenuShortcut>
+                                        ⇧⌘Q
+                                    </DropdownMenuShortcut>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     </div>
-                </Snackbar>
-                <Dialog open={openDialog} onClose={handleCloseDialog}>
-                    <img src={paymentImage} alt="Payment Image" />
-                    <DialogContent>
-                        <DialogContentText>
-                            Funds added successfully!
-                        </DialogContentText>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={handleCloseDialog} color="primary">
-                            Close
-                        </Button>
-                    </DialogActions>
-                </Dialog>
-            </Box>
-        </Suspense>
+                ) : (
+                    <div className="space-x-2">
+                        <OutlineButton text={"Sign Up"} redirectTo="/signup" />
+                        <TextButton text={"Sign In"} redirectTo="/signin" />
+                    </div>
+                )}
+            </div>
+            <div className="flex flex-col items-center justify-start flex-grow">
+                <div className="p-4 text-center">
+                    <h1 className="font-pacifico text-6xl lg:text-8xl text-primary dark:text-secondary">
+                        MY Cafe
+                    </h1>
+                </div>
+                <div className="flex space-x-0 flex-col md:flex-row md:space-x-16 lg:flex-row">
+                    <MainButton text={"Coffee"} redirectTo="/coffee" />
+                    <MainButton
+                        text={"Non-Caffeinated"}
+                        redirectTo="/caffeine-free"
+                    />
+                    <MainButton text={"Breakfast"} redirectTo="/breakfast" />
+                </div>
+            </div>
+            <div className="flex justify-center p-3">
+                <p className="text-sm text-neutral-700 dark:text-neutral-300">
+                    Made By Shawn
+                </p>
+            </div>
+        </div>
     );
 };
 

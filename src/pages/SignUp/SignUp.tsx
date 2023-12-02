@@ -1,53 +1,64 @@
-import React, { FormEvent, useContext, useState } from "react";
-import {
-    Box,
-    Button,
-    Grid,
-    LinearProgress,
-    TextField,
-    Typography,
-} from "@mui/material";
-import { SnackbarContext } from "../../context/SnackbarContext";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import CircularProgress from "@mui/material/CircularProgress";
-import styles from "./SignUp.module.scss";
-import Alert from "@mui/material/Alert";
-import Link from "@mui/material/Link";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import Avatar from "@mui/material/Avatar";
+import { Loader2 } from "lucide-react";
 
-const SignUp = () => {
-    const [isLoading, setIsLoading] = useState(false);
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+
+import { Button } from "@/components/ui/button";
+import {
+    Form,
+    FormControl,
+    FormDescription,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+
+const formSchema = z.object({
+    firstName: z.string().min(1, {
+        message: "First Name is required.",
+    }),
+    lastName: z.string().optional(),
+    username: z.string().min(1, {
+        message: "Username is required.",
+    }),
+    password: z.string().min(1, {
+        message: "Password is required.",
+    }),
+});
+
+export default function SignUp() {
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState("");
-    const { setOpenSnackbar, setSnackbarMessage } = useContext(SnackbarContext);
     const navigation = useNavigate();
+    const form = useForm<z.infer<typeof formSchema>>({
+        resolver: zodResolver(formSchema),
+        defaultValues: {
+            firstName: "",
+            lastName: "",
+            username: "",
+            password: "",
+        },
+    });
 
-    const handleSignUp = async (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        const formData = new FormData(event.currentTarget);
+    const onSubmit = async (values: z.infer<typeof formSchema>) => {
+        setIsSubmitting(true);
 
-        const username = formData.get("username");
-        const password = formData.get("password");
-        const firstName = formData.get("firstName");
-        const lastName = formData.get("lastName");
-
-        if (!firstName || !username || !password) {
-            setError("First name, username, and password are required");
-            return;
-        }
-
-        setIsLoading(true);
         try {
-            const response = await fetch("/api/signUp", {
+            const response = await fetch("https://hualangcafe.com/api/signUp", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    username,
-                    password,
-                    firstName,
-                    lastName,
+                    username: values.username,
+                    password: values.password,
+                    firstName: values.firstName,
+                    lastName: values.lastName,
                 }),
             });
 
@@ -60,114 +71,131 @@ const SignUp = () => {
                 }
             } else {
                 navigation("/");
-                setOpenSnackbar(true);
-                setSnackbarMessage("Sign up successful");
             }
         } catch (error) {
             setError("Error signing up");
         } finally {
-            setIsLoading(false);
+            setIsSubmitting(false);
         }
     };
 
     return (
-        <Box className={styles.root}>
-            <div className={styles.container}>
-                <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
-                    <LockOutlinedIcon />
-                </Avatar>
-                <Typography variant="h5" gutterBottom className={styles.title}>
-                    Sign Up
-                </Typography>
-                <form onSubmit={handleSignUp} className={styles.form}>
-                    {isLoading && (
-                        <Box sx={{ width: "100%" }}>
-                            <LinearProgress />
-                        </Box>
-                    )}
-                    <Grid container spacing={2}>
-                        <Grid item xs={12} sm={6}>
-                            <TextField
-                                variant="outlined"
-                                autoComplete="given-name"
-                                name="firstName"
-                                fullWidth
-                                id="firstName"
-                                label="First Name"
-                                className={styles.textField}
-                                autoFocus
-                            />
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                            <TextField
-                                variant="outlined"
-                                fullWidth
-                                id="lastName"
-                                label="Last Name"
-                                name="lastName"
-                                autoComplete="family-name"
-                                className={styles.textField}
-                            />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <TextField
-                                variant="outlined"
-                                fullWidth
-                                id="username"
-                                label="Username"
-                                name="username"
-                                autoComplete="username"
-                                className={styles.textField}
-                            />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <TextField
-                                variant="outlined"
-                                fullWidth
-                                name="password"
-                                label="Password"
-                                type="password"
-                                id="password"
-                                autoComplete="new-password"
-                                className={styles.textField}
-                            />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <Button
-                                type="submit"
-                                variant="contained"
-                                color="primary"
-                                fullWidth
-                                disabled={isLoading}
-                                className={styles.signUpButton}
-                            >
-                                {isLoading ? (
-                                    <CircularProgress
-                                        size={24}
-                                        color="secondary"
+        <div className="flex flex-col items-center justify-center h-screen">
+            <Form {...form}>
+                <form
+                    onSubmit={form.handleSubmit(onSubmit)}
+                    className="flex flex-col space-y-4 w-full max-w-md p-6 bg-white rounded-lg shadow-md mt-40"
+                >
+                    <h1 className="text-3xl font-bold text-center">Sign Up</h1>
+                    <div className="flex flex-row space-x-5">
+                        <FormField
+                            control={form.control}
+                            name="firstName"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>First Name *</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            className="w-full"
+                                            placeholder="John"
+                                            {...field}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="lastName"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Last Name</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            className="w-full"
+                                            placeholder="Doe"
+                                            {...field}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
+                    <FormField
+                        control={form.control}
+                        name="username"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Username *</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        className="w-full"
+                                        placeholder="johndoe"
+                                        {...field}
                                     />
-                                ) : (
-                                    "Sign Up"
-                                )}
-                            </Button>
-                            <Grid item xs={12}>
-                                {error && (
-                                    <Alert severity="error">{error}</Alert>
-                                )}
-                            </Grid>
-                            <Grid container justifyContent="flex-end">
-                                <Grid item>
-                                    <Link href="/signin" variant="body2">
-                                        Already have an account? Sign in
-                                    </Link>
-                                </Grid>
-                            </Grid>
-                        </Grid>
-                    </Grid>
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="password"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Password *</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        className="w-full"
+                                        type="password"
+                                        placeholder="12345"
+                                        {...field}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <Button
+                        className={`w-full transition-all duration-500 hover:bg-sky-600 ${
+                            error
+                                ? "bg-destructive hover:bg-destructive"
+                                : "bg-sky-500"
+                        }`}
+                        type="submit"
+                        disabled={isSubmitting}
+                    >
+                        {error ? (
+                            <span className="text-destructive-foreground">
+                                {error}
+                            </span>
+                        ) : isSubmitting ? (
+                            <>
+                                <Loader2 className="w-5 h-5 text-white animate-spin" />
+                                <span className="ml-2">Signing Up...</span>
+                            </>
+                        ) : (
+                            "Sign Up"
+                        )}
+                    </Button>
+                    <FormDescription className="text-center">
+                        Already have an account?{" "}
+                        <span
+                            className="text-sky-500 cursor-pointer"
+                            onClick={() => navigation("/signin")}
+                        >
+                            Sign In
+                        </span>
+                    </FormDescription>
                 </form>
+            </Form>
+            <div className="flex justify-center p-3 mt-auto">
+                <p className="text-sm text-neutral-700 dark:text-neutral-300">
+                    Made By Shawn
+                </p>
             </div>
-        </Box>
+        </div>
     );
-};
-
-export default SignUp;
+}
