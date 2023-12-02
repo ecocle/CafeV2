@@ -31,7 +31,7 @@ export default function Coffee() {
 
     useEffect(() => {
         setOpenSkeleton(true);
-        fetch("https://hualangcafe.com/api/dataBreakfast")
+        fetch("/api/dataBreakfast")
             .then((response) => response.json())
             .then((data: { Name: string; Price: number }[]) => {
                 const formattedData: BreakfastItem[] = data.map((item) => ({

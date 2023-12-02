@@ -47,7 +47,7 @@ export default function SignIn() {
         setIsSubmitting(true);
 
         try {
-            const response = await fetch("https://hualangcafe.com/api/signIn", {
+            const response = await fetch("/api/signIn", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
