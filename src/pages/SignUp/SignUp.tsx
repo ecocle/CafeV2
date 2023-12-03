@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
     Form,
@@ -16,7 +15,8 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+const baseUrl =
+    process.env.NODE_ENV === "production" ? "" : "http://localhost:5000";
 
 const formSchema = z.object({
     firstName: z.string().min(1, {
@@ -49,7 +49,7 @@ export default function SignUp() {
         setIsSubmitting(true);
 
         try {
-            const response = await fetch("/api/signUp", {
+            const response = await fetch(`${baseUrl}/api/signUp`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -84,7 +84,7 @@ export default function SignUp() {
             <Form {...form}>
                 <form
                     onSubmit={form.handleSubmit(onSubmit)}
-                    className="flex flex-col space-y-4 w-full max-w-md p-6 bg-white rounded-lg shadow-md mt-40"
+                    className="flex flex-col space-y-4 w-full max-w-md p-6 bg-white rounded-lg shadow-md mt-40 dark:bg-gray-800"
                 >
                     <h1 className="text-3xl font-bold text-center">Sign Up</h1>
                     <div className="flex flex-row space-x-5">

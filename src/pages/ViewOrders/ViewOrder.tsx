@@ -2,6 +2,12 @@ import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import dayjs from "dayjs";
 import { jwtDecode } from "jwt-decode";
+import { OutlineButton } from "@/components/OutlineButton";
+import { DatePicker } from "@/components/DatePicker";
+import { Loading } from "@/components/Loading";
+import { Error } from "@/components/Error";
+const baseUrl =
+    process.env.NODE_ENV === "production" ? "" : "http://localhost:5000";
 
 interface Order {
     id: number;
@@ -19,28 +25,22 @@ interface Order {
 
 export default function ViewOrders() {
     const [orders, setOrders] = useState<Order[]>([]);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
     const token = Cookies.get("token");
+    const [isEmpty, setIsEmpty] = useState(false);
     const [date, setDate] = useState<string>("");
     const username = (token && (jwtDecode as any)(token).username) || "";
     const [id, setId] = useState("");
 
-    const handleDateChange = (newDate: string | null | dayjs.Dayjs) => {
-        if (newDate && typeof newDate === "string") {
-            setDate(newDate);
-        } else if (dayjs.isDayjs(newDate)) {
-            const dateString = newDate.format("YYYY-MM-DD");
-            setDate(dateString);
-        } else {
-            setDate("");
-        }
+    const handleDateChange = (date: Date) => {
+        setDate(dayjs(date).format("YYYY-MM-DD"));
     };
 
     useEffect(() => {
-        setLoading(true);
         const fetchUserData = async () => {
             try {
-                const response = await fetch("/api/user_data", {
+                const response = await fetch(`${baseUrl}/api/user_data`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -48,8 +48,8 @@ export default function ViewOrders() {
                 const data = await response.json();
                 setId(data.id);
                 await fetchOrderData(data.id, date);
-            } catch (error) {
-                console.error("Failed to fetch user data:", error);
+            } catch (error: any) {
+                setError(error.message);
                 setLoading(false);
             }
         };
@@ -65,7 +65,9 @@ export default function ViewOrders() {
     const fetchOrderData = async (id: string, selectedDate = "") => {
         try {
             const endpoint =
-                username === "Admin" ? "/api/admin/orders" : "/api/orders";
+                username === "Admin"
+                    ? `${baseUrl}/api/admin/orders`
+                    : `${baseUrl}/api/orders`;
             const params = new URLSearchParams();
 
             if (selectedDate) {
@@ -83,7 +85,9 @@ export default function ViewOrders() {
                 credentials: "include",
             });
             if (!response.ok) {
-                console.error("Network response was not ok");
+                setError(
+                    "Failed to fetch order data, network response was not ok",
+                );
             }
             const rawData = await response.json();
             const transformedData = rawData.data.map((order: any) => ({
@@ -99,82 +103,115 @@ export default function ViewOrders() {
                 comments: order.Comments,
                 cup: order.Cup,
             }));
-            console.log(transformedData);
+            if (transformedData.length === 0) {
+                setIsEmpty(true);
+            } else {
+                setIsEmpty(false);
+            }
             setOrders(transformedData);
             setLoading(false);
-        } catch (error) {
+        } catch (error: any) {
+            setError(error.message);
             console.error("Error fetching order data:", error);
         }
     };
 
     return (
-        <div>
-            <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                    <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Order Time
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            First Name
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Last Name
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Coffee Type
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Temperature
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Size
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Price
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Comments
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Cup
-                        </th>
-                    </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                    {orders.map((item) => (
-                        <tr key={item.id}>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                                {item.order_time}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                                {item.first_name}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                                {item.last_name}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                                {item.coffee_type}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                                {item.temperature}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                                {item.size}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                                {item.price}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                                {item.comments}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                                {item.cup}
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+        <div className="flex flex-col items-center justify-center min-h-screen">
+            {loading ? (
+                <Loading message="Fetching order data..." />
+            ) : error ? (
+                <Error message={error} />
+            ) : (
+                <div className="w-full overflow-x-auto">
+                    <div className="flex justify-center space-x-4 mt-4">
+                        <OutlineButton text={"Return Home"} redirectTo="/" />
+                    </div>
+                    <div className="flex justify-center space-x-4 p-4">
+                        <DatePicker onDateChange={handleDateChange} />
+                    </div>
+                    {isEmpty ? (
+                        <div>
+                            <span className="text-4xl font-bold flex item-center justify-center">
+                                No Orders Found For This Date
+                            </span>
+                        </div>
+                    ) : (
+                        <table className="w-full min-w-full divide-y divide-gray-200 dark:divide-gray-600">
+                            <thead className="bg-gray-50 dark:bg-gray-800">
+                                <tr>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-200">
+                                        Order Time
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-200">
+                                        First Name
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-200">
+                                        Last Name
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-200">
+                                        Coffee Type
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-200">
+                                        Temperature
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-200">
+                                        Size
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-200">
+                                        Price
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-200">
+                                        Comments
+                                    </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-200">
+                                        Cup
+                                    </th>
+                                </tr>
+                            </thead>
+
+                            <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-900 dark:divide-gray-600">
+                                {orders.map((item) => (
+                                    <tr key={item.id}>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            {item.order_time}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            {item.first_name}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            {item.last_name}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            {item.coffee_type}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            {item.temperature}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            {item.size}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            {item.price}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            {item.comments}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            {item.cup}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    )}
+                </div>
+            )}
+            <div className="fixed inset-x-3 bottom-0 flex justify-center mt-auto">
+                <p className="text-sm mb-3 text-neutral-700 dark:text-neutral-300">
+                    Made By Shawn
+                </p>
+            </div>
         </div>
     );
 }

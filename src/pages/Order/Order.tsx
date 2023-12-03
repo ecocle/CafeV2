@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Loader2 } from "lucide-react";
 import { Loading } from "@/components/Loading";
 import { Error } from "@/components/Error";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
+import { Loader2 } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, FieldValues } from "react-hook-form";
 import * as z from "zod";
@@ -26,6 +26,8 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form";
+const baseUrl =
+    process.env.NODE_ENV === "production" ? "" : "http://localhost:5000";
 
 const FormSchema = z.object({
     size: z.string().min(1, {
@@ -70,7 +72,7 @@ const Order = ({ itemType }: { itemType: string }) => {
     const noLargeItems = [
         "Crispy cereal in milk(classic)",
         "Crispy cereal in milk(honey)",
-        "Crispy cereal in milk(chocolate)",
+        "Crispy cereal in milk(choco)",
         "Classic flavoured Porridge",
         "Chocolate flavoured Porridge",
     ];
@@ -83,14 +85,14 @@ const Order = ({ itemType }: { itemType: string }) => {
     const noToppingsItems = [
         "Crispy cereal in milk(classic)",
         "Crispy cereal in milk(honey)",
-        "Crispy cereal in milk(chocolate)",
+        "Crispy cereal in milk(choco)",
         "Classic flavoured Porridge",
         "Chocolate flavoured Porridge",
     ];
     const noHotItems = [
         "Crispy cereal in milk(classic)",
         "Crispy cereal in milk(honey)",
-        "Crispy cereal in milk(chocolate)",
+        "Crispy cereal in milk(choco)",
         "Cocoa",
         "Matcha milk",
         "Matcha boba",
@@ -110,7 +112,7 @@ const Order = ({ itemType }: { itemType: string }) => {
     const noNormalItems = [
         "Crispy cereal in milk(classic)",
         "Crispy cereal in milk(honey)",
-        "Crispy cereal in milk(chocolate)",
+        "Crispy cereal in milk(choco)",
         "Classic flavoured Porridge",
         "Chocolate flavoured Porridge",
     ];
@@ -126,7 +128,7 @@ const Order = ({ itemType }: { itemType: string }) => {
         const fetchDrinkDetails = async () => {
             try {
                 const response = await fetch(
-                    `/api/drinkData/${itemType}/${itemName}`,
+                    `${baseUrl}/api/drinkData/${itemType}/${itemName}`,
                 );
                 const data = await response.json();
 
@@ -149,7 +151,7 @@ const Order = ({ itemType }: { itemType: string }) => {
     }, [itemName, itemType, setItemPrice]);
 
     useEffect(() => {
-        fetch("/api/user_data", {
+        fetch(`${baseUrl}/api/user_data`, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
@@ -228,7 +230,6 @@ const Order = ({ itemType }: { itemType: string }) => {
     };
 
     const onSubmit = async (value: FieldValues) => {
-        console.log(value);
         let finalTotal = options.total;
 
         if (userData.balance < finalTotal) {
@@ -252,7 +253,7 @@ const Order = ({ itemType }: { itemType: string }) => {
         };
 
         try {
-            const response = await fetch("/api/order", {
+            const response = await fetch(`${baseUrl}/api/order`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -282,14 +283,14 @@ const Order = ({ itemType }: { itemType: string }) => {
                 <Error message="Invalid drink" />
             ) : (
                 <Form {...form}>
-                    <div className="flex flex-row justify-between items-center mt-12">
+                    <div className="flex flex-row justify-between items-center mt-12 ">
                         <div className="w-24" />
                         <h1 className="text-4xl font-bold">{itemName}</h1>
                         <div className="w-24" />
                     </div>
                     <form
                         onSubmit={form.handleSubmit(onSubmit)}
-                        className="space-y-4 flex flex-col justify-center items-start mt-12 mx-auto w-96"
+                        className="space-y-4 flex flex-col justify-center items-start mt-12 mx-auto w-4/12 dark:bg-gray-800 p-8 rounded-xl shadow-lg"
                     >
                         <div className="space-y-2">
                             <div>
@@ -393,10 +394,26 @@ const Order = ({ itemType }: { itemType: string }) => {
                             render={() => (
                                 <FormItem>
                                     <div className="mb-4">
-                                        <FormLabel className="text-2xl font-bold">
+                                        <FormLabel
+                                            className={`text-2xl font-bold ${
+                                                noToppingsItems.includes(
+                                                    itemName,
+                                                )
+                                                    ? "text-opacity-50 text-muted-foreground"
+                                                    : ""
+                                            }`}
+                                        >
                                             Toppings
                                         </FormLabel>
-                                        <FormDescription className="font-semibold">
+                                        <FormDescription
+                                            className={`font-semibold ${
+                                                noToppingsItems.includes(
+                                                    itemName,
+                                                )
+                                                    ? "text-gray-500"
+                                                    : ""
+                                            }`}
+                                        >
                                             Select the toppings you want.
                                         </FormDescription>
                                     </div>
@@ -528,8 +545,19 @@ const Order = ({ itemType }: { itemType: string }) => {
                             className="bg-sky-500 transition-all duration-300 hover:bg-sky-600"
                             type="submit"
                         >
-                            Place Order
+                            {isLoading ? (
+                                <div className="animate-spin">
+                                    <Loader2 />
+                                </div>
+                            ) : (
+                                <span>Place Order</span>
+                            )}
                         </Button>
+                        {hasPriceError && (
+                            <p className="text-destructive">
+                                Not enough fund in account
+                            </p>
+                        )}
                     </form>
                 </Form>
             )}

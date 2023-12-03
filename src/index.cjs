@@ -16,44 +16,12 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(express.json());
 
-const corsOptions = {
-    origin: function (origin, callback) {
-        const allowedOrigins = [
-            "http://localhost:5173",
-            "http://localhost:5000",
-            "http://192.168.3.8:5000",
-            "https://www.hualangcafe.com",
-            "https://test.hualangcafe.com",
-        ];
-
-        if (!origin || allowedOrigins.includes(origin)) {
-            callback(null, true);
-        } else {
-            callback(new Error("Not allowed by CORS"));
-        }
-    },
-    credentials: true,
-};
-
-app.use((req, res, next) => {
-    res.header("Access-Control-Allow-Origin", "http://localhost:5173"); // Set your specific origin here
-    res.header(
-        "Access-Control-Allow-Methods",
-        "GET, POST, PUT, DELETE, OPTIONS",
-    );
-    res.header(
-        "Access-Control-Allow-Headers",
-        "Origin, X-Requested-With, Content-Type, Accept, Authorization",
-    );
-    res.header("Access-Control-Allow-Credentials", "true");
-    if (req.method === "OPTIONS") {
-        res.sendStatus(200);
-    } else {
-        next();
-    }
-});
-
-app.use(cors(corsOptions)); // Apply CORS globally
+app.use(
+    cors({
+        origin: "http://localhost:5173",
+        credentials: true,
+    }),
+);
 
 require("dotenv").config({ path: "./env.env" });
 const secretKey = process.env.SECRET_KEY;
@@ -92,22 +60,6 @@ const setInCache = (key, value, duration) => {
 };
 
 app.use(express.json());
-
-app.use((req, res, next) => {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header(
-        "Access-Control-Allow-Headers",
-        "Origin, X-Requested-With, Content-Type, Accept, Authorization",
-    );
-    if (req.method === "OPTIONS") {
-        res.header(
-            "Access-Control-Allow-Methods",
-            "GET, POST, PUT, PATCH, DELETE",
-        );
-        return res.status(200).json({});
-    }
-    next();
-});
 
 app.get("/", (req, res) => {
     res.sendFile("index.html", { root: "../dist" });
@@ -292,11 +244,11 @@ app.post("/api/signin", async (req, res) => {
             [username],
         );
 
-        const currentPassword = rawCurrentPassword[0][0].Password;
-
-        if (!currentPassword) {
+        if (!rawCurrentPassword) {
             return res.status(401).json({ error: "Invalid username" });
         }
+
+        const currentPassword = rawCurrentPassword[0][0].Password;
 
         const isPasswordValid = await bcrypt.compare(password, currentPassword);
         if (!isPasswordValid) {
@@ -410,8 +362,7 @@ app.put("/api/update_profile", async (req, res) => {
         );
         username = newUsername;
 
-        const token = jwt.sign({ username }, secretKey, { expiresIn: "30d" });
-        res.json({ message: "Profile updated successfully", token });
+        res.json({ message: "Profile updated successfully" });
     } catch (error) {
         console.error("Error updating user profile:", error);
         res.status(500).json({ error: "Internal server error" });
@@ -421,6 +372,7 @@ app.put("/api/update_profile", async (req, res) => {
 app.put("/api/update_password", async (req, res) => {
     const authHeader = req.headers.authorization;
     let username = req.session.username;
+    let isPasswordValid = false;
 
     if (!username && authHeader && authHeader.startsWith("Bearer ")) {
         const token = authHeader.split("Bearer ")[1];
@@ -443,10 +395,17 @@ app.put("/api/update_password", async (req, res) => {
         [id],
     );
     const currentPassword = rawCurrentPassword[0][0].Password;
-    const isPasswordValid = await bcrypt.compare(
-        enteredCurrentPassword,
-        currentPassword,
-    );
+    if (currentPassword && enteredCurrentPassword) {
+        bcrypt.compare(
+            enteredCurrentPassword,
+            currentPassword,
+            function (err, result) {
+                isPasswordValid = true;
+            },
+        );
+    } else {
+        console.error("Error updating password");
+    }
 
     if (!isPasswordValid) {
         res.status(401).json({ error: "Password doesn't match" });

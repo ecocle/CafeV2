@@ -2,11 +2,14 @@ import { Loader2 } from "lucide-react";
 
 interface LoadingProps {
     message: string;
+    className?: string;
 }
 
-export function Loading({ message }: LoadingProps) {
+export function Loading({ message, className }: LoadingProps) {
     return (
-        <div className="flex flex-col justify-center items-center h-screen">
+        <div
+            className={`flex flex-col justify-center items-center h-screen ${className}`}
+        >
             <div className="animate-spin">
                 <Loader2 />
             </div>

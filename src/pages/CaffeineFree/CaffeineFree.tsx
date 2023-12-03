@@ -4,6 +4,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import { MenuSkeleton } from "@/components/MenuSkeleton";
+const baseUrl =
+    process.env.NODE_ENV === "production" ? "" : "http://localhost:5000";
 
 interface CaffeineFreeItem {
     Name: string;
@@ -34,7 +36,7 @@ export default function CaffeineFree() {
 
     useEffect(() => {
         setOpenSkeleton(true);
-        fetch("/api/dataCaffeineFree")
+        fetch(`${baseUrl}/api/dataCaffeineFree`)
             .then((response) => response.json())
             .then((data: { Name: string; Price: number }[]) => {
                 const formattedData: CaffeineFreeItem[] = data.map((item) => ({
@@ -50,7 +52,7 @@ export default function CaffeineFree() {
     }, []);
 
     return (
-        <div className="flex flex-col h-screen justify-between bg-neutral-50 mt-1">
+        <div className="flex flex-col h-screen justify-between bg-neutral-50 dark:bg-gray-800 mt-1">
             <div className="flex justify-center space-x-4 p-4">
                 <OutlineButton text={"Return Home"} redirectTo="/" />
             </div>
@@ -58,7 +60,7 @@ export default function CaffeineFree() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     {openSkeleton
                         ? Array.from({ length: 12 }).map((_, index) => (
-                              <MenuSkeleton className="w-80" />
+                              <MenuSkeleton key={index} className="w-80" />
                           ))
                         : caffeineFreeList.map((caffeineFreeItem, index) => (
                               <MenuCard
@@ -74,7 +76,7 @@ export default function CaffeineFree() {
                           ))}
                 </div>
             </div>
-            <div className="flex justify-center p-4">
+            <div className="flex justify-center mb-4">
                 <p className="text-sm text-neutral-700 dark:text-neutral-300">
                     Made By Shawn
                 </p>

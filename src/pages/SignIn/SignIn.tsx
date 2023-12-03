@@ -1,16 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
 import { Loader2 } from "lucide-react";
-
 import { jwtDecode } from "jwt-decode";
 import Cookies from "js-cookie";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
     Form,
     FormControl,
@@ -20,7 +17,8 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+const baseUrl =
+    process.env.NODE_ENV === "production" ? "" : "http://localhost:5000";
 
 const formSchema = z.object({
     username: z.string().min(1, {
@@ -47,7 +45,7 @@ export default function SignIn() {
         setIsSubmitting(true);
 
         try {
-            const response = await fetch("/api/signIn", {
+            const response = await fetch(`${baseUrl}/api/signIn`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -97,7 +95,7 @@ export default function SignIn() {
             <Form {...form}>
                 <form
                     onSubmit={form.handleSubmit(onSubmit)}
-                    className="flex flex-col space-y-4 w-full max-w-md p-6 bg-white rounded-lg shadow-md mt-40"
+                    className="flex flex-col space-y-4 w-full max-w-md p-6 bg-white rounded-lg shadow-md mt-40 dark:bg-gray-800"
                 >
                     <h1 className="text-3xl font-bold text-center">Sign In</h1>
                     <FormField

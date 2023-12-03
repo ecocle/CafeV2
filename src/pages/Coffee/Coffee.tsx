@@ -4,6 +4,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import { MenuSkeleton } from "@/components/MenuSkeleton";
+const baseUrl =
+    process.env.NODE_ENV === "production" ? "" : "http://localhost:5000";
 
 interface CoffeeItem {
     Name: string;
@@ -32,7 +34,7 @@ export default function Coffee() {
 
     useEffect(() => {
         setOpenSkeleton(true);
-        fetch("/api/dataCoffee")
+        fetch(`${baseUrl}/api/dataCoffee`)
             .then((response) => response.json())
             .then((data: { Name: string; Price: number }[]) => {
                 const formattedData: CoffeeItem[] = data.map((item) => ({
@@ -48,7 +50,7 @@ export default function Coffee() {
     }, []);
 
     return (
-        <div className="flex flex-col h-screen justify-between bg-neutral-50 mt-1">
+        <div className="flex flex-col h-screen justify-between mt-1 bg-neutral-50 dark:bg-gray-800">
             <div className="flex justify-center space-x-4 p-4">
                 <OutlineButton text={"Return Home"} redirectTo="/" />
             </div>
@@ -56,7 +58,7 @@ export default function Coffee() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     {openSkeleton
                         ? Array.from({ length: 7 }).map((_, index) => (
-                              <MenuSkeleton className=" w-64" />
+                              <MenuSkeleton key={index} className=" w-64" />
                           ))
                         : coffeeList.map((coffeeItem, index) => (
                               <MenuCard
@@ -68,7 +70,7 @@ export default function Coffee() {
                           ))}
                 </div>
             </div>
-            <div className="flex justify-center p-4">
+            <div className="flex justify-center mb-4">
                 <p className="text-sm text-neutral-700 dark:text-neutral-300">
                     Made By Shawn
                 </p>

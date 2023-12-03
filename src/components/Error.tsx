@@ -4,21 +4,34 @@ import { Loader2 } from "lucide-react";
 
 interface ErrorProps {
     message: string;
+    className?: string;
 }
 
-export function Error({ message }: ErrorProps) {
-    const [isLoading, setIsLoading] = useState(false);
+export function Error({ message, className }: ErrorProps) {
+    const [isLoadingRetry, setIsLoadingRetry] = useState(false);
+    const [isLoadingHome, setIsLoadingHome] = useState(false);
 
     const onRetry = () => {
-        setIsLoading(true);
+        setIsLoadingRetry(true);
         window.location.reload();
     };
 
+    const goHome = () => {
+        setIsLoadingHome(true);
+        window.location.href = "/";
+    };
+
     return (
-        <div className="flex flex-col justify-center items-center h-screen">
+        <div
+            className={`flex flex-col justify-center items-center h-screen ${className}`}
+        >
             <p className="text-2xl font-semibold mt-4">{message}</p>
-            <Button onClick={onRetry} disabled={isLoading}>
-                {isLoading ? (
+            <Button
+                className="mt-4"
+                onClick={onRetry}
+                disabled={isLoadingRetry}
+            >
+                {isLoadingRetry ? (
                     <div>
                         <div className="animate-spin">
                             <Loader2 />
