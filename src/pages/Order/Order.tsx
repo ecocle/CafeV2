@@ -1,44 +1,31 @@
-import React, { useEffect, useState } from "react";
-import { Loading } from "@/components/Loading";
-import { Error } from "@/components/Error";
-import { useNavigate } from "react-router-dom";
-import Cookies from "js-cookie";
-import { Loader2 } from "lucide-react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, FieldValues } from "react-hook-form";
-import * as z from "zod";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Textarea } from "@/components/ui/textarea";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
-import {
-    Form,
-    FormControl,
-    FormDescription,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from "@/components/ui/form";
+import React, { useEffect, useState } from 'react';
+import { Loading } from '@/components/Loading';
+import { Error } from '@/components/Error';
+import { useNavigate } from 'react-router-dom';
+import Cookies from 'js-cookie';
+import { Loader2 } from 'lucide-react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { FieldValues, useForm } from 'react-hook-form';
+import * as z from 'zod';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+
 const baseUrl =
-    process.env.NODE_ENV === "production" ? "" : "http://localhost:5000";
+    process.env.NODE_ENV === 'production' ? '' : 'http://localhost:5000';
 
 const FormSchema = z.object({
     size: z.string().min(1, {
-        message: "Size is required.",
+        message: 'Size is required.'
     }),
     temperature: z.string().min(1, {
-        message: "Temperature is required.",
+        message: 'Temperature is required.'
     }),
     toppings: z.array(z.string()).optional(),
     useCup: z.boolean().optional(),
-    comments: z.string().optional(),
+    comments: z.string().optional()
 });
 
 interface Topping {
@@ -48,79 +35,79 @@ interface Topping {
 
 const Order = ({ itemType }: { itemType: string }) => {
     const hashParams = new URLSearchParams(window.location.hash.substr(1));
-    const itemName = hashParams.get("name") ?? "";
+    const itemName = hashParams.get('name') ?? '';
     const [itemPrice, setItemPrice] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
     const [isLoadingBack, setIsLoadingBack] = useState(true);
-    const token = Cookies.get("token");
+    const token = Cookies.get('token');
     const [hasPriceError, setHasPriceError] = useState(false);
     const [isInvalidDrink, setIsInvalidDrink] = useState(false);
     const form = useForm({
-        resolver: zodResolver(FormSchema),
+        resolver: zodResolver(FormSchema)
     });
     const [options, setOptions] = useState({
-        size: "",
-        total: 0,
+        size: '',
+        total: 0
     });
     const [userData, setUserData] = useState({
         balance: 0,
         id: 0,
-        username: "",
-        firstName: "",
-        lastName: "",
+        username: '',
+        firstName: '',
+        lastName: ''
     });
     const noLargeItems = [
-        "Crispy cereal in milk(classic)",
-        "Crispy cereal in milk(honey)",
-        "Crispy cereal in milk(choco)",
-        "Classic flavoured Porridge",
-        "Chocolate flavoured Porridge",
+        'Crispy cereal in milk(classic)',
+        'Crispy cereal in milk(honey)',
+        'Crispy cereal in milk(choco)',
+        'Classic flavoured Porridge',
+        'Chocolate flavoured Porridge'
     ];
     const toppings = [
-        { name: "Oat Milk Substitution", price: 1.0, isDisabled: false },
-        { name: "Boba", price: 1.0, isDisabled: false },
-        { name: "Extra Espresso Shot", price: 2.0, isDisabled: true },
-        { name: "Red Bean", price: 1.0, isDisabled: false },
+        { name: 'Oat Milk Substitution', price: 1.0, isDisabled: false },
+        { name: 'Boba', price: 1.0, isDisabled: false },
+        { name: 'Extra Espresso Shot', price: 2.0, isDisabled: true },
+        { name: 'Red Bean', price: 1.0, isDisabled: false }
     ];
     const noToppingsItems = [
-        "Crispy cereal in milk(classic)",
-        "Crispy cereal in milk(honey)",
-        "Crispy cereal in milk(choco)",
-        "Classic flavoured Porridge",
-        "Chocolate flavoured Porridge",
+        'Crispy cereal in milk(classic)',
+        'Crispy cereal in milk(honey)',
+        'Crispy cereal in milk(choco)',
+        'Classic flavoured Porridge',
+        'Chocolate flavoured Porridge'
     ];
     const noHotItems = [
-        "Crispy cereal in milk(classic)",
-        "Crispy cereal in milk(honey)",
-        "Crispy cereal in milk(choco)",
-        "Cocoa",
-        "Matcha milk",
-        "Matcha boba",
-        "Tai Red Tea",
-        "Coconut Water",
-        "Milk tea",
-        "Jasmine Milktea",
-        "Boba",
-        "Refreshing babyblue drink",
-        "Pure milk",
-        "Black currant oolang tea",
+        'Crispy cereal in milk(classic)',
+        'Crispy cereal in milk(honey)',
+        'Crispy cereal in milk(choco)',
+        'Cocoa',
+        'Matcha milk',
+        'Matcha boba',
+        'Tai Red Tea',
+        'Coconut Water',
+        'Milk tea',
+        'Jasmine Milktea',
+        'Boba',
+        'Refreshing babyblue drink',
+        'Pure milk',
+        'Black currant oolang tea'
     ];
     const noColdItems = [
-        "Classic flavoured Porridge",
-        "Chocolate flavoured Porridge",
+        'Classic flavoured Porridge',
+        'Chocolate flavoured Porridge'
     ];
     const noNormalItems = [
-        "Crispy cereal in milk(classic)",
-        "Crispy cereal in milk(honey)",
-        "Crispy cereal in milk(choco)",
-        "Classic flavoured Porridge",
-        "Chocolate flavoured Porridge",
+        'Crispy cereal in milk(classic)',
+        'Crispy cereal in milk(honey)',
+        'Crispy cereal in milk(choco)',
+        'Classic flavoured Porridge',
+        'Chocolate flavoured Porridge'
     ];
     const navigation = useNavigate();
 
     useEffect(() => {
         if (!token) {
-            navigation("/not-authorized");
+            navigation('/not-authorized');
         }
     }, []);
 
@@ -128,7 +115,7 @@ const Order = ({ itemType }: { itemType: string }) => {
         const fetchDrinkDetails = async () => {
             try {
                 const response = await fetch(
-                    `${baseUrl}/api/drinkData/${itemType}/${itemName}`,
+                    `${baseUrl}/api/drinkData/${itemType}/${itemName}`
                 );
                 const data = await response.json();
 
@@ -136,12 +123,12 @@ const Order = ({ itemType }: { itemType: string }) => {
                     setItemPrice(parseFloat(data[0].Price));
                     setIsLoadingBack(false);
                 } else {
-                    console.error("Error fetching drink details:", data.error);
+                    console.error('Error fetching drink details:', data.error);
                     setIsLoadingBack(false);
                     setIsInvalidDrink(true);
                 }
             } catch (error) {
-                console.error("Error fetching drink details:", error);
+                console.error('Error fetching drink details:', error);
                 setIsLoadingBack(false);
                 setIsInvalidDrink(true);
             }
@@ -153,9 +140,9 @@ const Order = ({ itemType }: { itemType: string }) => {
     useEffect(() => {
         fetch(`${baseUrl}/api/user_data`, {
             headers: {
-                Authorization: `Bearer ${token}`,
+                Authorization: `Bearer ${token}`
             },
-            credentials: "include",
+            credentials: 'include'
         })
             .then((response) => response.json())
             .then((data) => {
@@ -163,7 +150,7 @@ const Order = ({ itemType }: { itemType: string }) => {
                     setUserData(data);
                 }
             })
-            .catch((error) => console.error("Error:", error));
+            .catch((error) => console.error('Error:', error));
     }, []);
 
     useEffect(() => {
@@ -179,17 +166,17 @@ const Order = ({ itemType }: { itemType: string }) => {
 
             let newTotal = prevOptions.total;
 
-            if (currentSize === "Medium" && newSize === "Large") {
+            if (currentSize === 'Medium' && newSize === 'Large') {
                 newTotal += 3;
-            } else if (!currentSize && newSize === "Large") {
+            } else if (!currentSize && newSize === 'Large') {
                 newTotal += 3;
-            } else if (currentSize === "Large" && newSize === "Medium") {
+            } else if (currentSize === 'Large' && newSize === 'Medium') {
                 newTotal -= 3;
             }
 
             return {
                 ...prevOptions,
-                total: newTotal,
+                total: newTotal
             };
         });
     };
@@ -197,7 +184,7 @@ const Order = ({ itemType }: { itemType: string }) => {
     const handleToppingChange = (
         checked: boolean,
         field: any,
-        topping: Topping,
+        topping: Topping
     ) => {
         const fieldValue = Array.isArray(field.value) ? field.value : [];
         let newPrice = options.total;
@@ -207,7 +194,7 @@ const Order = ({ itemType }: { itemType: string }) => {
             newPrice += topping.price;
         } else {
             field.onChange(
-                fieldValue.filter((value: string) => value !== topping.name),
+                fieldValue.filter((value: string) => value !== topping.name)
             );
             newPrice -= topping.price;
         }
@@ -249,86 +236,86 @@ const Order = ({ itemType }: { itemType: string }) => {
             comments: value.comments,
             useCup: value.useCup,
             balance: userData.balance - finalTotal,
-            id: userData.id,
+            id: userData.id
         };
 
         try {
             const response = await fetch(`${baseUrl}/api/order`, {
-                method: "POST",
+                method: 'POST',
                 headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
                 },
-                body: JSON.stringify(orderDetails),
+                body: JSON.stringify(orderDetails)
             });
 
             if (!response.ok) {
-                console.error("Error placing order");
+                console.error('Error placing order');
                 setIsLoading(false);
             }
 
-            navigation("/");
+            navigation('/');
             setIsLoading(false);
         } catch (error) {
-            console.error("Error placing order:", error);
+            console.error('Error placing order:', error);
             setIsLoading(false);
         }
     };
 
     return (
-        <div className="flex flex-col min-h-screen">
+        <div className='flex flex-col min-h-screen'>
             {isLoadingBack ? (
-                <Loading message="Fetching drink details..." />
+                <Loading message='Fetching drink details...' />
             ) : isInvalidDrink ? (
-                <Error message="Invalid drink" />
+                <Error message='Invalid drink' />
             ) : (
                 <Form {...form}>
-                    <div className="flex flex-row justify-between items-center mt-auto">
-                        <div className="w-24" />
-                        <h1 className="text-4xl font-bold">{itemName}</h1>
-                        <div className="w-24" />
+                    <div className='flex flex-row justify-between items-center mt-auto'>
+                        <div className='w-24' />
+                        <h1 className='text-4xl font-bold'>{itemName}</h1>
+                        <div className='w-24' />
                     </div>
                     <form
                         onSubmit={form.handleSubmit(onSubmit)}
-                        className="space-y-4 flex flex-col justify-center items-start mt-auto mx-auto w-11/12 max-w-md dark:bg-gray-800 p-8 rounded-xl shadow-lg"
+                        className='space-y-4 flex flex-col justify-center items-start mt-auto mx-auto w-11/12 max-w-md dark:bg-gray-800 p-8 rounded-xl shadow-lg'
                     >
-                        <div className="space-y-2">
+                        <div className='space-y-2'>
                             <div>
-                                <h1 className="text-2xl font-bold">
+                                <h1 className='text-2xl font-bold'>
                                     Order Details
                                 </h1>
-                                <p className="text-sm text-muted-foreground font-semibold">
+                                <p className='text-sm text-muted-foreground font-semibold'>
                                     Select the size and temperature of your
                                     drink.
                                 </p>
                             </div>
                             <FormField
                                 control={form.control}
-                                name="size"
+                                name='size'
                                 render={({ field }) => (
-                                    <FormItem className="w-64">
+                                    <FormItem className='w-64'>
                                         <Select
                                             {...field}
                                             onValueChange={(newValue) =>
                                                 handleSizeChange(
                                                     newValue,
-                                                    field,
+                                                    field
                                                 )
                                             }
                                         >
                                             <FormControl>
                                                 <SelectTrigger>
-                                                    <SelectValue placeholder="Select a size" />
+                                                    <SelectValue placeholder='Select a size' />
                                                 </SelectTrigger>
                                             </FormControl>
                                             <SelectContent>
-                                                <SelectItem value="Medium">
+                                                <SelectItem value='Medium'>
                                                     Medium
                                                 </SelectItem>
                                                 <SelectItem
-                                                    value="Large"
+                                                    value='Large'
                                                     disabled={noLargeItems.includes(
-                                                        itemName,
+                                                        itemName
                                                     )}
                                                 >
                                                     Large
@@ -341,9 +328,9 @@ const Order = ({ itemType }: { itemType: string }) => {
                             />
                             <FormField
                                 control={form.control}
-                                name="temperature"
+                                name='temperature'
                                 render={({ field }) => (
-                                    <FormItem className="w-64">
+                                    <FormItem className='w-64'>
                                         <Select
                                             {...field}
                                             onValueChange={(newValue) =>
@@ -352,30 +339,30 @@ const Order = ({ itemType }: { itemType: string }) => {
                                         >
                                             <FormControl>
                                                 <SelectTrigger>
-                                                    <SelectValue placeholder="Select a temperature" />
+                                                    <SelectValue placeholder='Select a temperature' />
                                                 </SelectTrigger>
                                             </FormControl>
                                             <SelectContent>
                                                 <SelectItem
-                                                    value="Hot"
+                                                    value='Hot'
                                                     disabled={noHotItems.includes(
-                                                        itemName,
+                                                        itemName
                                                     )}
                                                 >
                                                     Hot
                                                 </SelectItem>
                                                 <SelectItem
-                                                    value="Normal"
+                                                    value='Normal'
                                                     disabled={noNormalItems.includes(
-                                                        itemName,
+                                                        itemName
                                                     )}
                                                 >
                                                     Normal
                                                 </SelectItem>
                                                 <SelectItem
-                                                    value="Cold"
+                                                    value='Cold'
                                                     disabled={noColdItems.includes(
-                                                        itemName,
+                                                        itemName
                                                     )}
                                                 >
                                                     Cold
@@ -390,17 +377,17 @@ const Order = ({ itemType }: { itemType: string }) => {
 
                         <FormField
                             control={form.control}
-                            name="toppings"
+                            name='toppings'
                             render={() => (
                                 <FormItem>
-                                    <div className="mb-4">
+                                    <div className='mb-4'>
                                         <FormLabel
                                             className={`text-2xl font-bold ${
                                                 noToppingsItems.includes(
-                                                    itemName,
+                                                    itemName
                                                 )
-                                                    ? "text-opacity-50 text-muted-foreground"
-                                                    : ""
+                                                    ? 'text-opacity-50 text-muted-foreground'
+                                                    : ''
                                             }`}
                                         >
                                             Toppings
@@ -408,10 +395,10 @@ const Order = ({ itemType }: { itemType: string }) => {
                                         <FormDescription
                                             className={`font-semibold ${
                                                 noToppingsItems.includes(
-                                                    itemName,
+                                                    itemName
                                                 )
-                                                    ? "text-gray-500"
-                                                    : ""
+                                                    ? 'text-gray-500'
+                                                    : ''
                                             }`}
                                         >
                                             Select the toppings you want.
@@ -421,12 +408,12 @@ const Order = ({ itemType }: { itemType: string }) => {
                                         <FormField
                                             key={topping.name}
                                             control={form.control}
-                                            name="toppings"
+                                            name='toppings'
                                             render={({ field }) => {
                                                 return (
                                                     <FormItem
                                                         key={topping.name}
-                                                        className="flex flex-row items-start space-x-3 space-y-0"
+                                                        className='flex flex-row items-start space-x-3 space-y-0'
                                                     >
                                                         <FormControl>
                                                             <Checkbox
@@ -436,28 +423,28 @@ const Order = ({ itemType }: { itemType: string }) => {
                                                                 disabled={
                                                                     topping.isDisabled ||
                                                                     (noToppingsItems.includes(
-                                                                        itemName,
-                                                                    ) &&
+                                                                            itemName
+                                                                        ) &&
                                                                         topping.name !==
-                                                                            "Extra Espresso Shot")
+                                                                        'Extra Espresso Shot')
                                                                 }
                                                                 checked={
                                                                     !!(
                                                                         field.value as string[]
                                                                     )?.includes(
-                                                                        topping.name,
+                                                                        topping.name
                                                                     )
                                                                 }
                                                                 onCheckedChange={(
-                                                                    checked,
+                                                                    checked
                                                                 ) =>
                                                                     handleToppingChange(
                                                                         typeof checked ===
-                                                                            "boolean"
+                                                                        'boolean'
                                                                             ? checked
                                                                             : false,
                                                                         field,
-                                                                        topping,
+                                                                        topping
                                                                     )
                                                                 }
                                                             />
@@ -466,10 +453,10 @@ const Order = ({ itemType }: { itemType: string }) => {
                                                             htmlFor={
                                                                 topping.name
                                                             }
-                                                            className="text-sm font-base leading-4 cursor-pointer peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                                            className='text-sm font-base leading-4 cursor-pointer peer-disabled:cursor-not-allowed peer-disabled:opacity-70'
                                                         >
                                                             {topping.name}
-                                                            {" ¥"}
+                                                            {' ¥'}
                                                             {topping.price}
                                                         </FormLabel>
                                                     </FormItem>
@@ -482,22 +469,22 @@ const Order = ({ itemType }: { itemType: string }) => {
                             )}
                         />
 
-                        <div className="space-y-2">
+                        <div className='space-y-2'>
                             <div>
-                                <h1 className="text-2xl font-bold">
+                                <h1 className='text-2xl font-bold'>
                                     Information
                                 </h1>
-                                <p className="text-sm text-muted-foreground font-semibold">
+                                <p className='text-sm text-muted-foreground font-semibold'>
                                     Enter any additional information for your
                                     order.
                                 </p>
                             </div>
                             <FormField
                                 control={form.control}
-                                name="comments"
+                                name='comments'
                                 render={({ field }) => (
-                                    <FormItem className="w-96">
-                                        <FormLabel className="text-base">
+                                    <FormItem className='w-96'>
+                                        <FormLabel className='text-base'>
                                             Comments
                                         </FormLabel>
                                         <FormControl>
@@ -509,26 +496,26 @@ const Order = ({ itemType }: { itemType: string }) => {
                             />
                             <FormField
                                 control={form.control}
-                                name="useCup"
+                                name='useCup'
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormControl>
                                             <Checkbox
-                                                id="useCup"
+                                                id='useCup'
                                                 onCheckedChange={(checked) =>
                                                     handleUseCupChange(
                                                         typeof checked ===
-                                                            "boolean"
+                                                        'boolean'
                                                             ? checked
                                                             : false,
-                                                        field,
+                                                        field
                                                     )
                                                 }
                                             />
                                         </FormControl>
                                         <FormLabel
-                                            htmlFor="useCup"
-                                            className="text-base leading-4 ml-2"
+                                            htmlFor='useCup'
+                                            className='text-base leading-4 ml-2'
                                         >
                                             Use own cup
                                         </FormLabel>
@@ -538,16 +525,16 @@ const Order = ({ itemType }: { itemType: string }) => {
                             />
                         </div>
 
-                        <p className="text-2xl font-semibold">
+                        <p className='text-2xl font-semibold'>
                             Total: ¥{options.total.toFixed(1)}
                         </p>
 
                         <Button
-                            className="bg-sky-500 transition-all duration-300 hover:bg-sky-600"
-                            type="submit"
+                            className='bg-sky-500 transition-all duration-300 hover:bg-sky-600'
+                            type='submit'
                         >
                             {isLoading ? (
-                                <div className="animate-spin">
+                                <div className='animate-spin'>
                                     <Loader2 />
                                 </div>
                             ) : (
@@ -555,16 +542,16 @@ const Order = ({ itemType }: { itemType: string }) => {
                             )}
                         </Button>
                         {hasPriceError && (
-                            <p className="text-destructive">
+                            <p className='text-destructive'>
                                 Not enough fund in account
                             </p>
                         )}
                     </form>
                 </Form>
             )}
-            <div className="w-24"></div>
-            <div className="flex justify-center p-3 mt-auto">
-                <p className="text-sm text-neutral-700 dark:text-neutral-300">
+            <div className='w-24'></div>
+            <div className='flex justify-center p-3 mt-auto'>
+                <p className='text-sm text-neutral-700 dark:text-neutral-300'>
                     Made By Shawn
                 </p>
             </div>

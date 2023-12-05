@@ -1,23 +1,15 @@
-import { useEffect, useState } from "react";
-import Cookies from "js-cookie";
-import dayjs from "dayjs";
-import { jwtDecode } from "jwt-decode";
-import { OutlineButton } from "@/components/OutlineButton";
-import { DatePicker } from "@/components/DatePicker";
-import { Loading } from "@/components/Loading";
-import { Error } from "@/components/Error";
-import {
-    Table,
-    TableBody,
-    TableCaption,
-    TableCell,
-    TableFooter,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table";
+import { useEffect, useState } from 'react';
+import Cookies from 'js-cookie';
+import dayjs from 'dayjs';
+import { jwtDecode } from 'jwt-decode';
+import { OutlineButton } from '@/components/OutlineButton';
+import { DatePicker } from '@/components/DatePicker';
+import { Loading } from '@/components/Loading';
+import { Error } from '@/components/Error';
+import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+
 const baseUrl =
-    process.env.NODE_ENV === "production" ? "" : "http://localhost:5000";
+    process.env.NODE_ENV === 'production' ? '' : 'http://localhost:5000';
 
 interface Order {
     id: number;
@@ -36,23 +28,22 @@ interface Order {
 export default function ViewOrders() {
     const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
-    const token = Cookies.get("token");
+    const [error, setError] = useState('');
+    const token = Cookies.get('token');
     const [isEmpty, setIsEmpty] = useState(false);
-    const [date, setDate] = useState<string>("");
+    const [date, setDate] = useState<string>('');
     const [selectedDate, setSelectedDate] = useState<Date | undefined>();
-    const username = (token && (jwtDecode as any)(token).username) || "";
-    const [id, setId] = useState("");
+    const username = (token && (jwtDecode as any)(token).username) || '';
+    const [id, setId] = useState('');
     const totalPrice = orders.reduce((total, order) => total + order.price, 0);
-    const numberOfOrders = orders.length;
 
     const handleDateChange = (selectedDate: Date | undefined) => {
         setSelectedDate(selectedDate);
         if (selectedDate) {
-            const formattedDate = dayjs(selectedDate).format("YYYY-MM-DD");
+            const formattedDate = dayjs(selectedDate).format('YYYY-MM-DD');
             setDate(formattedDate);
         } else {
-            setDate("");
+            setDate('');
         }
     };
 
@@ -61,8 +52,8 @@ export default function ViewOrders() {
             try {
                 const response = await fetch(`${baseUrl}/api/user_data`, {
                     headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
+                        Authorization: `Bearer ${token}`
+                    }
                 });
                 const data = await response.json();
                 setId(data.id);
@@ -81,17 +72,17 @@ export default function ViewOrders() {
         fetchOrderData(id, date);
     }, [date]);
 
-    const fetchOrderData = async (id: string, selectedDate = "") => {
+    const fetchOrderData = async (id: string, selectedDate = '') => {
         try {
             const endpoint =
-                username === "Admin"
+                username === 'Admin'
                     ? `${baseUrl}/api/admin/orders`
                     : `${baseUrl}/api/orders`;
             const params = new URLSearchParams();
 
             if (selectedDate) {
-                const formattedDate = dayjs(selectedDate).format("YYYY-MM-DD");
-                params.append("date", formattedDate);
+                const formattedDate = dayjs(selectedDate).format('YYYY-MM-DD')
+                params.append('date', formattedDate);
             }
 
             const fullUrl = `${endpoint}?${params.toString()}`;
@@ -99,13 +90,13 @@ export default function ViewOrders() {
             const response = await fetch(fullUrl, {
                 headers: {
                     Authorization: `Bearer ${token}`,
-                    userInformation: id,
+                    userInformation: id
                 },
-                credentials: "include",
+                credentials: 'include'
             });
             if (!response.ok) {
                 setError(
-                    "Failed to fetch order data, network response was not ok",
+                    'Failed to fetch order data, network response was not ok'
                 );
             }
             const rawData = await response.json();
@@ -120,7 +111,7 @@ export default function ViewOrders() {
                 size: order.Size,
                 price: parseFloat(order.Price),
                 comments: order.Comments,
-                cup: order.Cup,
+                cup: order.Cup
             }));
             if (transformedData.length === 0) {
                 setIsEmpty(true);
@@ -131,22 +122,22 @@ export default function ViewOrders() {
             setLoading(false);
         } catch (error: any) {
             setError(error.message);
-            console.error("Error fetching order data:", error);
+            console.error('Error fetching order data:', error);
         }
     };
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen dark:bg-gray-800">
+        <div className='flex flex-col items-center justify-center min-h-screen dark:bg-gray-800'>
             {loading ? (
-                <Loading message="Fetching order data..." />
+                <Loading message='Fetching order data...' />
             ) : error ? (
                 <Error message={error} />
             ) : (
-                <div className="overflow-auto">
-                    <div className="flex justify-center space-x-4 mt-4">
-                        <OutlineButton text={"Return Home"} redirectTo="/" />
+                <div className='overflow-auto'>
+                    <div className='flex justify-center space-x-4 mt-4'>
+                        <OutlineButton text={'Return Home'} redirectTo='/' />
                     </div>
-                    <div className="flex justify-center space-x-4 p-4">
+                    <div className='flex justify-center space-x-4 p-4'>
                         <DatePicker
                             date={selectedDate}
                             onDateChange={handleDateChange}
@@ -154,68 +145,68 @@ export default function ViewOrders() {
                     </div>
                     {isEmpty ? (
                         <div>
-                            <span className="text-4xl font-bold flex item-center justify-center">
+                            <span className='text-4xl font-bold flex item-center justify-center'>
                                 No Orders Found For This Date
                             </span>
                         </div>
                     ) : (
-                        <Table className="dark:bg-gray-900 rounded-lg mx-auto">
-                            <TableHeader className="">
+                        <Table className='dark:bg-gray-900 rounded-lg mx-auto'>
+                            <TableHeader className=''>
                                 <TableRow>
-                                    <TableHead className="">
+                                    <TableHead>
                                         Order Time
                                     </TableHead>
-                                    <TableHead className="">
+                                    <TableHead>
                                         First Name
                                     </TableHead>
-                                    <TableHead className="">
+                                    <TableHead>
                                         Last Name
                                     </TableHead>
-                                    <TableHead className="">
+                                    <TableHead>
                                         Coffee Type
                                     </TableHead>
-                                    <TableHead className="">
+                                    <TableHead>
                                         Temperature
                                     </TableHead>
-                                    <TableHead className="">Toppings</TableHead>
-                                    <TableHead className="">Size</TableHead>
-                                    <TableHead className="">Cup</TableHead>
-                                    <TableHead className="">Comments</TableHead>
-                                    <TableHead className="">Price</TableHead>
+                                    <TableHead >Toppings</TableHead>
+                                    <TableHead >Size</TableHead>
+                                    <TableHead >Cup</TableHead>
+                                    <TableHead >Comments</TableHead>
+                                    <TableHead >Price</TableHead>
                                 </TableRow>
                             </TableHeader>
 
-                            <TableBody className="">
+                            <TableBody className=''>
                                 {orders.map((item) => (
                                     <TableRow key={item.id}>
-                                        <TableCell className="">
+                                        <TableCell>
                                             {item.order_time}
                                         </TableCell>
-                                        <TableCell className="">
+                                        <TableCell>
                                             {item.first_name}
                                         </TableCell>
-                                        <TableCell className="">
+                                        <TableCell>
                                             {item.last_name}
                                         </TableCell>
-                                        <TableCell className="">
+                                        <TableCell>
                                             {item.coffee_type}
                                         </TableCell>
-                                        <TableCell className="">
+                                        <TableCell>
                                             {item.temperature}
                                         </TableCell>
-                                        <TableCell className="">
+                                        <TableCell>
                                             {item.toppings}
                                         </TableCell>
-                                        <TableCell className="">
+                                        <TableCell>
                                             {item.size}
                                         </TableCell>
-                                        <TableCell className="">
+                                        <TableCell>
                                             {item.cup}
                                         </TableCell>
-                                        <TableCell className="">
+                                        <TableCell>
                                             {item.comments}
                                         </TableCell>
-                                        <TableCell className="text-right">
+                                        <TableCell className='text-right'>
                                             ¥{item.price}
                                         </TableCell>
                                     </TableRow>
@@ -223,10 +214,10 @@ export default function ViewOrders() {
                             </TableBody>
                             <TableFooter>
                                 <TableRow>
-                                    <TableCell className="" colSpan={8}>
+                                    <TableCell colSpan={8}>
                                         Total:
                                     </TableCell>
-                                    <TableCell className="text-right">
+                                    <TableCell className='text-right'>
                                         ¥{totalPrice}
                                     </TableCell>
                                 </TableRow>
@@ -235,9 +226,9 @@ export default function ViewOrders() {
                     )}
                 </div>
             )}
-            <div className="mt-auto"></div>
-            <div className="flex justify-center mt-auto">
-                <p className="text-sm mb-3 text-neutral-700 dark:text-neutral-300">
+            <div className='mt-auto'></div>
+            <div className='flex justify-center mt-auto'>
+                <p className='text-sm mb-3 text-neutral-700 dark:text-neutral-300'>
                     Made By Shawn
                 </p>
             </div>
