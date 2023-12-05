@@ -178,9 +178,9 @@ export default function ViewOrders() {
                                         Temperature
                                     </TableHead>
                                     <TableHead className="">Toppings</TableHead>
-                                    <TableHead className="">Comments</TableHead>
                                     <TableHead className="">Size</TableHead>
                                     <TableHead className="">Cup</TableHead>
+                                    <TableHead className="">Comments</TableHead>
                                     <TableHead className="">Price</TableHead>
                                 </TableRow>
                             </TableHeader>
