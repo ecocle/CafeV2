@@ -20,7 +20,7 @@ export function TextButton({
     return (
         <Button
             onClick={handleClick}
-            className={`bg-transparent text-violet-500 transition-all duration-300 hover:bg-violet-100 w-auto h-8 text-base ${className}`}
+            className={`bg-transparent text-violet-500 transition-all duration-300 hover:bg-violet-100 w-auto h-10 text-base ${className}`}
         >
             {text}
         </Button>

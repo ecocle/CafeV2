@@ -6,6 +6,16 @@ import { OutlineButton } from "@/components/OutlineButton";
 import { DatePicker } from "@/components/DatePicker";
 import { Loading } from "@/components/Loading";
 import { Error } from "@/components/Error";
+import {
+    Table,
+    TableBody,
+    TableCaption,
+    TableCell,
+    TableFooter,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table";
 const baseUrl =
     process.env.NODE_ENV === "production" ? "" : "http://localhost:5000";
 
@@ -30,11 +40,20 @@ export default function ViewOrders() {
     const token = Cookies.get("token");
     const [isEmpty, setIsEmpty] = useState(false);
     const [date, setDate] = useState<string>("");
+    const [selectedDate, setSelectedDate] = useState<Date | undefined>();
     const username = (token && (jwtDecode as any)(token).username) || "";
     const [id, setId] = useState("");
+    const totalPrice = orders.reduce((total, order) => total + order.price, 0);
+    const numberOfOrders = orders.length;
 
-    const handleDateChange = (date: Date) => {
-        setDate(dayjs(date).format("YYYY-MM-DD"));
+    const handleDateChange = (selectedDate: Date | undefined) => {
+        setSelectedDate(selectedDate);
+        if (selectedDate) {
+            const formattedDate = dayjs(selectedDate).format("YYYY-MM-DD");
+            setDate(formattedDate);
+        } else {
+            setDate("");
+        }
     };
 
     useEffect(() => {
@@ -117,18 +136,21 @@ export default function ViewOrders() {
     };
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen">
+        <div className="flex flex-col items-center justify-center min-h-screen dark:bg-gray-800">
             {loading ? (
                 <Loading message="Fetching order data..." />
             ) : error ? (
                 <Error message={error} />
             ) : (
-                <div className="w-full overflow-x-auto">
+                <div className="overflow-auto">
                     <div className="flex justify-center space-x-4 mt-4">
                         <OutlineButton text={"Return Home"} redirectTo="/" />
                     </div>
                     <div className="flex justify-center space-x-4 p-4">
-                        <DatePicker onDateChange={handleDateChange} />
+                        <DatePicker
+                            date={selectedDate}
+                            onDateChange={handleDateChange}
+                        />
                     </div>
                     {isEmpty ? (
                         <div>
@@ -137,77 +159,84 @@ export default function ViewOrders() {
                             </span>
                         </div>
                     ) : (
-                        <table className="w-full min-w-full divide-y divide-gray-200 dark:divide-gray-600">
-                            <thead className="bg-gray-50 dark:bg-gray-800">
-                                <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-200">
+                        <Table className="dark:bg-gray-900 rounded-lg mx-auto">
+                            <TableHeader className="">
+                                <TableRow>
+                                    <TableHead className="">
                                         Order Time
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-200">
+                                    </TableHead>
+                                    <TableHead className="">
                                         First Name
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-200">
+                                    </TableHead>
+                                    <TableHead className="">
                                         Last Name
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-200">
+                                    </TableHead>
+                                    <TableHead className="">
                                         Coffee Type
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-200">
+                                    </TableHead>
+                                    <TableHead className="">
                                         Temperature
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-200">
-                                        Size
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-200">
-                                        Price
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-200">
-                                        Comments
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-200">
-                                        Cup
-                                    </th>
-                                </tr>
-                            </thead>
+                                    </TableHead>
+                                    <TableHead className="">Toppings</TableHead>
+                                    <TableHead className="">Comments</TableHead>
+                                    <TableHead className="">Size</TableHead>
+                                    <TableHead className="">Cup</TableHead>
+                                    <TableHead className="">Price</TableHead>
+                                </TableRow>
+                            </TableHeader>
 
-                            <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-900 dark:divide-gray-600">
+                            <TableBody className="">
                                 {orders.map((item) => (
-                                    <tr key={item.id}>
-                                        <td className="px-6 py-4 whitespace-nowrap">
+                                    <TableRow key={item.id}>
+                                        <TableCell className="">
                                             {item.order_time}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
+                                        </TableCell>
+                                        <TableCell className="">
                                             {item.first_name}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
+                                        </TableCell>
+                                        <TableCell className="">
                                             {item.last_name}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
+                                        </TableCell>
+                                        <TableCell className="">
                                             {item.coffee_type}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
+                                        </TableCell>
+                                        <TableCell className="">
                                             {item.temperature}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
+                                        </TableCell>
+                                        <TableCell className="">
+                                            {item.toppings}
+                                        </TableCell>
+                                        <TableCell className="">
                                             {item.size}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            {item.price}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            {item.comments}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
+                                        </TableCell>
+                                        <TableCell className="">
                                             {item.cup}
-                                        </td>
-                                    </tr>
+                                        </TableCell>
+                                        <TableCell className="">
+                                            {item.comments}
+                                        </TableCell>
+                                        <TableCell className="text-right">
+                                            ¥{item.price}
+                                        </TableCell>
+                                    </TableRow>
                                 ))}
-                            </tbody>
-                        </table>
+                            </TableBody>
+                            <TableFooter>
+                                <TableRow>
+                                    <TableCell className="" colSpan={8}>
+                                        Total:
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                        ¥{totalPrice}
+                                    </TableCell>
+                                </TableRow>
+                            </TableFooter>
+                        </Table>
                     )}
                 </div>
             )}
-            <div className="fixed inset-x-3 bottom-0 flex justify-center mt-auto">
+            <div className="mt-auto"></div>
+            <div className="flex justify-center mt-auto">
                 <p className="text-sm mb-3 text-neutral-700 dark:text-neutral-300">
                     Made By Shawn
                 </p>

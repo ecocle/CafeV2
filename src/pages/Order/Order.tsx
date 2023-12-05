@@ -48,7 +48,7 @@ interface Topping {
 
 const Order = ({ itemType }: { itemType: string }) => {
     const hashParams = new URLSearchParams(window.location.hash.substr(1));
-    const itemName = hashParams.get("name") || "";
+    const itemName = hashParams.get("name") ?? "";
     const [itemPrice, setItemPrice] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
     const [isLoadingBack, setIsLoadingBack] = useState(true);
@@ -175,7 +175,7 @@ const Order = ({ itemType }: { itemType: string }) => {
 
         setOptions((prevOptions) => {
             const currentSize = prevOptions.size;
-            const newSize = newValue || undefined;
+            const newSize = newValue ?? undefined;
 
             let newTotal = prevOptions.total;
 
@@ -283,14 +283,14 @@ const Order = ({ itemType }: { itemType: string }) => {
                 <Error message="Invalid drink" />
             ) : (
                 <Form {...form}>
-                    <div className="flex flex-row justify-between items-center mt-12 ">
+                    <div className="flex flex-row justify-between items-center mt-auto">
                         <div className="w-24" />
                         <h1 className="text-4xl font-bold">{itemName}</h1>
                         <div className="w-24" />
                     </div>
                     <form
                         onSubmit={form.handleSubmit(onSubmit)}
-                        className="space-y-4 flex flex-col justify-center items-start mt-12 mx-auto w-4/12 dark:bg-gray-800 p-8 rounded-xl shadow-lg"
+                        className="space-y-4 flex flex-col justify-center items-start mt-auto mx-auto w-11/12 max-w-md dark:bg-gray-800 p-8 rounded-xl shadow-lg"
                     >
                         <div className="space-y-2">
                             <div>
@@ -469,6 +469,8 @@ const Order = ({ itemType }: { itemType: string }) => {
                                                             className="text-sm font-base leading-4 cursor-pointer peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                                                         >
                                                             {topping.name}
+                                                            {" ¥"}
+                                                            {topping.price}
                                                         </FormLabel>
                                                     </FormItem>
                                                 );
@@ -512,7 +514,6 @@ const Order = ({ itemType }: { itemType: string }) => {
                                     <FormItem>
                                         <FormControl>
                                             <Checkbox
-                                                className="mr-2"
                                                 id="useCup"
                                                 onCheckedChange={(checked) =>
                                                     handleUseCupChange(
@@ -527,9 +528,9 @@ const Order = ({ itemType }: { itemType: string }) => {
                                         </FormControl>
                                         <FormLabel
                                             htmlFor="useCup"
-                                            className="text-base leading-4"
+                                            className="text-base leading-4 ml-2"
                                         >
-                                            Use Cup
+                                            Use own cup
                                         </FormLabel>
                                         <FormMessage />
                                     </FormItem>

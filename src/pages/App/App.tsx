@@ -1,8 +1,6 @@
-import React, { lazy, Suspense } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { Breadcrumb } from "../Breadcrumb/Breadcrumb";
 import Home from "../Home/Home";
-import Coffee from "../Coffee/Coffee";
 import Breakfast from "../Breakfast/Breakfast";
 import CaffeineFree from "../CaffeineFree/CaffeineFree";
 import Order from "../Order/Order";
@@ -41,7 +39,7 @@ const App = () => {
                                             { name: "Coffee", path: "/coffee" },
                                         ]}
                                     />
-                                    <Coffee />
+                                    <NotFound />
                                 </>
                             }
                         />
@@ -59,7 +57,25 @@ const App = () => {
                                             },
                                         ]}
                                     />
-                                    <Order itemType="Coffee" />
+                                    <NotFound />
+                                </>
+                            }
+                        />
+                        <Route
+                            path="*"
+                            element={
+                                <>
+                                    <Breadcrumb
+                                        paths={[
+                                            { name: "Home", path: "/" },
+                                            { name: "Coffee", path: "/coffee" },
+                                            {
+                                                name: "Not Found",
+                                                path: "/coffee/*",
+                                            },
+                                        ]}
+                                    />
+                                    <NotFound />
                                 </>
                             }
                         />
@@ -103,6 +119,27 @@ const App = () => {
                                 </>
                             }
                         />
+                        <Route
+                            path="*"
+                            element={
+                                <>
+                                    <Breadcrumb
+                                        paths={[
+                                            { name: "Home", path: "/" },
+                                            {
+                                                name: "Caffeine Free",
+                                                path: "/caffeine-free",
+                                            },
+                                            {
+                                                name: "Not Found",
+                                                path: "/caffeine-free/*",
+                                            },
+                                        ]}
+                                    />
+                                    <NotFound />
+                                </>
+                            }
+                        />
                     </Route>
                     <Route path="/breakfast/*">
                         <Route
@@ -140,6 +177,27 @@ const App = () => {
                                         ]}
                                     />
                                     <Order itemType="Breakfast" />
+                                </>
+                            }
+                        />
+                        <Route
+                            path="*"
+                            element={
+                                <>
+                                    <Breadcrumb
+                                        paths={[
+                                            { name: "Home", path: "/" },
+                                            {
+                                                name: "Breakfast",
+                                                path: "/breakfast",
+                                            },
+                                            {
+                                                name: "Not Found",
+                                                path: "/breakfast/*",
+                                            },
+                                        ]}
+                                    />
+                                    <NotFound />
                                 </>
                             }
                         />

@@ -18,7 +18,7 @@ export function MenuSkeleton({ className }: { className?: string }) {
             </CardHeader>
             <CardContent>
                 <CardDescription>
-                    <Skeleton className="h-4 w-28 mt-1" />
+                    <Skeleton className="h-4 w-32 mt-1" />
                     <Skeleton className="h-4 w-28 mt-1" />
                 </CardDescription>
             </CardContent>

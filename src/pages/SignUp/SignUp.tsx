@@ -84,7 +84,7 @@ export default function SignUp() {
             <Form {...form}>
                 <form
                     onSubmit={form.handleSubmit(onSubmit)}
-                    className="flex flex-col space-y-4 w-full max-w-md p-6 bg-white rounded-lg shadow-md mt-40 dark:bg-gray-800"
+                    className="flex flex-col space-y-4 w-11/12 max-w-md p-6 bg-white rounded-lg shadow-md mt-auto dark:bg-gray-800"
                 >
                     <h1 className="text-3xl font-bold text-center">Sign Up</h1>
                     <div className="flex flex-row space-x-5">
@@ -191,6 +191,7 @@ export default function SignUp() {
                     </FormDescription>
                 </form>
             </Form>
+            <div className="mt-auto"></div>
             <div className="flex justify-center p-3 mt-auto">
                 <p className="text-sm text-neutral-700 dark:text-neutral-300">
                     Made By Shawn
