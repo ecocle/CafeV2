@@ -8,7 +8,6 @@ import {
     DropdownMenuItem,
     DropdownMenuLabel,
     DropdownMenuSeparator,
-    DropdownMenuShortcut,
     DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { Eye, LogOut, Moon, Settings, Sun, UserRound } from 'lucide-react';
@@ -89,18 +88,12 @@ const Home = () => {
                                 >
                                     <Eye className='mr-2 h-4 w-4' />
                                     <span>View Orders</span>
-                                    <DropdownMenuShortcut>
-                                        ⇧⌘P
-                                    </DropdownMenuShortcut>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
                                     onClick={() => navigation('/settings')}
                                 >
                                     <Settings className='mr-2 h-4 w-4' />
                                     <span>Settings</span>
-                                    <DropdownMenuShortcut>
-                                        ⌘S
-                                    </DropdownMenuShortcut>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
                                     onClick={() => {
@@ -110,9 +103,6 @@ const Home = () => {
                                 >
                                     <LogOut className='mr-2 h-4 w-4' />
                                     <span>Sign Out</span>
-                                    <DropdownMenuShortcut>
-                                        ⇧⌘Q
-                                    </DropdownMenuShortcut>
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>

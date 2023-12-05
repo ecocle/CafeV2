@@ -214,7 +214,7 @@ export default function ViewOrders() {
                             </TableBody>
                             <TableFooter>
                                 <TableRow>
-                                    <TableCell colSpan={8}>
+                                    <TableCell colSpan={9}>
                                         Total:
                                     </TableCell>
                                     <TableCell className='text-right'>
