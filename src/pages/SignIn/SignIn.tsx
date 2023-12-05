@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
-import { jwtDecode } from 'jwt-decode';
 import Cookies from 'js-cookie';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -55,9 +54,6 @@ export default function SignIn() {
                 Cookies.set('token', token);
 
                 try {
-                    const decodedToken: { username: string } = jwtDecode(token);
-                    const { username } = decodedToken;
-
                     navigation('/');
                     setIsSubmitting(false);
                 } catch (error: any) {

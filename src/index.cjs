@@ -360,7 +360,6 @@ app.put("/api/update_profile", async (req, res) => {
             "UPDATE Accounts SET First_name = ?, Last_name = ?, User_name = ? WHERE ID = ?",
             [firstName, lastName, newUsername, id],
         );
-        username = newUsername;
 
         res.json({ message: "Profile updated successfully" });
     } catch (error) {
@@ -399,7 +398,7 @@ app.put("/api/update_password", async (req, res) => {
         bcrypt.compare(
             enteredCurrentPassword,
             currentPassword,
-            function (err, result) {
+            function () {
                 isPasswordValid = true;
             },
         );

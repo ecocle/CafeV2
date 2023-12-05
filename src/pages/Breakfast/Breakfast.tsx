@@ -1,12 +1,12 @@
-import { OutlineButton } from '../../components/OutlineButton';
-import MenuCard from '@/components/MenuCard';
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Cookies from 'js-cookie';
-import { MenuSkeleton } from '@/components/MenuSkeleton';
+import { OutlineButton } from "@/components/OutlineButton";
+import MenuCard from "@/components/MenuCard";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
+import { MenuSkeleton } from "@/components/MenuSkeleton";
 
 const baseUrl =
-    process.env.NODE_ENV === 'production' ? '' : 'http://localhost:5000';
+    process.env.NODE_ENV === "production" ? "" : "http://localhost:5000";
 
 interface BreakfastItem {
     Name: string;
@@ -17,18 +17,18 @@ export default function Coffee() {
     const [breakfastList, setBreakfastList] = useState<BreakfastItem[]>([]);
     const [shouldNavigate, setShouldNavigate] = useState(false);
     const navigate = useNavigate();
-    const token = Cookies.get('token');
+    const token = Cookies.get("token");
     const [openSkeleton, setOpenSkeleton] = useState(false);
 
     useEffect(() => {
         if (!token) {
-            navigate('/not-authorized');
+            navigate("/not-authorized");
         }
     }, []);
 
     useEffect(() => {
         if (shouldNavigate) {
-            navigate('/order');
+            navigate("/order");
             setShouldNavigate(false);
         }
     }, [shouldNavigate, navigate]);
@@ -46,14 +46,14 @@ export default function Coffee() {
                 setOpenSkeleton(false);
             })
             .catch((error) => {
-                throw new Error('Error:', error);
+                throw new Error("Error:", error);
             });
     }, []);
 
     return (
         <div className='flex flex-col h-screen justify-between bg-neutral-50 dark:bg-gray-800 mt-1'>
             <div className='flex justify-center space-x-4 p-4'>
-                <OutlineButton text={'Return Home'} redirectTo='/' />
+                <OutlineButton text={"Return Home"} redirectTo='/' />
             </div>
             <div className='flex flex-wrap justify-center items-start overflow-auto mt-1 flex-grow'>
                 <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4'>

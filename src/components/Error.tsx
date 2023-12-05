@@ -9,16 +9,11 @@ interface ErrorProps {
 
 export function Error({ message, className }: ErrorProps) {
     const [isLoadingRetry, setIsLoadingRetry] = useState(false);
-    const [isLoadingHome, setIsLoadingHome] = useState(false);
+
 
     const onRetry = () => {
         setIsLoadingRetry(true);
         window.location.reload();
-    };
-
-    const goHome = () => {
-        setIsLoadingHome(true);
-        window.location.href = "/";
     };
 
     return (

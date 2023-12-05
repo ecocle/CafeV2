@@ -121,20 +121,17 @@ const Order = ({ itemType }: { itemType: string }) => {
 
                 if (response.ok) {
                     setItemPrice(parseFloat(data[0].Price));
-                    setIsLoadingBack(false);
                 } else {
                     console.error('Error fetching drink details:', data.error);
-                    setIsLoadingBack(false);
                     setIsInvalidDrink(true);
                 }
             } catch (error) {
                 console.error('Error fetching drink details:', error);
-                setIsLoadingBack(false);
                 setIsInvalidDrink(true);
             }
         };
 
-        fetchDrinkDetails();
+        fetchDrinkDetails().then(() => setIsLoadingBack(false));
     }, [itemName, itemType, setItemPrice]);
 
     useEffect(() => {
