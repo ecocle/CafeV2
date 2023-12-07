@@ -37,6 +37,10 @@ export default function ViewOrders() {
     const [id, setId] = useState('');
     const totalPrice = orders.reduce((total, order) => total + order.price, 0);
 
+    useEffect(() => {
+        document.title = "MY Cafe | View Orders";
+    }, []);
+
     const handleDateChange = (selectedDate: Date | undefined) => {
         setSelectedDate(selectedDate);
         if (selectedDate) {

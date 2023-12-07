@@ -21,6 +21,10 @@ export default function Coffee() {
     const [openSkeleton, setOpenSkeleton] = useState(false);
 
     useEffect(() => {
+        document.title = "MY Cafe | Coffee";
+    }, []);
+
+    useEffect(() => {
         if (!token) {
             navigate('/not-authorized');
         }

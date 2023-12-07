@@ -112,6 +112,10 @@ const Order = ({ itemType }: { itemType: string }) => {
     }, []);
 
     useEffect(() => {
+        document.title = `MY Cafe | Order ${itemName}`;
+    }, []);
+
+    useEffect(() => {
         const fetchDrinkDetails = async () => {
             try {
                 const response = await fetch(

@@ -23,6 +23,10 @@ export default function CaffeineFree() {
     const [openSkeleton, setOpenSkeleton] = useState(false);
 
     useEffect(() => {
+        document.title = "MY Cafe | Non Caffeinated";
+    }, []);
+
+    useEffect(() => {
         if (!token) {
             navigate('/not-authorized');
         }

@@ -1,8 +1,13 @@
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
+import { useEffect } from "react";
 
 export function NotAuthorized() {
     const navigation = useNavigate();
+
+    useEffect(() => {
+        document.title = "MY Cafe | Not Authorized";
+    }, []);
 
     return (
         <div className='flex flex-col items-center justify-center h-96'>

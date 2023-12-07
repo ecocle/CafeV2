@@ -47,6 +47,10 @@ export default function Settings() {
     const [passwordError, setPasswordError] = useState('');
 
     useEffect(() => {
+        document.title = "MY Cafe | Settings";
+    }, []);
+
+    useEffect(() => {
         const fetchUserData = async () => {
             try {
                 const response = await fetch(`${baseUrl}/api/user_data`, {

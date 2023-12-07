@@ -27,6 +27,10 @@ const Home = () => {
     const navigation = useNavigate();
 
     useEffect(() => {
+        document.title = "MY Cafe | Home";
+    }, []);
+
+    useEffect(() => {
         fetch(`${baseUrl}/api/user_data`, {
             headers: {
                 Authorization: `Bearer ${token}`

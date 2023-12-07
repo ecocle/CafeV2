@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import Cookies from 'js-cookie';
@@ -32,6 +32,10 @@ export default function SignIn() {
             password: ''
         }
     });
+
+    useEffect(() => {
+        document.title = "MY Cafe | Sign In";
+    }, []);
 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
         setIsSubmitting(true);
