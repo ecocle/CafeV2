@@ -23,7 +23,7 @@ export function MainButton({
     return (
         <Button
             onClick={handleClick}
-            className={` bg-sky-500 transition-all duration-300 hover:bg-sky-600 text-2xl mt-12 p-10 lg:text-4xl md:text-3xl ${className}`}
+            className={`bg-sky-500 transition-all duration-300 hover:bg-sky-600 text-2xl mt-12 p-10 lg:text-4xl md:text-3xl ${className}`}
             disabled={disabled}
             {...props}
         >

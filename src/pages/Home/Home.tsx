@@ -10,19 +10,19 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { Eye, LogOut, Moon, Settings, Sun, UserRound } from 'lucide-react';
+import { Eye, LogOut, Settings, UserRound } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Cookies from 'js-cookie';
 import { useEffect, useState } from 'react';
 import { AddFunds } from '@/components/AddFunds';
-import { useDarkMode } from '@/context/DarkModeContext';
+
+import { ChangeTheme } from "@/components/ChangeTheme";
 
 const baseUrl =
     process.env.NODE_ENV === 'production' ? '' : 'http://localhost:5000';
 
 const Home = () => {
     const token = Cookies.get('token');
-    const { darkMode, setDarkMode } = useDarkMode();
     const [userBalance, setUserBalance] = useState(0);
     const navigation = useNavigate();
 
@@ -45,27 +45,7 @@ const Home = () => {
     return (
         <div className='flex flex-col min-h-screen bg-neutral-50 dark:bg-gray-800'>
             <div className='flex justify-end space-x-4 p-4'>
-                <Button
-                    className='mb-4 bg-transparent hover:bg-transparent active:bg-transparent h-10 mr-2'
-                    onClick={() => setDarkMode(!darkMode)}
-                >
-                    <div className='relative mb-6'>
-                        <Moon
-                            className={`absolute transition-all duration-300 ease-in-out transform ${
-                                darkMode
-                                    ? '-translate-y-10 opacity-0 text-violet-500'
-                                    : 'translate-y-0 opacity-100 text-violet-400'
-                            }`}
-                        />
-                        <Sun
-                            className={`absolute transition-all duration-300 ease-in-out transform ${
-                                darkMode
-                                    ? 'translate-y-0 opacity-100 text-violet-400'
-                                    : 'translate-y-10 opacity-0 text-violet-500'
-                            }`}
-                        />
-                    </div>
-                </Button>
+                <ChangeTheme />
                 {token ? (
                     <div className='space-x-2 flex flex-row'>
                         <DropdownMenu>
