@@ -36,7 +36,7 @@ const App = () => {
                                     <Breadcrumb
                                         paths={[
                                             { name: "Home", path: "/" },
-                                            { name: "Coffee", path: "/coffee" },
+                                            { name: "Coffee", path: "/coffee" }
                                         ]}
                                     />
                                     <NotFound />
@@ -53,8 +53,8 @@ const App = () => {
                                             { name: "Coffee", path: "/coffee" },
                                             {
                                                 name: "Order",
-                                                path: "/coffee/order",
-                                            },
+                                                path: "/coffee/order"
+                                            }
                                         ]}
                                     />
                                     <NotFound />
@@ -71,8 +71,8 @@ const App = () => {
                                             { name: "Coffee", path: "/coffee" },
                                             {
                                                 name: "Not Found",
-                                                path: "/coffee/*",
-                                            },
+                                                path: "/coffee/*"
+                                            }
                                         ]}
                                     />
                                     <NotFound />
@@ -90,8 +90,8 @@ const App = () => {
                                             { name: "Home", path: "/" },
                                             {
                                                 name: "Caffeine Free",
-                                                path: "/caffeine-free",
-                                            },
+                                                path: "/caffeine-free"
+                                            }
                                         ]}
                                     />
                                     <CaffeineFree />
@@ -107,12 +107,12 @@ const App = () => {
                                             { name: "Home", path: "/" },
                                             {
                                                 name: "Caffeine Free",
-                                                path: "/caffeine-free",
+                                                path: "/caffeine-free"
                                             },
                                             {
                                                 name: "Order",
-                                                path: "/caffeine-free/order",
-                                            },
+                                                path: "/caffeine-free/order"
+                                            }
                                         ]}
                                     />
                                     <Order itemType="Caffeine_free" />
@@ -128,12 +128,12 @@ const App = () => {
                                             { name: "Home", path: "/" },
                                             {
                                                 name: "Caffeine Free",
-                                                path: "/caffeine-free",
+                                                path: "/caffeine-free"
                                             },
                                             {
                                                 name: "Not Found",
-                                                path: "/caffeine-free/*",
-                                            },
+                                                path: "/caffeine-free/*"
+                                            }
                                         ]}
                                     />
                                     <NotFound />
@@ -151,8 +151,8 @@ const App = () => {
                                             { name: "Home", path: "/" },
                                             {
                                                 name: "Breakfast",
-                                                path: "/breakfast",
-                                            },
+                                                path: "/breakfast"
+                                            }
                                         ]}
                                     />
                                     <Breakfast />
@@ -168,12 +168,12 @@ const App = () => {
                                             { name: "Home", path: "/" },
                                             {
                                                 name: "Breakfast",
-                                                path: "/breakfast",
+                                                path: "/breakfast"
                                             },
                                             {
                                                 name: "Order",
-                                                path: "/breakfast/order",
-                                            },
+                                                path: "/breakfast/order"
+                                            }
                                         ]}
                                     />
                                     <Order itemType="Breakfast" />
@@ -189,12 +189,12 @@ const App = () => {
                                             { name: "Home", path: "/" },
                                             {
                                                 name: "Breakfast",
-                                                path: "/breakfast",
+                                                path: "/breakfast"
                                             },
                                             {
                                                 name: "Not Found",
-                                                path: "/breakfast/*",
-                                            },
+                                                path: "/breakfast/*"
+                                            }
                                         ]}
                                     />
                                     <NotFound />
@@ -209,7 +209,7 @@ const App = () => {
                                 <Breadcrumb
                                     paths={[
                                         { name: "Home", path: "/" },
-                                        { name: "Sign Up", path: "/signup" },
+                                        { name: "Sign Up", path: "/signup" }
                                     ]}
                                 />
                                 <SignUp />
@@ -223,7 +223,7 @@ const App = () => {
                                 <Breadcrumb
                                     paths={[
                                         { name: "Home", path: "/" },
-                                        { name: "Sign In", path: "/signin" },
+                                        { name: "Sign In", path: "/signin" }
                                     ]}
                                 />
                                 <SignIn />
@@ -239,8 +239,8 @@ const App = () => {
                                         { name: "Home", path: "/" },
                                         {
                                             name: "View Orders",
-                                            path: "/view-orders",
-                                        },
+                                            path: "/view-orders"
+                                        }
                                     ]}
                                 />
                                 <ViewOrders />
@@ -254,7 +254,7 @@ const App = () => {
                                 <Breadcrumb
                                     paths={[
                                         { name: "Home", path: "/" },
-                                        { name: "Settings", path: "/settings" },
+                                        { name: "Settings", path: "/settings" }
                                     ]}
                                 />
                                 <Settings />
@@ -270,8 +270,8 @@ const App = () => {
                                         { name: "Home", path: "/" },
                                         {
                                             name: "Not Authorized",
-                                            path: "/not-authorized",
-                                        },
+                                            path: "/not-authorized"
+                                        }
                                     ]}
                                 />
                                 <NotAuthorized />
@@ -285,7 +285,7 @@ const App = () => {
                                 <Breadcrumb
                                     paths={[
                                         { name: "Home", path: "/" },
-                                        { name: "Not Found", path: "*" },
+                                        { name: "Not Found", path: "*" }
                                     ]}
                                 />
                                 <NotFound />

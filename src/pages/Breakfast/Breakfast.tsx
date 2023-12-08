@@ -55,15 +55,15 @@ export default function Coffee() {
     }, []);
 
     return (
-        <div className="flex flex-col h-screen justify-between bg-neutral-50 dark:bg-gray-800 mt-1">
-            <div className="flex justify-center space-x-4 p-4">
+        <div className="flex flex-col h-screen justify-center items-center bg-neutral-50 dark:bg-gray-800">
+            <div className="flex justify-center space-x-4 m-4">
                 <OutlineButton text={"Return Home"} redirectTo="/" />
             </div>
-            <div className="flex flex-wrap justify-center items-start overflow-auto mt-1 flex-grow">
+            <div className="flex flex-wrap justify-center items-start overflow-auto mt-1 flex-grow w-11/12">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     {openSkeleton
                         ? Array.from({ length: 5 }).map((_, index) => (
-                            <MenuSkeleton key={index} className="w-96" />
+                            <MenuSkeleton key={index} className="w-[22rem]" />
                         ))
                         : breakfastList.map((breakfastItem, index) => (
                             <MenuCard

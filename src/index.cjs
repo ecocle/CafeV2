@@ -1,5 +1,4 @@
 const express = require("express");
-const history = require("connect-history-api-fallback");
 const session = require("express-session");
 const os = require("os");
 const jwt = require("jsonwebtoken");
@@ -8,19 +7,25 @@ const bcrypt = require("bcrypt");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
+const compression = require("compression");
+const helmet = require("helmet");
+const cluster = require("cluster");
 
 const app = express();
 const port = 5000;
 const host = "0.0.0.0";
+
 app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(express.json());
+app.use(compression());
+app.use(helmet());
 
 app.use(
     cors({
         origin: "http://localhost:5173",
-        credentials: true,
-    }),
+        credentials: true
+    })
 );
 
 require("dotenv").config({ path: "./env.env" });
@@ -30,8 +35,8 @@ app.use(
     session({
         secret: secretKey,
         resave: false,
-        saveUninitialized: true,
-    }),
+        saveUninitialized: true
+    })
 );
 
 const conn = mysql.createPool({
@@ -41,7 +46,7 @@ const conn = mysql.createPool({
     database: process.env.DB_NAME,
     waitForConnections: true,
     connectionLimit: 10,
-    queueLimit: 0,
+    queueLimit: 0
 });
 
 const cache = {};
@@ -61,9 +66,24 @@ const setInCache = (key, value, duration) => {
 
 app.use(express.json());
 
-app.get("/", (req, res) => {
-    res.sendFile("index.html", { root: "../dist" });
-});
+const isAuthenticated = (req, res, next) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+        return res.status(401).json({ error: "Authorization header not found" });
+    }
+
+    const token = authHeader.split("Bearer ")[1];
+    if (!token) {
+        return res.status(401).json({ error: "Invalid token" });
+    }
+
+    try {
+        jwt.verify(token, secretKey);
+        next();
+    } catch (error) {
+        return res.status(401).json({ error: "Invalid token" });
+    }
+};
 
 app.get("/api/dataCoffee", async (req, res) => {
     try {
@@ -164,7 +184,7 @@ const orderResult = async (data) => {
             data.price,
             data.comments,
             data.useCup,
-            data.id,
+            data.id
         ];
 
         const sql = `
@@ -241,7 +261,7 @@ app.post("/api/signin", async (req, res) => {
     try {
         const rawCurrentPassword = await conn.execute(
             "SELECT Password FROM Accounts WHERE User_name = ?",
-            [username],
+            [username]
         );
 
         if (!rawCurrentPassword) {
@@ -284,7 +304,7 @@ app.post("/api/signUp", async (req, res) => {
             username,
             encryptedPassword,
             firstName,
-            lastName,
+            lastName
         ]);
 
         res.json({ message: "Account created successfully" });
@@ -314,7 +334,7 @@ app.get("/api/user_data", async (req, res) => {
     try {
         const [rows] = await conn.query(
             "SELECT User_name, Balance, First_name, Last_name, Password, ID FROM Accounts WHERE User_name = ?",
-            [username],
+            [username]
         );
         if (rows.length > 0) {
             const userData = rows[0];
@@ -324,7 +344,7 @@ app.get("/api/user_data", async (req, res) => {
                 firstName: userData.First_name,
                 lastName: userData.Last_name,
                 password: userData.Password,
-                id: userData.ID,
+                id: userData.ID
             });
         } else {
             res.status(404).json({ error: "User data not found" });
@@ -335,40 +355,25 @@ app.get("/api/user_data", async (req, res) => {
     }
 });
 
-app.put("/api/update_profile", async (req, res) => {
-    const authHeader = req.headers.authorization;
-    let username = req.session.username;
-
-    if (!username && authHeader && authHeader.startsWith("Bearer ")) {
-        const token = authHeader.split("Bearer ")[1];
-        try {
-            const decodedToken = jwt.verify(token, secretKey);
-            username = decodedToken.username;
-        } catch (error) {
-            return res.status(401).json({ error: "Invalid token" });
-        }
-    }
-
-    if (!username) {
-        return res.status(401).json({ error: "Authentication required" });
-    }
-
-    const { firstName, lastName, newUsername, id } = req.body;
+app.put("/api/update_profile", isAuthenticated, async (req, res) => {
+    const {firstName, lastName, newUsername, id} = req.body;
 
     try {
-        await conn.query(
-            "UPDATE Accounts SET First_name = ?, Last_name = ?, User_name = ? WHERE ID = ?",
-            [firstName, lastName, newUsername, id],
-        );
+        const query = "UPDATE Accounts SET First_name=?, Last_name=?, User_name=? WHERE id=?";
+        await conn.query(query, [firstName, lastName, newUsername, id]);
 
-        res.json({ message: "Profile updated successfully" });
+        const user = {id, firstName, lastName, username: newUsername};
+
+        const newToken = jwt.sign(user.username, secretKey);
+
+        res.status(200).json({ newToken });
     } catch (error) {
-        console.error("Error updating user profile:", error);
-        res.status(500).json({ error: "Internal server error" });
+        console.error("Error updating user:", error);
+        res.status(500).send("Unable to update the user.");
     }
 });
 
-app.put("/api/update_password", async (req, res) => {
+app.put("/api/update_password", isAuthenticated, async (req, res) => {
     const authHeader = req.headers.authorization;
     let username = req.session.username;
     let isPasswordValid = false;
@@ -391,16 +396,16 @@ app.put("/api/update_password", async (req, res) => {
 
     const rawCurrentPassword = await conn.query(
         "SELECT Password FROM Accounts WHERE ID = ?",
-        [id],
+        [id]
     );
     const currentPassword = rawCurrentPassword[0][0].Password;
     if (currentPassword && enteredCurrentPassword) {
         bcrypt.compare(
             enteredCurrentPassword,
             currentPassword,
-            function () {
+            function() {
                 isPasswordValid = true;
-            },
+            }
         );
     } else {
         console.error("Error updating password");
@@ -413,12 +418,12 @@ app.put("/api/update_password", async (req, res) => {
             const saltRounds = 10;
             const encryptedNewPassword = await bcrypt.hash(
                 newPassword,
-                saltRounds,
+                saltRounds
             );
 
             await conn.query("UPDATE Accounts SET Password = ? WHERE ID = ?", [
                 encryptedNewPassword,
-                id,
+                id
             ]);
 
             res.json({ message: "Password updated successfully" });
@@ -433,10 +438,15 @@ app.get("/api/drinkData/:itemType/:itemName", async (req, res) => {
     const { itemType, itemName } = req.params;
 
     try {
-        const query = `SELECT * FROM ?? WHERE Name = ?`;
-        const [rows] = await conn.query(
-            mysql.format(query, [itemType, itemName]),
-        );
+        const allowedTables = ["Coffee", "Caffeine_free", "Breakfast"];
+        if (!allowedTables.includes(itemType)) {
+            return res.status(400).json({ error: "Invalid item type" });
+        }
+
+        const query = `SELECT *
+                       FROM ${itemType}
+                       WHERE Name = ?`;
+        const [rows] = await conn.query(mysql.format(query, [itemName]));
 
         if (rows.length > 0) {
             res.json(rows);
@@ -507,41 +517,36 @@ app.get("/api/orders", async (req, res) => {
     }
 });
 
-app.post("/api/submit-form", async (req, res) => {
-    try {
-        const formData = req.body;
-        const [results] = await conn.query(
-            "INSERT INTO submissions SET ?",
-            formData,
-        );
-        res.status(200).json({
-            message: "Form data submitted successfully",
-            data: results,
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: error.message });
-    }
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).send("Something broke!");
 });
 
-app.use(history());
+if (cluster.isMaster) {
+    const numCPUs = os.cpus().length;
+    for (let i = 0; i < numCPUs; i++) {
+        cluster.fork();
+    }
+    cluster.on("exit", (worker) => {
+        console.log(`Worker ${worker.process.pid} died`);
+        cluster.fork();
+    });
+} else {
+    app.listen(port, host, () => {
+        if (host === "0.0.0.0") {
+            console.log(`Server is accessible from any network interface`);
+            console.log(`- Local: http://localhost:${port}`);
 
-app.use(express.static("../dist"));
-
-app.listen(port, host, () => {
-    if (host === "0.0.0.0") {
-        console.log(`Server is accessible from any network interface`);
-        console.log(`- Local: http://localhost:${port}`);
-
-        const interfaces = os.networkInterfaces();
-        for (const iface of Object.values(interfaces)) {
-            for (const alias of iface) {
-                if ("IPv4" !== alias.family || alias.internal !== false)
-                    continue;
-                console.log(`- Network: http://${alias.address}:${port}`);
+            const interfaces = os.networkInterfaces();
+            for (const iface of Object.values(interfaces)) {
+                for (const alias of iface) {
+                    if ("IPv4" !== alias.family || alias.internal !== false)
+                        continue;
+                    console.log(`- Network: http://${alias.address}:${port}`);
+                }
             }
+        } else {
+            console.log(`Server running at http://${host}:${port}/`);
         }
-    } else {
-        console.log(`Server running at http://${host}:${port}/`);
-    }
-});
+    });
+}

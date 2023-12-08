@@ -1,19 +1,20 @@
-import React, { useEffect, useState } from 'react';
-import { OutlineButton } from '@/components/OutlineButton';
+import React, { useEffect, useState } from "react";
+import { OutlineButton } from "@/components/OutlineButton";
 
-import Cookies from 'js-cookie';
+import Cookies from "js-cookie";
 
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Loading } from '@/components/Loading';
-import { Error } from '@/components/Error';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2 } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Loading } from "@/components/Loading";
+import { Error } from "@/components/Error";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Loader2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const baseUrl =
-    process.env.NODE_ENV === 'production' ? '' : 'http://localhost:5000';
+    process.env.NODE_ENV === "production" ? "" : "http://localhost:5000";
 
 type user = {
     id: number;
@@ -28,23 +29,23 @@ type user = {
 export default function Settings() {
     const initialUser: user = {
         id: 0,
-        firstName: '',
-        lastName: '',
-        username: '',
-        currentPassword: '',
-        newPassword: '',
-        confirmNewPassword: ''
+        firstName: "",
+        lastName: "",
+        username: "",
+        currentPassword: "",
+        newPassword: "",
+        confirmNewPassword: ""
     };
-    const token = Cookies.get('token');
+    const token = Cookies.get("token");
     const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState('');
+    const [error, setError] = useState("");
     const [user, setUser] = useState<user>(initialUser);
     const [loadingProfile, setLoadingProfile] = useState(false);
     const [loadingPassword, setLoadingPassword] = useState(false);
-    const [profileSuccess, setProfileSuccess] = useState('');
-    const [profileError, setProfileError] = useState('');
-    const [passwordSuccess, setPasswordSuccess] = useState('');
-    const [passwordError, setPasswordError] = useState('');
+    const [profileError, setProfileError] = useState("");
+    const [isLoggedOut, setIsLoggedOut] = useState(false);
+    const navigate = useNavigate();
+    const [passwordError, setPasswordError] = useState("");
 
     useEffect(() => {
         document.title = "MY Cafe | Settings";
@@ -59,7 +60,7 @@ export default function Settings() {
                     }
                 });
                 if (!response.ok) {
-                    setError('Failed to fetch user data');
+                    setError("Failed to fetch user data");
                 }
                 const data = await response.json();
                 setUser(data);
@@ -78,9 +79,9 @@ export default function Settings() {
             setLoadingProfile(true);
 
             const response = await fetch(`${baseUrl}/api/update_profile`, {
-                method: 'PUT',
+                method: "PUT",
                 headers: {
-                    'Content-Type': 'application/json',
+                    "Content-Type": "application/json",
                     authorization: `Bearer ${token}`
                 },
                 body: JSON.stringify({
@@ -91,14 +92,16 @@ export default function Settings() {
                 })
             });
 
+            const data = await response.json();
+
             if (response.ok) {
-                Cookies.remove('token');
-                window.location.href = '/';
+                Cookies.set("token", data.newToken);
             } else {
-                setProfileError('Profile update failed');
+                setProfileError("Profile update failed");
             }
+
         } catch (error) {
-            setProfileError('Profile update failed');
+            setProfileError("Profile update failed");
         } finally {
             setLoadingProfile(false);
         }
@@ -108,73 +111,60 @@ export default function Settings() {
         try {
             setLoadingPassword(true);
 
-            if (user.newPassword != user.confirmNewPassword) {
-                setPasswordError('New Password Doesn\'t match');
-                setLoadingPassword(false);
-                return;
-            }
-
-            console.log(user);
-
             await fetch(`${baseUrl}/api/update_password`, {
-                method: 'PUT',
+                method: "PUT",
                 headers: {
-                    'Content-Type': 'application/json',
+                    "Content-Type": "application/json",
                     authorization: `Bearer ${token}`
                 },
                 body: JSON.stringify({
-                    enteredCurrentPassword: user.currentPassword,
                     newPassword: user.newPassword,
                     id: user.id
                 })
             })
                 .then((response) => {
                     if (response.status === 200) {
-                        setPasswordSuccess('Password updated successfully');
-                    } else if (response.status === 401) {
-                        response.json().then((data) => {
-                            if (data.error === 'Password doesn\'t match') {
-                                setPasswordError('Current password is wrong');
-                            } else {
-                                setPasswordError('Password update failed');
-                            }
-                        });
                     } else {
-                        setPasswordError('Password update failed');
+                        setPasswordError("Password update failed");
                     }
                 })
                 .catch((error) => {
-                    setPasswordError('Password update failed');
-                    console.error('Error updating password:', error);
+                    setPasswordError("Password update failed");
+                    console.error("Error updating password:", error);
                 });
         } catch (error) {
-            console.error('Error updating password:', error);
-            setPasswordError('Password update failed');
+            console.error("Error updating password:", error);
+            setPasswordError("Password update failed");
         } finally {
             setLoadingPassword(false);
         }
     };
 
+    if (isLoggedOut) {
+        navigate("/login");
+        return null;
+    }
+
     return (
-        <div className='flex flex-col items-center justify-center h-screen'>
+        <div className="flex flex-col items-center justify-center h-screen">
             {isLoading ? (
-                <Loading message='Fetching user data...' />
+                <Loading message="Fetching user data..." />
             ) : error ? (
                 <Error message={error} />
             ) : (
                 <div>
-                    <div className='flex justify-center space-x-4 p-4 mt-16'>
-                        <OutlineButton text={'Return Home'} redirectTo='/' />
+                    <div className="flex justify-center space-x-4 m-4">
+                        <OutlineButton text={"Return Home"} redirectTo="/" />
                     </div>
-                    <div className='h-16'></div>
-                    <Tabs defaultValue='account' className='w-96'>
-                        <TabsList className='grid w-full grid-cols-2'>
-                            <TabsTrigger value='account'>Account</TabsTrigger>
-                            <TabsTrigger value='password'>Password</TabsTrigger>
+                    <div className="h-16"></div>
+                    <Tabs defaultValue="account" className="w-96">
+                        <TabsList className="grid w-full grid-cols-2">
+                            <TabsTrigger value="account">Account</TabsTrigger>
+                            <TabsTrigger value="password">Password</TabsTrigger>
                         </TabsList>
-                        <TabsContent value='account'>
+                        <TabsContent value="account">
                             <form onSubmit={handleSaveProfile}>
-                                <Card>
+                                <Card className="bg-gray-50 dark:bg-gray-800">
                                     <CardHeader>
                                         <CardTitle>Account</CardTitle>
                                         <CardDescription>
@@ -183,13 +173,13 @@ export default function Settings() {
                                             so will log you out.
                                         </CardDescription>
                                     </CardHeader>
-                                    <CardContent className='space-y-2'>
-                                        <div className='space-y-1'>
-                                            <Label htmlFor='firstName'>
+                                    <CardContent className="space-y-2">
+                                        <div className="space-y-1">
+                                            <Label htmlFor="firstName">
                                                 First Name
                                             </Label>
                                             <Input
-                                                id='firstName'
+                                                id="firstName"
                                                 defaultValue={user.firstName}
                                                 onChange={(e) =>
                                                     setUser({
@@ -200,12 +190,12 @@ export default function Settings() {
                                                 }
                                             />
                                         </div>
-                                        <div className='space-y-1'>
-                                            <Label htmlFor='lastName'>
+                                        <div className="space-y-1">
+                                            <Label htmlFor="lastName">
                                                 Last Name
                                             </Label>
                                             <Input
-                                                id='lastName'
+                                                id="lastName"
                                                 defaultValue={user.lastName}
                                                 onChange={(e) =>
                                                     setUser({
@@ -216,12 +206,12 @@ export default function Settings() {
                                                 }
                                             />
                                         </div>
-                                        <div className='space-y-1'>
-                                            <Label htmlFor='username'>
+                                        <div className="space-y-1">
+                                            <Label htmlFor="username">
                                                 Username
                                             </Label>
                                             <Input
-                                                id='username'
+                                                id="username"
                                                 defaultValue={user.username}
                                                 onChange={(e) =>
                                                     setUser({
@@ -234,9 +224,9 @@ export default function Settings() {
                                         </div>
                                     </CardContent>
                                     <CardFooter>
-                                        <Button type='submit'>
+                                        <Button type="submit">
                                             {loadingProfile ? (
-                                                <div className='animate-spin'>
+                                                <div className="animate-spin">
                                                     <Loader2 />
                                                 </div>
                                             ) : (
@@ -244,7 +234,7 @@ export default function Settings() {
                                             )}
                                         </Button>
                                         {profileError && (
-                                            <p className='text-destructive'>
+                                            <p className="text-destructive">
                                                 {profileError}
                                             </p>
                                         )}
@@ -252,9 +242,9 @@ export default function Settings() {
                                 </Card>
                             </form>
                         </TabsContent>
-                        <TabsContent value='password'>
+                        <TabsContent value="password">
                             <form onSubmit={handleChangePassword}>
-                                <Card>
+                                <Card className="bg-gray-50 dark:bg-gray-800">
                                     <CardHeader>
                                         <CardTitle>Password</CardTitle>
                                         <CardDescription>
@@ -262,14 +252,14 @@ export default function Settings() {
                                             saving, you'll be logged out.
                                         </CardDescription>
                                     </CardHeader>
-                                    <CardContent className='space-y-2'>
-                                        <div className='space-y-1'>
-                                            <Label htmlFor='current'>
+                                    <CardContent className="space-y-2">
+                                        <div className="space-y-1">
+                                            <Label htmlFor="current">
                                                 Current password
                                             </Label>
                                             <Input
-                                                id='current'
-                                                type='password'
+                                                id="current"
+                                                type="password"
                                                 onChange={(e) =>
                                                     setUser({
                                                         ...user,
@@ -279,13 +269,13 @@ export default function Settings() {
                                                 }
                                             />
                                         </div>
-                                        <div className='space-y-1'>
-                                            <Label htmlFor='new'>
+                                        <div className="space-y-1">
+                                            <Label htmlFor="new">
                                                 New password
                                             </Label>
                                             <Input
-                                                id='new'
-                                                type='password'
+                                                id="new"
+                                                type="password"
                                                 onChange={(e) =>
                                                     setUser({
                                                         ...user,
@@ -295,13 +285,13 @@ export default function Settings() {
                                                 }
                                             />
                                         </div>
-                                        <div className='space-y-1'>
-                                            <Label htmlFor='newConfirm'>
+                                        <div className="space-y-1">
+                                            <Label htmlFor="newConfirm">
                                                 Confirm new password
                                             </Label>
                                             <Input
-                                                id='newConfirm'
-                                                type='password'
+                                                id="newConfirm"
+                                                type="password"
                                                 onChange={(e) =>
                                                     setUser({
                                                         ...user,
@@ -314,9 +304,9 @@ export default function Settings() {
                                     </CardContent>
                                     <CardFooter>
                                         <div>
-                                            <Button type='submit'>
+                                            <Button type="submit">
                                                 {loadingPassword ? (
-                                                    <div className='animate-spin'>
+                                                    <div className="animate-spin">
                                                         <Loader2 />
                                                     </div>
                                                 ) : (
@@ -324,7 +314,7 @@ export default function Settings() {
                                                 )}
                                             </Button>
                                             {passwordError && (
-                                                <p className='text-destructive'>
+                                                <p className="text-destructive">
                                                     {passwordError}
                                                 </p>
                                             )}
@@ -336,8 +326,8 @@ export default function Settings() {
                     </Tabs>
                 </div>
             )}
-            <div className='flex justify-center mt-auto'>
-                <p className='text-sm text-neutral-700 dark:text-neutral-300'>
+            <div className="flex justify-center mb-4 mt-auto">
+                <p className="text-sm text-neutral-700 dark:text-neutral-300">
                     Made By Shawn
                 </p>
             </div>
