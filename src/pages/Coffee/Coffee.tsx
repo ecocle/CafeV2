@@ -19,6 +19,7 @@ export default function Coffee() {
     const navigate = useNavigate();
     const token = Cookies.get("token");
     const [openSkeleton, setOpenSkeleton] = useState(false);
+    const MENU_SKELETON_COUNT = 12;
 
     useEffect(() => {
         document.title = "MY Cafe | Coffee";
@@ -54,6 +55,27 @@ export default function Coffee() {
             });
     }, []);
 
+    function renderMenuSkeletons() {
+        return Array.from({ length: MENU_SKELETON_COUNT }).map((_, index) =>
+            <MenuSkeleton key={`skeleton-${index}`} className="w-64" large />
+        );
+    }
+
+    function renderMenuCard() {
+        return coffeeList.map((coffeeItem, index) => {
+            const price = parseFloat(coffeeItem.Price);
+            const largePrice = price + 3;
+            return (
+                <MenuCard
+                    key={`menucard-${index}`}
+                    item={coffeeItem.Name}
+                    mediumPrice={price}
+                    largePrice={largePrice}
+                />
+            );
+        });
+    }
+
     return (
         <div className="flex flex-col min-h-screen justify-center items-center bg-neutral-50 dark:bg-gray-800">
             <div className="flex justify-center space-x-4 m-4">
@@ -61,18 +83,7 @@ export default function Coffee() {
             </div>
             <div className="flex flex-wrap justify-center items-start overflow-auto flex-grow w-11/12">
                 <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                    {openSkeleton
-                        ? Array.from({ length: 7 }).map((_, index) => (
-                            <MenuSkeleton key={index} className=" w-64" large />
-                        ))
-                        : coffeeList.map((coffeeItem, index) => (
-                            <MenuCard
-                                key={index}
-                                item={coffeeItem.Name}
-                                mediumPrice={parseFloat(coffeeItem.Price)}
-                                largePrice={parseFloat(coffeeItem.Price) + 3}
-                            />
-                        ))}
+                    {openSkeleton ? renderMenuSkeletons() : renderMenuCard()}
                 </div>
             </div>
             <div className="flex justify-center mb-4">

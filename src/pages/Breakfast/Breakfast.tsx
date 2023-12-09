@@ -19,6 +19,7 @@ export default function Coffee() {
     const navigate = useNavigate();
     const token = Cookies.get("token");
     const [openSkeleton, setOpenSkeleton] = useState(false);
+    const SKELETON_COUNT = 5;
 
     useEffect(() => {
         document.title = "MY Cafe | Breakfast";
@@ -54,6 +55,25 @@ export default function Coffee() {
             });
     }, []);
 
+    function renderMenuSkeletons() {
+        return Array.from({ length: SKELETON_COUNT }).map((_, index) =>
+            <MenuSkeleton key={`skeleton-${index}`} className="menu-skeleton" />
+        );
+    }
+
+    function renderMenuCard() {
+        return breakfastList.map((breakfastItem, index) => {
+            const price = parseFloat(breakfastItem.Price);
+            return (
+                <MenuCard
+                    key={`menucard-${index}`}
+                    item={breakfastItem.Name}
+                    mediumPrice={price}
+                />
+            );
+        });
+    }
+
     return (
         <div className="flex flex-col h-screen justify-center items-center bg-neutral-50 dark:bg-gray-800">
             <div className="flex justify-center space-x-4 m-4">
@@ -61,17 +81,7 @@ export default function Coffee() {
             </div>
             <div className="flex flex-wrap justify-center items-start overflow-auto mt-1 flex-grow w-11/12">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {openSkeleton
-                        ? Array.from({ length: 5 }).map((_, index) => (
-                            <MenuSkeleton key={index} className="w-[22rem]" />
-                        ))
-                        : breakfastList.map((breakfastItem, index) => (
-                            <MenuCard
-                                key={index}
-                                item={breakfastItem.Name}
-                                mediumPrice={parseFloat(breakfastItem.Price)}
-                            />
-                        ))}
+                    {openSkeleton ? renderMenuSkeletons() : renderMenuCard()}
                 </div>
             </div>
             <div className="flex justify-center mb-4">

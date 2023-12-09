@@ -78,57 +78,62 @@ export default function ViewOrders() {
 
     const fetchOrderData = async (id: string, selectedDate = "") => {
         try {
-            const endpoint =
-                username === "Admin"
-                    ? `${baseUrl}/api/admin/orders`
-                    : `${baseUrl}/api/orders`;
-            const params = new URLSearchParams();
-
-            if (selectedDate) {
-                const formattedDate = dayjs(selectedDate).format("YYYY-MM-DD");
-                params.append("date", formattedDate);
-            }
-
-            const fullUrl = `${endpoint}?${params.toString()}`;
-
-            const response = await fetch(fullUrl, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    userInformation: id
-                },
-                credentials: "include"
-            });
-            if (!response.ok) {
-                setError(
-                    "Failed to fetch order data, network response was not ok"
-                );
-            }
-            const rawData = await response.json();
-            const transformedData = rawData.data.map((order: any) => ({
-                id: order.ID,
-                order_time: order.Order_time,
-                first_name: order.First_name,
-                last_name: order.Last_name,
-                coffee_type: order.Coffee_type,
-                temperature: order.Temperature,
-                toppings: order.Toppings,
-                size: order.Size,
-                price: parseFloat(order.Price),
-                comments: order.Comments,
-                cup: order.Cup
-            }));
-            if (transformedData.length === 0) {
-                setIsEmpty(true);
-            } else {
-                setIsEmpty(false);
-            }
-            setOrders(transformedData);
-            setLoading(false);
+            const endpoint = getEndpoint(username);
+            const fullUrl = createFullUrl(selectedDate, endpoint);
+            const rawData = await fetchData(id, fullUrl);
+            setOrderData(rawData);
         } catch (error: any) {
             setError(error.message);
             console.error("Error fetching order data:", error);
         }
     };
+
+    const getEndpoint = (username: string): string => (
+        username === "Admin"
+            ? `${baseUrl}/api/admin/orders`
+            : `${baseUrl}/api/orders`
+    );
+
+    const createFullUrl = (selectedDate: string, endpoint: string): string => {
+        const params = new URLSearchParams();
+        if (selectedDate) {
+            params.append("date", dayjs(selectedDate).format("YYYY-MM-DD"));
+        }
+        return `${endpoint}?${params.toString()}`;
+    };
+
+    const fetchData = async (id: string, fullUrl: string): Promise<any> => {
+        const response = await fetch(fullUrl, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                userInformation: id
+            },
+            credentials: "include"
+        });
+        if (!response.ok) {
+            console.error("Failed to fetch data")
+        }
+        return await response.json();
+    };
+
+     const setOrderData = (rawData: any) => {
+        const transformedData = rawData.data.map((order: any) => ({
+            id: order.ID,
+            order_time: order.Order_time,
+            first_name: order.First_name,
+            last_name: order.Last_name,
+            coffee_type: order.Coffee_type,
+            temperature: order.Temperature,
+            toppings: order.Toppings,
+            size: order.Size,
+            price: parseFloat(order.Price),
+            comments: order.Comments,
+            cup: order.Cup
+        }));
+        setIsEmpty(transformedData.length === 0);
+        setOrders(transformedData);
+        setLoading(false);
+    }
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen">
@@ -181,31 +186,31 @@ export default function ViewOrders() {
                             <TableBody>
                                 {orders.map((item) => (
                                     <TableRow key={item.id} className="hover:bg-gray-700">
-                                        <TableCell dataCell="Order Time" className="lg:table-cell md:table-cell lg:before:content-none md:before:content-none before:content-[attr(dataCell)_':_'] before:font-bold block ">
+                                        <TableCell data-cell="Order Time" className="lg:table-cell md:table-cell lg:before:content-none md:before:content-none before:content-[attr(data-cell)_':_'] before:font-bold block ">
                                             {item.order_time}
                                         </TableCell>
-                                        <TableCell dataCell="First Name" className="lg:table-cell md:table-cell lg:before:content-none md:before:content-none before:content-[attr(dataCell)_':_'] before:font-bold block">
+                                        <TableCell data-cell="First Name" className="lg:table-cell md:table-cell lg:before:content-none md:before:content-none before:content-[attr(data-cell)_':_'] before:font-bold block">
                                             {item.first_name}
                                         </TableCell>
-                                        <TableCell dataCell="Last Name" className="lg:table-cell md:table-cell lg:before:content-none md:before:content-none before:content-[attr(dataCell)_':_'] before:font-bold block">
+                                        <TableCell data-cell="Last Name" className="lg:table-cell md:table-cell lg:before:content-none md:before:content-none before:content-[attr(data-cell)_':_'] before:font-bold block">
                                             {item.last_name}
                                         </TableCell>
-                                        <TableCell dataCell="Type" className="lg:table-cell md:table-cell lg:before:content-none md:before:content-none before:content-[attr(dataCell)_':_'] before:font-bold block">
+                                        <TableCell data-cell="Type" className="lg:table-cell md:table-cell lg:before:content-none md:before:content-none before:content-[attr(dat-cCell)_':_'] before:font-bold block">
                                             {item.coffee_type}
                                         </TableCell>
-                                        <TableCell dataCell="Temperature" className="lg:table-cell md:table-cell lg:before:content-none md:before:content-none before:content-[attr(dataCell)_':_'] before:font-bold block">
+                                        <TableCell data-cell="Temperature" className="lg:table-cell md:table-cell lg:before:content-none md:before:content-none before:content-[attr(data-cell)_':_'] before:font-bold block">
                                             {item.temperature}
                                         </TableCell>
-                                        <TableCell dataCell="Toppings" className="lg:table-cell md:table-cell lg:before:content-none md:before:content-none before:content-[attr(dataCell)_':_'] before:font-bold block">
+                                        <TableCell data-cell="Toppings" className="lg:table-cell md:table-cell lg:before:content-none md:before:content-none before:content-[attr(data-cell)_':_'] before:font-bold block">
                                             {item.toppings}
                                         </TableCell>
-                                        <TableCell dataCell="Size" className="lg:table-cell md:table-cell lg:before:content-none md:before:content-none before:content-[attr(dataCell)_':_'] before:font-bold block">
+                                        <TableCell data-cell="Size" className="lg:table-cell md:table-cell lg:before:content-none md:before:content-none before:content-[attr(data-cell)_':_'] before:font-bold block">
                                             {item.size}
                                         </TableCell>
-                                        <TableCell dataCell="Comments" className="lg:table-cell md:table-cell lg:before:content-none md:before:content-none before:content-[attr(dataCell)_':_'] before:font-bold block">
+                                        <TableCell data-cell="Comments" className="lg:table-cell md:table-cell lg:before:content-none md:before:content-none before:content-[attr(data-cell)_':_'] before:font-bold block">
                                             {item.comments}
                                         </TableCell>
-                                        <TableCell dataCell="Price" className="lg:text-right md:text-right lg:table-cell md:table-cell lg:before:content-none md:before:content-none before:content-[attr(dataCell)_':_'] before:font-bold block">
+                                        <TableCell data-cell="Price" className="lg:text-right md:text-right lg:table-cell md:table-cell lg:before:content-none md:before:content-none before:content-[attr(data-cell)_':_'] before:font-bold block">
                                             ¥{item.price}
                                         </TableCell>
                                     </TableRow>

@@ -21,6 +21,7 @@ export default function CaffeineFree() {
     const navigate = useNavigate();
     const token = Cookies.get("token");
     const [openSkeleton, setOpenSkeleton] = useState(false);
+    const MENU_SKELETON_COUNT = 12;
 
     useEffect(() => {
         document.title = "MY Cafe | Non Caffeinated";
@@ -56,6 +57,25 @@ export default function CaffeineFree() {
             });
     }, []);
 
+    function renderMenuSkeletons() {
+        return Array.from({ length: MENU_SKELETON_COUNT }).map((_, index) =>
+            <MenuSkeleton key={`skeleton-${index}`} className="w-80" large />
+        );
+    }
+
+    function renderMenuCards() {
+        return caffeineFreeList.map((caffeineFreeItem, index) => {
+            const price = parseFloat(caffeineFreeItem.Price);
+            const largePrice = price + 3;
+            return <MenuCard
+                key={`menucard-${index}`}
+                item={caffeineFreeItem.Name}
+                mediumPrice={price}
+                largePrice={largePrice}
+            />;
+        });
+    }
+
     return (
         <div className="flex flex-col h-screen items-center bg-neutral-50 dark:bg-gray-800">
             <div className="flex justify-center space-x-4 m-4">
@@ -63,22 +83,7 @@ export default function CaffeineFree() {
             </div>
             <div className="flex flex-wrap justify-center items-start overflow-auto mt-1 flex-grow w-11/12">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {openSkeleton
-                        ? Array.from({ length: 12 }).map((_, index) => (
-                            <MenuSkeleton key={index} className="w-80" large />
-                        ))
-                        : caffeineFreeList.map((caffeineFreeItem, index) => (
-                            <MenuCard
-                                key={index}
-                                item={caffeineFreeItem.Name}
-                                mediumPrice={parseFloat(
-                                    caffeineFreeItem.Price
-                                )}
-                                largePrice={
-                                    parseFloat(caffeineFreeItem.Price) + 3
-                                }
-                            />
-                        ))}
+                    {openSkeleton ? renderMenuSkeletons() : renderMenuCards()}
                 </div>
             </div>
             <div className="flex justify-center mb-4">
