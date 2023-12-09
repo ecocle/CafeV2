@@ -1,27 +1,41 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="description" content="HuaLangSchool Cafe" />
-        <link rel="apple-touch-icon" sizes="152x152" href="/src/assets/apple-touch-icon.png">
-        <link rel="apple-touch-icon" sizes="144x144" href="/src/assets/apple-touch-icon.png">
-        <link rel="apple-touch-icon" sizes="120x120" href="/src/assets/apple-touch-icon.png">
-        <link rel="apple-touch-icon" sizes="114x114" href="/src/assets/apple-touch-icon.png">
-        <link rel="apple-touch-icon" sizes="76x76" href="/src/assets/apple-touch-icon.png">
-        <link rel="apple-touch-icon" sizes="72x72" href="/src/assets/apple-touch-icon.png">
-        <link rel="apple-touch-icon" href="/src/assets/apple-touch-icon.png">
-        <link rel="icon" type="image/png" sizes="192x192" href="/src/assets/android-chrome-192x192.png">
-        <link rel="icon" type="image/png" sizes="512x512" href="/src/assets/android-chrome-512x512.png">
-        <link rel="icon" type="image/x-icon" href="/src/assets/favicon.ico">
-        <meta name="msapplication-TileColor" content="#FFFFFF">
-        <meta name="msapplication-TileImage" content="/src/assets/favicon-144x144.png">
-        <link rel="icon" type="image/png" sizes="16x16" href="/src/assets/favicon-16x16.png">
-        <link rel="icon" type="image/png" sizes="32x32" href="/src/assets/favicon-32x32.png">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>MY Cafe</title>
-    </head>
-    <body>
-        <div id="root"></div>
-        <script type="module" src="/src/main.tsx" defer></script>
-    </body>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="description" content="HuaLangSchool Cafe" />
+    <link rel="apple-touch-icon" sizes="152x152" href="/src/assets/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/src/assets/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/src/assets/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/src/assets/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/src/assets/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/src/assets/apple-touch-icon.png">
+    <link rel="apple-touch-icon" href="/src/assets/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/src/assets/android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/src/assets/android-chrome-512x512.png">
+    <link rel="icon" type="image/x-icon" href="/src/assets/favicon.ico">
+    <meta name="msapplication-TileColor" content="#FFFFFF">
+    <meta name="msapplication-TileImage" content="/src/assets/favicon-144x144.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/src/assets/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/src/assets/favicon-32x32.png">
+    <meta name="theme-color" content="#1f2937">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MY Cafe</title>
+</head>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js')
+        .then(registration => {
+          console.log('Service Worker registered with scope:', registration.scope);
+        })
+        .catch(error => {
+          console.error('Service Worker registration failed:', error);
+        });
+    });
+  }
+</script>
+<body>
+<div id="root"></div>
+<script type="module" src="/src/main.tsx" defer></script>
+</body>
 </html>
