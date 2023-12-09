@@ -25,6 +25,16 @@ interface Order {
     cup: string | null;
 }
 
+type TableCellComponentProps = {
+    data: string;
+    children: React.ReactNode;
+    className?: string;
+}
+
+type TableHeadComponentProps = {
+    children: React.ReactNode;
+}
+
 export default function ViewOrders() {
     const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
@@ -111,12 +121,12 @@ export default function ViewOrders() {
             credentials: "include"
         });
         if (!response.ok) {
-            console.error("Failed to fetch data")
+            console.error("Failed to fetch data");
         }
         return await response.json();
     };
 
-     const setOrderData = (rawData: any) => {
+    const setOrderData = (rawData: any) => {
         const transformedData = rawData.data.map((order: any) => ({
             id: order.ID,
             order_time: order.Order_time,
@@ -133,16 +143,33 @@ export default function ViewOrders() {
         setIsEmpty(transformedData.length === 0);
         setOrders(transformedData);
         setLoading(false);
-    }
+    };
+
+    const TableCellComponent: React.FunctionComponent<TableCellComponentProps> = ({
+                                                                                      data,
+                                                                                      children,
+                                                                                      className = ""
+                                                                                  }) => (
+        <TableCell data-cell={data}
+                   className={`lg:table-cell md:table-cell lg:before:content-none md:before:content-none text-left before:content-[attr(data-cell)_':_'] before:font-bold block ${className}`}>
+            {children}
+        </TableCell>
+    );
+
+    const TableHeadComponent: React.FunctionComponent<TableHeadComponentProps> = ({ children }) => (
+        <TableHead className="hidden lg:table-cell md:table-cell">
+            {children}
+        </TableHead>
+    );
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen">
+        <div className="flex flex-col justify-between h-screen">
             {loading ? (
                 <Loading message="Fetching order data..." />
             ) : error ? (
                 <Error message={error} />
             ) : (
-                <div className="overflow-auto">
+                <div>
                     <div className="flex justify-center space-x-4 mt-4">
                         <OutlineButton text={"Return Home"} redirectTo="/" />
                     </div>
@@ -159,83 +186,54 @@ export default function ViewOrders() {
                             </span>
                         </div>
                     ) : (
-                        <Table className="dark:bg-gray-800 rounded-lg mx-auto w-11/12 block">
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead className="hidden lg:table-cell md:table-cell">
-                                        Order Time
-                                    </TableHead>
-                                    <TableHead className="hidden lg:table-cell md:table-cell">
-                                        First Name
-                                    </TableHead>
-                                    <TableHead className="hidden lg:table-cell md:table-cell">
-                                        Last Name
-                                    </TableHead>
-                                    <TableHead className="hidden lg:table-cell md:table-cell">
-                                        Type
-                                    </TableHead>
-                                    <TableHead className="hidden lg:table-cell md:table-cell">
-                                        Temperature
-                                    </TableHead>
-                                    <TableHead className="hidden lg:table-cell md:table-cell">Toppings</TableHead>
-                                    <TableHead className="hidden lg:table-cell md:table-cell">Size</TableHead>
-                                    <TableHead className="hidden lg:table-cell md:table-cell">Comments</TableHead>
-                                    <TableHead className="hidden lg:table-cell md:table-cell">Price</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {orders.map((item) => (
-                                    <TableRow key={item.id} className="hover:bg-gray-700">
-                                        <TableCell data-cell="Order Time" className="lg:table-cell md:table-cell lg:before:content-none md:before:content-none before:content-[attr(data-cell)_':_'] before:font-bold block ">
-                                            {item.order_time}
-                                        </TableCell>
-                                        <TableCell data-cell="First Name" className="lg:table-cell md:table-cell lg:before:content-none md:before:content-none before:content-[attr(data-cell)_':_'] before:font-bold block">
-                                            {item.first_name}
-                                        </TableCell>
-                                        <TableCell data-cell="Last Name" className="lg:table-cell md:table-cell lg:before:content-none md:before:content-none before:content-[attr(data-cell)_':_'] before:font-bold block">
-                                            {item.last_name}
-                                        </TableCell>
-                                        <TableCell data-cell="Type" className="lg:table-cell md:table-cell lg:before:content-none md:before:content-none before:content-[attr(dat-cCell)_':_'] before:font-bold block">
-                                            {item.coffee_type}
-                                        </TableCell>
-                                        <TableCell data-cell="Temperature" className="lg:table-cell md:table-cell lg:before:content-none md:before:content-none before:content-[attr(data-cell)_':_'] before:font-bold block">
-                                            {item.temperature}
-                                        </TableCell>
-                                        <TableCell data-cell="Toppings" className="lg:table-cell md:table-cell lg:before:content-none md:before:content-none before:content-[attr(data-cell)_':_'] before:font-bold block">
-                                            {item.toppings}
-                                        </TableCell>
-                                        <TableCell data-cell="Size" className="lg:table-cell md:table-cell lg:before:content-none md:before:content-none before:content-[attr(data-cell)_':_'] before:font-bold block">
-                                            {item.size}
-                                        </TableCell>
-                                        <TableCell data-cell="Comments" className="lg:table-cell md:table-cell lg:before:content-none md:before:content-none before:content-[attr(data-cell)_':_'] before:font-bold block">
-                                            {item.comments}
-                                        </TableCell>
-                                        <TableCell data-cell="Price" className="lg:text-right md:text-right lg:table-cell md:table-cell lg:before:content-none md:before:content-none before:content-[attr(data-cell)_':_'] before:font-bold block">
-                                            ¥{item.price}
-                                        </TableCell>
+                        <main>
+                            <Table className="dark:bg-gray-800 bg-gray-50 rounded-lg mx-auto w-11/12">
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHeadComponent>Order Time</TableHeadComponent>
+                                        <TableHeadComponent>First Name</TableHeadComponent>
+                                        <TableHeadComponent>Last Name</TableHeadComponent>
+                                        <TableHeadComponent>Type</TableHeadComponent>
+                                        <TableHeadComponent>Temperature</TableHeadComponent>
+                                        <TableHeadComponent>Toppings</TableHeadComponent>
+                                        <TableHeadComponent>Size</TableHeadComponent>
+                                        <TableHeadComponent>Comments</TableHeadComponent>
+                                        <TableHeadComponent>Price</TableHeadComponent>
                                     </TableRow>
-                                ))}
-                            </TableBody>
-                            <TableFooter className="bg-gray-900 lg:table-cell md:table-cell block">
-                                <TableRow>
-                                    <TableCell colSpan={8}>
-                                        Total:
-                                    </TableCell>
-                                    <TableCell className="lg:text-right md:text-right lg:table-cell md:table-cell block">
-                                        ¥{totalPrice}
-                                    </TableCell>
-                                </TableRow>
-                            </TableFooter>
-                        </Table>
+                                </TableHeader>
+                                <TableBody>
+                                    {orders.map((item) => (
+                                        <TableRow key={item.id} className="dark:hover:bg-gray-700 hover:bg-gray-200">
+                                            <TableCellComponent data="Order Time">{item.order_time}</TableCellComponent>
+                                            <TableCellComponent data="First Name">{item.first_name}</TableCellComponent>
+                                            <TableCellComponent data="Last Name">{item.last_name}</TableCellComponent>
+                                            <TableCellComponent data="Type">{item.coffee_type}</TableCellComponent>
+                                            <TableCellComponent
+                                                data="Temperature">{item.temperature}</TableCellComponent>
+                                            <TableCellComponent data="Toppings">{item.toppings}</TableCellComponent>
+                                            <TableCellComponent data="Size">{item.size}</TableCellComponent>
+                                            <TableCellComponent data="Comments">{item.comments}</TableCellComponent>
+                                            <TableCellComponent data="Price"
+                                                                className="lg:text-right md:text-right">¥{item.price}</TableCellComponent>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                                <TableFooter className="dark:bg-gray-900 lg:table-cell md:table-cell block">
+                                    <TableRow>
+                                        <TableCell>Total:</TableCell>
+                                        <TableCellComponent data="Price" className="">¥{totalPrice}</TableCellComponent>
+                                    </TableRow>
+                                </TableFooter>
+                            </Table>
+                        </main>
                     )}
                 </div>
             )}
-            <div className="mt-auto"></div>
-            <div className="flex justify-center mb-4 mt-2">
+            <footer className="flex justify-center mb-4 mt-2">
                 <p className="text-sm text-neutral-700 dark:text-neutral-300">
                     Made By Shawn
                 </p>
-            </div>
+            </footer>
         </div>
     );
 }
