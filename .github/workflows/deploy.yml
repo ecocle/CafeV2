@@ -25,8 +25,8 @@ jobs:
             sudo rm -r dist
             sudo rm package-lock.json
             sudo git pull https://github.com/ecocle/CafeV2 main
-            npm install
             sudo chown -R ubuntu:ubuntu ./
+            npm install
             npm run build
             sudo chown -R www-data:www-data dist
             sudo systemctl restart CafeV2
