@@ -3,7 +3,7 @@ name: Deploy
 on:
   push:
     branches:
-      - test
+      - main
 
 jobs:
   deploy:
@@ -19,12 +19,12 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USERNAME }}
           password: ${{ secrets.SERVER_PASSWORD }}
-          port: 22 
+          port: 22
           script: |
             cd /var/www/test/CafeV2
             sudo rm -r dist
             sudo rm package-lock.json
-            sudo git pull https://github.com/ecocle/CafeV2 test      
+            sudo git pull https://github.com/ecocle/CafeV2 main
             npm install
             sudo chown -R ubuntu:ubuntu ./
             npm run build
