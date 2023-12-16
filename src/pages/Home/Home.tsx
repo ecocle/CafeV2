@@ -8,7 +8,7 @@ import {
     DropdownMenuItem,
     DropdownMenuLabel,
     DropdownMenuSeparator,
-    DropdownMenuTrigger
+    DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Eye, LogOut, Settings, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -34,9 +34,9 @@ const Home = () => {
     useEffect(() => {
         fetch(`${baseUrl}/api/user_data`, {
             headers: {
-                Authorization: `Bearer ${token}`
+                Authorization: `Bearer ${token}`,
             },
-            credentials: "include"
+            credentials: "include",
         })
             .then((response) => response.json())
             .then((data) => {
@@ -58,8 +58,7 @@ const Home = () => {
                     <div className="space-x-2 flex flex-row">
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <Button
-                                    className="bg-transparent text-violet-500 transition-all duration-300 hover:bg-violet-100 h-10 w-auto active:bg-transparent dark:hover:bg-transparent">
+                                <Button className="bg-transparent text-violet-500 transition-all duration-300 hover:bg-violet-100 h-10 w-auto active:bg-transparent dark:hover:bg-transparent">
                                     <UserRound className=" text-violet-400" />
                                 </Button>
                             </DropdownMenuTrigger>
@@ -111,10 +110,12 @@ const Home = () => {
                     </h1>
                 </div>
                 <div className="flex space-x-0 flex-col md:flex-row md:space-x-4 lg:space-x-16 lg:flex-row">
-                    <MainButton disabled redirectTo="/coffee">Coffee</MainButton>
-                    <MainButton
-                        redirectTo="/caffeine-free"
-                    >Non-Caffeinated</MainButton>
+                    <MainButton disabled redirectTo="/coffee">
+                        Coffee
+                    </MainButton>
+                    <MainButton redirectTo="/caffeine-free">
+                        Non-Caffeinated
+                    </MainButton>
                     <MainButton redirectTo="/breakfast">Breakfast</MainButton>
                 </div>
             </div>
