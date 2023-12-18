@@ -110,9 +110,7 @@ const Home = () => {
                     </h1>
                 </div>
                 <div className="flex space-x-0 flex-col md:flex-row md:space-x-4 lg:space-x-16 lg:flex-row">
-                    <MainButton disabled redirectTo="/coffee">
-                        Coffee
-                    </MainButton>
+                    <MainButton redirectTo="/coffee">Coffee</MainButton>
                     <MainButton redirectTo="/caffeine-free">
                         Non-Caffeinated
                     </MainButton>

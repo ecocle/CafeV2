@@ -269,7 +269,7 @@ export default function ViewOrders() {
                                 </TableBody>
                                 <TableFooter className="dark:bg-gray-900">
                                     <TableRow>
-                                        <TableCell colSpan={"8"}>
+                                        <TableCell colSpan={8}>
                                             Totals:
                                         </TableCell>
                                         <TableCellComponent
