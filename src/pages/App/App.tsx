@@ -58,7 +58,7 @@ const App = () => {
                                             },
                                         ]}
                                     />
-                                    <NotFound />
+                                    <Order itemType="coffee" />
                                 </>
                             }
                         />
@@ -76,7 +76,7 @@ const App = () => {
                                             },
                                         ]}
                                     />
-                                    <Order itemType="coffee" />
+                                    <NotFound />
                                 </>
                             }
                         />
