@@ -10,22 +10,36 @@ import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import {
+    Form,
+    FormControl,
+    FormDescription,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from "@/components/ui/form";
 
 const baseUrl =
     process.env.NODE_ENV === "production" ? "" : "http://localhost:5000";
 
 const FormSchema = z.object({
     size: z.string().min(1, {
-        message: "Size is required."
+        message: "Size is required.",
     }),
     temperature: z.string().min(1, {
-        message: "Temperature is required."
+        message: "Temperature is required.",
     }),
     toppings: z.array(z.string()).optional(),
     useCup: z.boolean().optional(),
-    comments: z.string().optional()
+    comments: z.string().optional(),
 });
 
 interface Topping {
@@ -43,38 +57,38 @@ const Order = ({ itemType }: { itemType: string }) => {
     const [hasPriceError, setHasPriceError] = useState(false);
     const [isInvalidDrink, setIsInvalidDrink] = useState(false);
     const form = useForm({
-        resolver: zodResolver(FormSchema)
+        resolver: zodResolver(FormSchema),
     });
     const [options, setOptions] = useState({
         size: "",
-        total: 0
+        total: 0,
     });
     const [userData, setUserData] = useState({
         balance: 0,
         id: 0,
         username: "",
         firstName: "",
-        lastName: ""
+        lastName: "",
     });
     const noLargeItems = [
         "Crispy cereal in milk(classic)",
         "Crispy cereal in milk(honey)",
         "Crispy cereal in milk(choco)",
         "Classic flavoured Porridge",
-        "Chocolate flavoured Porridge"
+        "Chocolate flavoured Porridge",
     ];
     const toppings = [
         { name: "Oat Milk Substitution", price: 1.0, isDisabled: false },
         { name: "Boba", price: 1.0, isDisabled: false },
         { name: "Extra Espresso Shot", price: 2.0, isDisabled: true },
-        { name: "Red Bean", price: 1.0, isDisabled: false }
+        { name: "Red Bean", price: 1.0, isDisabled: false },
     ];
     const noToppingsItems = [
         "Crispy cereal in milk(classic)",
         "Crispy cereal in milk(honey)",
         "Crispy cereal in milk(choco)",
         "Classic flavoured Porridge",
-        "Chocolate flavoured Porridge"
+        "Chocolate flavoured Porridge",
     ];
     const noHotItems = [
         "Crispy cereal in milk(classic)",
@@ -90,18 +104,18 @@ const Order = ({ itemType }: { itemType: string }) => {
         "Boba",
         "Refreshing babyblue drink",
         "Pure milk",
-        "Black currant oolang tea"
+        "Black currant oolang tea",
     ];
     const noColdItems = [
         "Classic flavoured Porridge",
-        "Chocolate flavoured Porridge"
+        "Chocolate flavoured Porridge",
     ];
     const noNormalItems = [
         "Crispy cereal in milk(classic)",
         "Crispy cereal in milk(honey)",
         "Crispy cereal in milk(choco)",
         "Classic flavoured Porridge",
-        "Chocolate flavoured Porridge"
+        "Chocolate flavoured Porridge",
     ];
     const navigation = useNavigate();
 
@@ -119,7 +133,7 @@ const Order = ({ itemType }: { itemType: string }) => {
         const fetchDrinkDetails = async () => {
             try {
                 const response = await fetch(
-                    `${baseUrl}/api/drinkData/${itemType}/${itemName}`
+                    `${baseUrl}/api/drinkData/${itemType}/${itemName}`,
                 );
                 const data = await response.json();
 
@@ -141,9 +155,9 @@ const Order = ({ itemType }: { itemType: string }) => {
     useEffect(() => {
         fetch(`${baseUrl}/api/user_data`, {
             headers: {
-                Authorization: `Bearer ${token}`
+                Authorization: `Bearer ${token}`,
             },
-            credentials: "include"
+            credentials: "include",
         })
             .then((response) => response.json())
             .then((data) => {
@@ -177,7 +191,7 @@ const Order = ({ itemType }: { itemType: string }) => {
 
             return {
                 ...prevOptions,
-                total: newTotal
+                total: newTotal,
             };
         });
     };
@@ -185,7 +199,7 @@ const Order = ({ itemType }: { itemType: string }) => {
     const handleToppingChange = (
         checked: boolean,
         field: any,
-        topping: Topping
+        topping: Topping,
     ) => {
         const fieldValue = Array.isArray(field.value) ? field.value : [];
         let newPrice = options.total;
@@ -195,7 +209,7 @@ const Order = ({ itemType }: { itemType: string }) => {
             newPrice += topping.price;
         } else {
             field.onChange(
-                fieldValue.filter((value: string) => value !== topping.name)
+                fieldValue.filter((value: string) => value !== topping.name),
             );
             newPrice -= topping.price;
         }
@@ -237,7 +251,7 @@ const Order = ({ itemType }: { itemType: string }) => {
             comments: value.comments,
             useCup: value.useCup,
             balance: userData.balance - finalTotal,
-            id: userData.id
+            id: userData.id,
         };
 
         try {
@@ -245,9 +259,9 @@ const Order = ({ itemType }: { itemType: string }) => {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`
+                    Authorization: `Bearer ${token}`,
                 },
-                body: JSON.stringify(orderDetails)
+                body: JSON.stringify(orderDetails),
             });
 
             if (!response.ok) {
@@ -298,7 +312,7 @@ const Order = ({ itemType }: { itemType: string }) => {
                                             onValueChange={(newValue) =>
                                                 handleSizeChange(
                                                     newValue,
-                                                    field
+                                                    field,
                                                 )
                                             }
                                         >
@@ -314,7 +328,7 @@ const Order = ({ itemType }: { itemType: string }) => {
                                                 <SelectItem
                                                     value="Large"
                                                     disabled={noLargeItems.includes(
-                                                        itemName
+                                                        itemName,
                                                     )}
                                                 >
                                                     Large
@@ -345,7 +359,7 @@ const Order = ({ itemType }: { itemType: string }) => {
                                                 <SelectItem
                                                     value="Hot"
                                                     disabled={noHotItems.includes(
-                                                        itemName
+                                                        itemName,
                                                     )}
                                                 >
                                                     Hot
@@ -353,7 +367,7 @@ const Order = ({ itemType }: { itemType: string }) => {
                                                 <SelectItem
                                                     value="Normal"
                                                     disabled={noNormalItems.includes(
-                                                        itemName
+                                                        itemName,
                                                     )}
                                                 >
                                                     Normal
@@ -361,7 +375,7 @@ const Order = ({ itemType }: { itemType: string }) => {
                                                 <SelectItem
                                                     value="Cold"
                                                     disabled={noColdItems.includes(
-                                                        itemName
+                                                        itemName,
                                                     )}
                                                 >
                                                     Cold
@@ -382,7 +396,7 @@ const Order = ({ itemType }: { itemType: string }) => {
                                         <FormLabel
                                             className={`text-2xl font-bold ${
                                                 noToppingsItems.includes(
-                                                    itemName
+                                                    itemName,
                                                 )
                                                     ? "text-opacity-50 text-muted-foreground"
                                                     : ""
@@ -393,7 +407,7 @@ const Order = ({ itemType }: { itemType: string }) => {
                                         <FormDescription
                                             className={`font-semibold ${
                                                 noToppingsItems.includes(
-                                                    itemName
+                                                    itemName,
                                                 )
                                                     ? "text-gray-500"
                                                     : ""
@@ -421,28 +435,28 @@ const Order = ({ itemType }: { itemType: string }) => {
                                                                 disabled={
                                                                     topping.isDisabled ||
                                                                     (noToppingsItems.includes(
-                                                                            itemName
-                                                                        ) &&
+                                                                        itemName,
+                                                                    ) &&
                                                                         topping.name !==
-                                                                        "Extra Espresso Shot")
+                                                                            "Extra Espresso Shot")
                                                                 }
                                                                 checked={
                                                                     !!(
                                                                         field.value as string[]
                                                                     )?.includes(
-                                                                        topping.name
+                                                                        topping.name,
                                                                     )
                                                                 }
                                                                 onCheckedChange={(
-                                                                    checked
+                                                                    checked,
                                                                 ) =>
                                                                     handleToppingChange(
                                                                         typeof checked ===
-                                                                        "boolean"
+                                                                            "boolean"
                                                                             ? checked
                                                                             : false,
                                                                         field,
-                                                                        topping
+                                                                        topping,
                                                                     )
                                                                 }
                                                             />
@@ -502,10 +516,10 @@ const Order = ({ itemType }: { itemType: string }) => {
                                                 onCheckedChange={(checked) =>
                                                     handleUseCupChange(
                                                         typeof checked ===
-                                                        "boolean"
+                                                            "boolean"
                                                             ? checked
                                                             : false,
-                                                        field
+                                                        field,
                                                     )
                                                 }
                                             />
